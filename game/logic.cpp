@@ -1,0 +1,230 @@
+#include "logic.h"
+#include<random>
+#include<cmath>
+
+Logic::Logic()
+{
+}
+Logic::~Logic()
+{
+}
+
+void Logic::buildLevel(int size, std::vector<Hexa>& hexas)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	if (hexas.size() > 0)
+		hexas.clear();
+	initHexa(size, hexas);
+	setHexaNear(hexas);
+	do
+		setHexaColor(size, hexas, gen);
+	while (badHexaColor(hexas) && size > 1);
+	HexaColorBackup defaultBackup(hexas);
+	int stepCount;
+	do
+	{
+		defaultBackup.restore(hexas);
+		stepCount = randomHexaColor(hexas, gen);
+	} while (size > 2 && badLevel(hexas, stepCount));
+}
+void Logic::initHexa(int size, std::vector<Hexa>& hexas)
+{
+	hexas.emplace_back(0, 0, 0);
+	for (int i = 0; true; i++)//六边形地图位置初始化
+	{
+		if (i >= hexas.size())
+			break;
+		Hexa temp[6] = {
+			Hexa(hexas[i].getXPos() + 1,hexas[i].getYPos(),hexas[i].getZPos() - 1),
+			Hexa(hexas[i].getXPos() - 1,hexas[i].getYPos(),hexas[i].getZPos() + 1),
+			Hexa(hexas[i].getXPos() + 1,hexas[i].getYPos() - 1,hexas[i].getZPos()),
+			Hexa(hexas[i].getXPos() - 1,hexas[i].getYPos() + 1,hexas[i].getZPos()),
+			Hexa(hexas[i].getXPos(),hexas[i].getYPos() + 1,hexas[i].getZPos() - 1),
+			Hexa(hexas[i].getXPos(),hexas[i].getYPos() - 1,hexas[i].getZPos() + 1)
+		};
+		for (int j = 0; j < 6; j++)
+		{
+			if (temp[j].distanceToCenter() < size)
+			{
+				bool flag = true;
+				for (Hexa& hexa : hexas)
+				{
+					if (hexa.getXPos() == temp[j].getXPos() && hexa.getYPos() == temp[j].getYPos() && hexa.getZPos() == temp[j].getZPos())
+					{
+						flag = false;
+						break;
+					}
+				}
+				if (flag)
+				{
+					hexas.push_back(temp[j]);
+				}
+			}
+		}
+	}
+}
+void Logic::setHexaNear(std::vector<Hexa>& hexas)
+{
+	for (int i = 0; true; i++)//六边形地图指针指向
+	{
+		if (i >= hexas.size())
+			break;
+		for (int j = 0; true; j++)
+		{
+			if (j >= hexas.size())
+				break;
+
+			if (hexas[i].getXPos() == hexas[j].getXPos() && hexas[i].getYPos() == hexas[j].getYPos() && hexas[i].getZPos() == hexas[j].getZPos())
+				continue;
+			int dx = hexas[i].getXPos() - hexas[j].getXPos();
+			int dy = hexas[i].getYPos() - hexas[j].getYPos();
+			int dz = hexas[i].getZPos() - hexas[j].getZPos();
+			if (std::max(std::max(abs(dx), abs(dy)), abs(dz)) == 1)
+			{
+				for (int k = 0; k < 6; k++)
+				{
+					if (hexas[i].getNear(k) == nullptr)
+					{
+						hexas[i].setNear(k, &hexas[j]);
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+void Logic::setHexaColor(int size, std::vector<Hexa>& hexas, std::mt19937& gen)
+{
+	std::uniform_real_distribution<> dis(0, 2147483647);
+	for (int i = 0; i < size; i++)
+	{
+		int colorID = (int)(dis(gen)) % 2;
+		for (int j = 0; j < hexas.size(); j++)
+			if (hexas[j].distanceToCenter() == i)
+			{
+				switch (colorID)
+				{
+				case 0:
+					hexas[j].setColor('W');
+					break;
+				case 1:
+					hexas[j].setColor('B');
+					break;
+				}
+			}
+	}
+}
+bool Logic::badHexaColor(std::vector<Hexa>& hexas)
+{
+	for (int i = 0; i < hexas.size(); i++)
+	{
+		if (hexas[i].getColor() != hexas[0].getColor())
+			return false;
+	}
+	return true;
+}
+int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::mt19937& gen)
+{
+	std::uniform_real_distribution<> dis(0, 2147483647);
+	std::vector<char> colorBackups;
+	Hexa* hexa = &hexas[(int)(dis(gen)) % hexas.size()];
+	std::vector<Hexa*> steps;
+	for (int i = 0; true; i++)
+	{
+		steps.push_back(hexa);
+		hexa->setColor(hexa->getColor() == 'W' ? 'B' : 'W');
+		std::vector<Hexa*> enableNear;
+		for (int j = 0; j < 6; j++)
+		{
+			if (hexa->getNear(j) != nullptr)
+			{
+				int flag = true;
+				for (int k = 0; k < steps.size(); k++)
+					if (steps[k] == hexa->getNear(j))
+						flag = false;
+				if (flag)
+					enableNear.push_back(hexa->getNear(j));
+			}
+		}
+		std::vector<int> weight;
+		for (int k = 0; k < enableNear.size(); k++)
+		{
+			for (int j = 0; j < 6; j++)
+			{
+				if (enableNear[k]->getNear(j) != nullptr)
+				{
+					int flag = true;
+					for (int l = 0; l < steps.size(); l++)
+						if (steps[l] == enableNear[k]->getNear(j))
+							flag = false;
+					if (flag)
+						weight.push_back(k);
+				}
+			}
+		}
+		if (weight.size() == 0)
+			return steps.size();
+		hexa = enableNear[weight[(int)dis(gen) % weight.size()]];
+	}
+}
+bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
+{
+	if (stepCount < hexas.size() / 3)
+		return true;
+	HexaColorBackup backup(hexas);
+	for (int i = 0; i < hexas.size(); i++)
+	{
+		if (hexas[i].getColor() == 'W')
+		{
+			nearSameColorChange(hexas[i]);
+			bool flag = true;
+			for (int j = 0; j < hexas.size(); j++)
+			{
+				if (hexas[j].distanceToCenter() == 0)
+					continue;
+				if (hexas[j].getColor() == 'W')
+					flag = false;
+			}
+			if (flag)
+				return true;
+			break;
+		}
+	}
+	backup.restore(hexas);
+	for (int i = 0; i < hexas.size(); i++)
+	{
+		if (hexas[i].getColor() == 'B')
+		{
+			nearSameColorChange(hexas[i]);
+			bool flag = true;
+			for (int j = 0; j < hexas.size(); j++)
+			{
+				if (hexas[j].distanceToCenter() == 0)
+					continue;
+				if (hexas[j].getColor() == 'B')
+					flag = false;
+			}
+			if (flag)
+				return true;
+			break;
+		}
+	}
+	backup.restore(hexas);
+	return false;
+}
+void Logic::nearSameColorChange(Hexa& hexa)
+{
+	hexa.setColor(hexa.getColor() == 'W' ? 'B' : 'W');
+	for (int i = 0; i < 6; i++)
+	{
+		if (hexa.getNear(i) == nullptr)
+			break;
+		if (hexa.getNear(i)->getColor() != hexa.getColor())
+		{
+			nearSameColorChange(*(hexa.getNear(i)));
+		}
+	}
+	return;
+}
