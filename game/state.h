@@ -7,30 +7,44 @@
 class HexaColorBackup
 {
 public:
-    HexaColorBackup(std::vector<Hexa>& hexas);
-    HexaColorBackup();
-    ~HexaColorBackup();
-    void restore(std::vector<Hexa>& hexas);
+	HexaColorBackup(std::vector<Hexa>& hexas);
+	HexaColorBackup();
+	~HexaColorBackup();
+	void restore(std::vector<Hexa>& hexas);
 private:
-    std::vector<char> mHexaColorBackup;
+	std::vector<char> mHexaColorBackup;
 };
 
 class State
 {
 public:
-    ~State();
+	~State();
 
-    static State* getInstance();
-    std::vector<Hexa>& getHexas();
-    std::vector<Hexa*>& getSteps();
-    HexaColorBackup& getHexaColorBackup();
+	static State* getInstance();
+	void init();
 
+	std::vector<Hexa>& getHexas();
+	std::vector<Hexa*>& getSteps();
+	HexaColorBackup& getHexaColorBackup();
+
+
+	int getCursorXPos();
+	int getCursorYPos();
+	int getMouseButton();
+	int getMouseAction();
+	double getMouseTime();
 private:
-    State();
-    std::vector<Hexa> mHexas;
-    std::vector<Hexa*> mSteps;
-    HexaColorBackup mHexaColorBackup;
-    static State* instance;
+	State();
+
+	void static onCursorPos(double xpos, double ypos);
+	void static onMouseButton(int button, int action, int mods);
+	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction;
+	double mMouseTime;
+
+	std::vector<Hexa> mHexas;
+	std::vector<Hexa*> mSteps;
+	HexaColorBackup mHexaColorBackup;
+	static State* instance;
 };
 
 #endif

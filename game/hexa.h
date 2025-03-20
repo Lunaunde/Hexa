@@ -11,11 +11,16 @@ public:
     int getYPos()const;
     int getZPos()const;
     char getColor()const;
+
+    Hexa* getNear(int index)const;
+
     float getRenderXPos(float r)const;
     float getRenderYPos(float r)const;
     float getVertexXPos(float r,int number)const;
     float getVertexYPos(float r,int number)const;
-    Hexa* getNear(int index)const;
+
+    bool ifPositionInHexa(float x, float y, float r)const;
+    bool ifPositionInHexa(int x, int y,float r)const;
 
     void setColor(char color);
     void setNear(int index, Hexa* hexa);

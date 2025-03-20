@@ -1,6 +1,9 @@
 #include "logic.h"
 #include<random>
 #include<cmath>
+#include<iostream>
+#include"../glframework/core.h"
+#include"../application/Application.h"
 
 Logic::Logic()
 {
@@ -27,9 +30,9 @@ void Logic::buildLevel(int size, State* state)
 	{
 		defaultBackup.restore(state->getHexas());
 		state->getSteps().clear();
-		stepCount = randomHexaColor(state->getHexas(),state->getSteps(), gen);
+		stepCount = randomHexaColor(state->getHexas(), state->getSteps(), gen);
 	} while (size > 2 && badLevel(state->getHexas(), stepCount));
-    state->getHexaColorBackup() = HexaColorBackup(state->getHexas());
+	state->getHexaColorBackup() = HexaColorBackup(state->getHexas());
 }
 void Logic::initHexa(int size, std::vector<Hexa>& hexas)
 {
@@ -127,7 +130,7 @@ bool Logic::badHexaColor(std::vector<Hexa>& hexas)
 	}
 	return true;
 }
-int Logic::randomHexaColor(std::vector<Hexa>& hexas,std::vector<Hexa*>& steps, std::mt19937& gen)
+int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::vector<Hexa*>& steps, std::mt19937& gen)
 {
 	std::uniform_real_distribution<> dis(0, 2147483647);
 	std::vector<char> colorBackups;
@@ -228,4 +231,15 @@ void Logic::nearSameColorChange(Hexa& hexa)
 		}
 	}
 	return;
+}
+
+void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float r)
+{
+	for (int i = 0; i < hexas.size(); i++)
+	{
+		if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 0.05f) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS && glfwGetTime() - sta->getMouseTime() <= 0.01)
+		{
+			hexas[i].setColor(hexas[i].getColor() == 'W' ? 'B' : 'W');
+		}
+	}
 }

@@ -1,8 +1,31 @@
 #include"state.h"
 #include<vector>
 #include<cmath>
+#include"../application/Application.h"
+#include"../glframework/core.h"
 
 State* State::instance = nullptr;
+
+HexaColorBackup::HexaColorBackup(std::vector<Hexa>& hexas)
+{
+	for (int i = 0; i < hexas.size(); i++)
+	{
+		mHexaColorBackup.push_back(hexas[i].getColor());
+	}
+}
+HexaColorBackup::HexaColorBackup()
+{
+}
+HexaColorBackup::~HexaColorBackup()
+{
+}
+void HexaColorBackup::restore(std::vector<Hexa>& hexas)
+{
+	for (int i = 0; i < mHexaColorBackup.size(); i++)
+	{
+		hexas[i].setColor(mHexaColorBackup[i]);
+	}
+}
 
 State::State():mHexas(),mSteps(),mHexaColorBackup()
 {
@@ -14,45 +37,62 @@ State::~State()
 
 State* State::getInstance()
 {
-	if(instance == nullptr)
+	if (instance == nullptr)
+	{
 		instance = new State();
+		instance->init();
+	}
 	return instance;
+}
+
+void State::init()
+{
+	aplct->setCursorPosCallback(State::onCursorPos);
+	aplct->setMouseButtonCallback(State::onMouseButton);
+}
+
+void State::onCursorPos(double xpos, double ypos)
+{
+	getInstance()->mCursorXPos = xpos;
+	getInstance()->mCursorYPos = aplct->getLength() - ypos;
+}
+void State::onMouseButton(int button, int action, int mods)
+{
+	getInstance()->mMouseTime = glfwGetTime();
+	getInstance()->mMouseButton = button;
+	getInstance()->mMouseAction = action;
 }
 
 std::vector<Hexa>& State::getHexas()
 {
 	return mHexas;
 }
-
 std::vector<Hexa*>& State::getSteps()
 {
 	return mSteps;
 }
-
 HexaColorBackup& State::getHexaColorBackup()
 {
 	return mHexaColorBackup;
 }
 
-HexaColorBackup::HexaColorBackup(std::vector<Hexa> & hexas)
+int State::getCursorXPos()
 {
-	for (int i = 0; i < hexas.size(); i++)
-	{
-		mHexaColorBackup.push_back(hexas[i].getColor());
-	}
+	return mCursorXPos;
 }
-HexaColorBackup::HexaColorBackup()
+int State::getCursorYPos()
 {
+	return mCursorYPos;
 }
-
-HexaColorBackup::~HexaColorBackup()
+int State::getMouseAction()
 {
+	return mMouseAction;
 }
-
-void HexaColorBackup::restore(std::vector<Hexa>& hexas)
+int State::getMouseButton()
 {
-	for(int i = 0;i < mHexaColorBackup.size();i++)
-	{
-		hexas[i].setColor(mHexaColorBackup[i]);
-	}
+	return mMouseButton;
+}
+double State::getMouseTime()
+{
+	return mMouseTime;
 }

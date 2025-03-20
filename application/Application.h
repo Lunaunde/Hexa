@@ -1,5 +1,5 @@
-#pragma once 
-
+#ifndef APPLICATION_H
+#define APPLICATION_H
 #define aplct Application::getInstance()
 
 struct GLFWwindow;
@@ -17,12 +17,12 @@ public:
 
 	static Application* getInstance();
 
-	bool init(const unsigned int& width = 1960, const unsigned int& lenght = 1080);//1280 720 1960 1080
+	bool init(const unsigned int& width = 1920, const unsigned int& lenght = 1080);//1280 720 1960 1080
 	bool update();
 	void destroy();
 
 	unsigned int getWidth()const { return mWidth; }
-	unsigned int getLenght()const { return mLenght; }
+	unsigned int getLength()const { return mLenght; }
 
 	void setResizeCallback(ResizeCallback callback) { mResizeCallback = callback; }
 	void setKeyCallback(KeyCallback callback) { mKeyCallback = callback; }
@@ -52,3 +52,5 @@ private:
 
 	Application();
 };
+
+#endif
