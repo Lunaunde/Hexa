@@ -1,4 +1,4 @@
-//#include <windows.h>
+ï»¿//#include <windows.h>
 #include"process.h"
 #include <iostream>
 #include <thread>
@@ -17,16 +17,16 @@
 int xPos, yPos;
 void onKey(int key, int scancode, int action, int mods)
 {
-	//std::cout << "°´¼ü¼ì²â:" << key << " " << action << " " << mods << std::endl;
+	//std::cout << "æŒ‰é”®æ£€æµ‹:" << key << " " << action << " " << mods << std::endl;
 }
 void onResize(int width, int height)
 {
 	GL_CALL(glViewport(0, 0, width, height));
-	//std::cout << "´°Ìå´óĞ¡:" << width << " " << height << std::endl;
+	//std::cout << "çª—ä½“å¤§å°:" << width << " " << height << std::endl;
 }
 void onScroll(double xoffset, double yoffset)
 {
-	//	std::cout << "Êó±ê¹öÂÖ:" << xoffset << " " << yoffset << std::endl;
+	//	std::cout << "é¼ æ ‡æ»šè½®:" << xoffset << " " << yoffset << std::endl;
 }
 
 int main()
@@ -36,7 +36,7 @@ int main()
 
 	if (!aplct->init())
 		return -1;
-	GL_CALL(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));//ÉèÖÃ´°¿Ú±³¾°É«
+	GL_CALL(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));//è®¾ç½®çª—å£èƒŒæ™¯è‰²
 
 	Render::init();
 	Logic::buildLevel(5,sta);

@@ -1,4 +1,4 @@
-#include "GLErrorCheck.h"
+ï»¿#include "GLErrorCheck.h"
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -30,7 +30,7 @@ void GLErrorCheck()
 		default:
 			errorType = "UNKNOWN_ERROR";
 		}
-		std::cout << "OpenGL´íÎó:" << errorType << std::endl;
-		assert(false);//³ÌÐò¶ÏËÀ
+		std::cout << "OpenGLé”™è¯¯:" << errorType << std::endl;
+		assert(false);//ç¨‹åºæ–­æ­»
 	}
 }

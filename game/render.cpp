@@ -1,4 +1,4 @@
-#include <cmath>
+ï»¿#include <cmath>
 #include "render.h"
 #include"../glframework/core.h"
 #include"../glframework/shader.h"
@@ -26,14 +26,14 @@ void Render::hexaRender(Hexa hexa, float r, float color[3])
 	Shader shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 	shader.begin();
 
-	pos[0] = hexa.getRenderXPos(r);  // ÖÐÐÄµã
+	pos[0] = hexa.getRenderXPos(r);  // ä¸­å¿ƒç‚¹
 	pos[1] = hexa.getRenderYPos(r) * ScreenRatio;
 	pos[2] = 0;
 	colors[0] = color[0];
 	colors[1] = color[1];
 	colors[2] = color[2];
 
-	for (int i = 1; i < 7; i++) { // ´ÓµÚ1¸ö¶¥µã¿ªÊ¼¼ÆËã
+	for (int i = 1; i < 7; i++) { // ä»Žç¬¬1ä¸ªé¡¶ç‚¹å¼€å§‹è®¡ç®—
 		pos[i * 3] = hexa.getVertexXPos(r, i);
 		pos[i * 3 + 1] = hexa.getVertexYPos(r, i) * ScreenRatio;
 		pos[i * 3 + 2] = 0;
@@ -188,15 +188,15 @@ void Render::test()
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vboPos);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);	//vboÍ¨¹ýglvVertexAttibPointerºÍvao½øÐÐ°ó¶¨
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);	//vboé€šè¿‡glvVertexAttibPointerå’Œvaoè¿›è¡Œç»‘å®š
 	glBindBuffer(GL_ARRAY_BUFFER, vboCol);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);	//vboÍ¨¹ýglvVertexAttibPointerºÍvao½øÐÐ°ó¶¨
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);	//vboé€šè¿‡glvVertexAttibPointerå’Œvaoè¿›è¡Œç»‘å®š
 	glBindBuffer(GL_ARRAY_BUFFER, vboUV);
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);	//eboÍ¨¹ýglBindBufferºÍvao°ó¶¨
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);	//eboé€šè¿‡glBindBufferå’Œvaoç»‘å®š
 
 	shader.begin();
 	shader.setInt("type", 0);

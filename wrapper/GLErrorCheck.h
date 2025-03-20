@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 
-//Ô¤±àÒëºê
+//é¢„ç¼–è¯‘å®
 #ifdef DEBUG
 #define GL_CALL(func) func; GLErrorCheck();
 #else

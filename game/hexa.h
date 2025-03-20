@@ -1,4 +1,4 @@
-#ifndef HEXA_H
+﻿#ifndef HEXA_H
 #define HEXA_H
 
 class Hexa

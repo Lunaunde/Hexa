@@ -1,4 +1,4 @@
-#ifndef APPLICATION_H
+﻿#ifndef APPLICATION_H
 #define APPLICATION_H
 #define aplct Application::getInstance()
 
@@ -17,7 +17,7 @@ public:
 
 	static Application* getInstance();
 
-	bool init(const unsigned int& width = 1920, const unsigned int& lenght = 1080);//1280 720 1960 1080
+	bool init(const unsigned int& width = 1920, const unsigned int& lenght = 1080);//1280 720 1920 1080
 	bool update();
 	void destroy();
 

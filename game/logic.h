@@ -1,4 +1,4 @@
-#ifndef LOGIC_H
+﻿#ifndef LOGIC_H
 #define LOGIC_H
 #include<vector>
 #include<random>

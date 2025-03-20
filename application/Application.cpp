@@ -1,4 +1,4 @@
-#include"Application.h"
+ï»¿#include"Application.h"
 #include<glad/glad.h>
 #include <GLFW/glfw3.h>
 #include<iostream>
@@ -23,14 +23,14 @@ bool Application::init(const unsigned int& width, const unsigned int& lenght)
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	mWindow = glfwCreateWindow(width, lenght, "OpenGLStudy", NULL, NULL);//(³¤,¿í,´°¿ÚÃû,NULL,NULL)
+	mWindow = glfwCreateWindow(width, lenght, "OpenGLStudy", NULL, NULL);//(é•¿,å®½,çª—å£å,NULL,NULL)
 	if (mWindow == NULL)
 	{
 		return false;
 	}
-	glfwMakeContextCurrent(mWindow);//Ö¸¶¨»æÖÆ´°¿Ú
+	glfwMakeContextCurrent(mWindow);//æŒ‡å®šç»˜åˆ¶çª—å£
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))//Ê¹ÓÃglad¼ÓÔØËùÓĞµ±Ç°°æ±¾µÄOpenGLº¯Êı
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))//ä½¿ç”¨gladåŠ è½½æ‰€æœ‰å½“å‰ç‰ˆæœ¬çš„OpenGLå‡½æ•°
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return false;
@@ -51,7 +51,7 @@ bool Application::update()
         return false;
 
 	glfwPollEvents();
-	glfwSwapBuffers(mWindow);//ÇĞ»»Ë«»º³åÇø
+	glfwSwapBuffers(mWindow);//åˆ‡æ¢åŒç¼“å†²åŒº
 	return true;
 }
 void Application::destroy()

@@ -1,4 +1,4 @@
-#ifndef STATE_H
+﻿#ifndef STATE_H
 #define STATE_H
 #define sta State::getInstance()
 #include<vector>

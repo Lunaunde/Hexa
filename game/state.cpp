@@ -1,4 +1,4 @@
-#include"state.h"
+﻿#include"state.h"
 #include<vector>
 #include<cmath>
 #include"../application/Application.h"
