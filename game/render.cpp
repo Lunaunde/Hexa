@@ -1,7 +1,6 @@
 ﻿#include <cmath>
 #include "render.h"
 #include"../glframework/core.h"
-#include"../glframework/shader.h"
 #include"../wrapper/GLErrorCheck.h"
 #include"../application/Application.h"
 
@@ -10,21 +9,26 @@ const double ScreenRatio = 16.0 / 9.0;
 
 GLuint Render::hexaEBO = 0;
 GLuint Render::hexaEBOL = 0;
+Shader* Render::shader = 0;
 
 Render::Render() {}
-Render::~Render() {}
+Render::~Render() 
+{
+
+	shader->end();
+}
 
 void Render::init()
 {
 	init_hexaEBO();
 	init_hexaEBOL();
+    shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	shader->begin();
 }
 
 void Render::hexaRender(Hexa hexa, float r, float color[3])
 {
 	float pos[21], colors[21];
-	Shader shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
-	shader.begin();
 
 	pos[0] = hexa.getRenderXPos(r);  // 中心点
 	pos[1] = hexa.getRenderYPos(r) * ScreenRatio;
@@ -63,16 +67,16 @@ void Render::hexaRender(Hexa hexa, float r, float color[3])
 	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
 
 	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBO));
-	shader.setInt("type", 0);
+	shader->setInt("type", 0);
 	GL_CALL(glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)0));
 
 	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBOL));
-	shader.setInt("type", 2);
-	shader.setVec3("uColor", 0.5f, 0.5f, 0.5f);
+	shader->setInt("type", 2);
+	shader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
 	GL_CALL(glLineWidth(8.0f));
 	GL_CALL(glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, (void*)0))
 
-		GL_CALL(glBindVertexArray(0));
+	GL_CALL(glBindVertexArray(0));
 
 	GL_CALL(glDeleteBuffers(1, &vboPos));
 	GL_CALL(glDeleteBuffers(1, &vboCol));

@@ -27,7 +27,7 @@ void HexaColorBackup::restore(std::vector<Hexa>& hexas)
 	}
 }
 
-State::State():mHexas(),mSteps(),mHexaColorBackup()
+State::State():mHexas(),mAnsSteps(),mPlayerSteps(), mHexaColorBackup()
 {
 }
 
@@ -49,6 +49,7 @@ void State::init()
 {
 	aplct->setCursorPosCallback(State::onCursorPos);
 	aplct->setMouseButtonCallback(State::onMouseButton);
+	aplct->setKeyCallback(State::onKey);
 }
 
 void State::onCursorPos(double xpos, double ypos)
@@ -58,18 +59,26 @@ void State::onCursorPos(double xpos, double ypos)
 }
 void State::onMouseButton(int button, int action, int mods)
 {
-	getInstance()->mMouseTime = glfwGetTime();
 	getInstance()->mMouseButton = button;
 	getInstance()->mMouseAction = action;
+}
+void State::onKey(int key, int scancode, int action, int mods)
+{
+	getInstance()->mKey = key;
+	getInstance()->mKeyAction = action;
 }
 
 std::vector<Hexa>& State::getHexas()
 {
 	return mHexas;
 }
-std::vector<Hexa*>& State::getSteps()
+std::vector<Hexa*>& State::getAnsSteps()
 {
-	return mSteps;
+	return mAnsSteps;
+}
+std::vector<Hexa*>& State::getPlayerSteps()
+{
+	return mPlayerSteps;
 }
 HexaColorBackup& State::getHexaColorBackup()
 {
@@ -92,7 +101,21 @@ int State::getMouseButton()
 {
 	return mMouseButton;
 }
-double State::getMouseTime()
+void State::clearMouse()
 {
-	return mMouseTime;
+	mMouseAction = NULL;
+    mMouseButton = NULL;
+}
+int State::getKey()
+{
+	return mKey;
+}
+int State::getKeyAction()
+{
+	return mKeyAction;
+}
+void State::clearKey()
+{
+	mKey = NULL;
+	mKeyAction = NULL;
 }

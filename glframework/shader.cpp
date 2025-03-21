@@ -66,7 +66,14 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }
-Shader::~Shader() {}
+Shader::~Shader() 
+{
+	if (mProgram != 0) 
+	{
+		GL_CALL(glDeleteProgram(mProgram));
+		mProgram = 0;
+	}
+}
 
 void Shader::begin()
 {
@@ -78,32 +85,32 @@ void Shader::end()
 	GL_CALL(glUseProgram(0));
 }
 
-void Shader::setFloat(const std::string &name, float value)
+void Shader::setFloat(const std::string& name, float value)
 {
 	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
 
 	GL_CALL(glUniform1f(location, value));
 }
 
-void Shader::setInt(const std::string &name, int value)
+void Shader::setInt(const std::string& name, int value)
 {
 	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
 
 	GL_CALL(glUniform1i(location, value));
 }
 
-void Shader::setUint(const std::string& name,unsigned int value)
+void Shader::setUint(const std::string& name, unsigned int value)
 {
 	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
 
 	GL_CALL(glUniform1ui(location, value));
 }
 
-void Shader::setVec3(const std::string& name, float v1,float v2,float v3)
+void Shader::setVec3(const std::string& name, float v1, float v2, float v3)
 {
 	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
-	GLfloat vec3[3] = {v1,v2,v3};
-	glUniform3fv(location,1,vec3);
+	GLfloat vec3[3] = { v1,v2,v3 };
+	glUniform3fv(location, 1, vec3);
 }
 
 void Shader::checkCompileErrors(GLuint target, std::string type)

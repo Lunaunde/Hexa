@@ -14,11 +14,6 @@
 #include"game/state.h"
 #include"game/logic.h"
 
-int xPos, yPos;
-void onKey(int key, int scancode, int action, int mods)
-{
-	//std::cout << "按键检测:" << key << " " << action << " " << mods << std::endl;
-}
 void onResize(int width, int height)
 {
 	GL_CALL(glViewport(0, 0, width, height));
@@ -31,29 +26,44 @@ void onScroll(double xoffset, double yoffset)
 
 int main()
 {
-//	HWND hWnd = GetConsoleWindow();
-//	ShowWindow(hWnd, SW_HIDE);
+	//	HWND hWnd = GetConsoleWindow();
+	//	ShowWindow(hWnd, SW_HIDE);
 
 	if (!aplct->init())
 		return -1;
 	GL_CALL(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));//设置窗口背景色
 
 	Render::init();
-	Logic::buildLevel(5,sta);
+	Logic::buildLevel(8, sta);
 
 	while (aplct->update())
 	{
-		Logic::clickChangeHexa(sta->getHexas(), 0.05f);
+		auto start = std::chrono::steady_clock::now();
+		//Logic::playerStepCheck(sta->getHexas(), 0.04f);
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-		Render::hexasRender(sta->getHexas(), 0.05f);
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
+		Render::hexasRender(sta->getHexas(), 0.04f);
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+		//std::cout << Logic::finishPuzzle(sta->getHexas(), 3) << std::endl;
+		//sta->clearMouse();
+		//sta->clearKey();
+		auto end = std::chrono::steady_clock::now();
+		std::chrono::duration<double, std::milli> elapsed = end - start;
+
+		std::chrono::milliseconds waitTime(10);
+		if (elapsed < waitTime)
+		{
+			std::this_thread::sleep_for(waitTime - elapsed);
+		}
+		else
+		{
+			std::cout << "TEL!!!" << (elapsed - waitTime).count() << "DELATE" << std::endl;
+		}
+	}
 	aplct->destroy();
 
 	return 0;
 }
-
 //	AudioPlayer bgm("D:\\space.wav");
 //
 //	bgm.play(-1);

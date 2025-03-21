@@ -19,6 +19,9 @@ public:
 	static bool badLevel(std::vector<Hexa>& hexas, int stepCount);
 	static void nearSameColorChange(Hexa& hexa);
 
+	static bool finishPuzzle(std::vector<Hexa>& hexas,int size);
+
+	static void playerStepCheck(std::vector<Hexa>& hexas, float r);
 	static void clickChangeHexa(std::vector<Hexa>& hexas, float r);
 };
 
