@@ -57,7 +57,7 @@ int main()
 		}
 		else
 		{
-			std::cout << "TEL!!!" << (elapsed - waitTime).count() << "DELATE" << std::endl;
+			std::cout << "TEL!!!" << (elapsed - waitTime).count() << "DELAY" << std::endl;
 		}
 	}
 	aplct->destroy();
