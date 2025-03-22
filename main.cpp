@@ -39,14 +39,14 @@ int main()
 	while (aplct->update())
 	{
 		auto start = std::chrono::steady_clock::now();
-		//Logic::playerStepCheck(sta->getHexas(), 0.04f);
+		Logic::playerStepCheck(sta->getHexas(), 0.04f);
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 		Render::hexasRender(sta->getHexas(), 0.04f);
 		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-		//std::cout << Logic::finishPuzzle(sta->getHexas(), 3) << std::endl;
-		//sta->clearMouse();
-		//sta->clearKey();
+		std::cout << Logic::finishPuzzle(sta->getHexas(), 8) << std::endl;
+		sta->clearMouse();
+		sta->clearKey();
 		auto end = std::chrono::steady_clock::now();
 		std::chrono::duration<double, std::milli> elapsed = end - start;
 
@@ -60,6 +60,7 @@ int main()
 			std::cout << "TEL!!!" << (elapsed - waitTime).count() << "DELAY" << std::endl;
 		}
 	}
+	Render::destroy();
 	aplct->destroy();
 
 	return 0;

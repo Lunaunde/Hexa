@@ -1,4 +1,5 @@
 ﻿#include <cmath>
+#include <array>
 #include "render.h"
 #include"../glframework/core.h"
 #include"../wrapper/GLErrorCheck.h"
@@ -7,28 +8,61 @@
 const double PI = 3.14159265358979323846;
 const double ScreenRatio = 16.0 / 9.0;
 
-GLuint Render::hexaEBO = 0;
-GLuint Render::hexaEBOL = 0;
 Shader* Render::shader = 0;
+std::vector<float> Render::aPosition;
+std::vector<float> Render::aColor;
+std::vector<unsigned int> Render::aIndices;
+std::vector<unsigned int> Render::aIndicesL;
+GLuint Render::ebo = 0;
+GLuint Render::eboL = 0;
+GLuint Render::vao = 0;
+GLuint Render::vboPos = 0;
+GLuint Render::vboColor = 0;
+
 
 Render::Render() {}
-Render::~Render() 
-{
-
-	shader->end();
-}
+Render::~Render() {}
 
 void Render::init()
 {
-	init_hexaEBO();
-	init_hexaEBOL();
-    shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	shader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 	shader->begin();
+	GL_CALL(glGenBuffers(1, &vboPos));
+	GL_CALL(glGenBuffers(1, &vboColor));
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glGenBuffers(1, &ebo));
+	GL_CALL(glGenBuffers(1, &eboL));
+	GL_CALL(glLineWidth(8.0f));
 }
 
-void Render::hexaRender(Hexa hexa, float r, float color[3])
+void Render::destroy()
 {
-	float pos[21], colors[21];
+	shader->end();
+	delete shader;
+	GL_CALL(glDeleteBuffers(1, &vboPos));
+	GL_CALL(glDeleteBuffers(1, &vboColor));
+	GL_CALL(glDeleteVertexArrays(1, &vao));
+}
+
+void Render::hexaRender(Hexa hexa, float r, float color[3], int num)
+{
+	std::array<float, 21> pos, colors;
+	std::array<unsigned int, 18> indices = {
+	   0, 1, 2,
+	   0, 2, 3,
+	   0, 3, 4,
+	   0, 4, 5,
+	   0, 5, 6,
+	   0, 6, 1
+	};
+	std::array<unsigned int, 18> indicesL = {
+		1, 2,
+		2, 3,
+		3, 4,
+		4, 5,
+		5, 6,
+		6, 1
+	};
 
 	pos[0] = hexa.getRenderXPos(r);  // 中心点
 	pos[1] = hexa.getRenderYPos(r) * ScreenRatio;
@@ -45,50 +79,31 @@ void Render::hexaRender(Hexa hexa, float r, float color[3])
 		colors[i * 3 + 1] = color[1];
 		colors[i * 3 + 2] = color[2];
 	}
+	for (int i = 0;i < indices.size();i++)
+	{
+		indices[i] += 7 * num;
+	}
+	for (int i = 0;i < indicesL.size();i++)
+	{
+		indicesL[i] += 7 * num;
+	}
 
-	GLuint vboPos = 0;
-	GL_CALL(glGenBuffers(1, &vboPos));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW));
-	GLuint vboCol = 0;
-	GL_CALL(glGenBuffers(1, &vboCol));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboCol));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW));
-
-	GLuint vao = 0;
-	GL_CALL(glGenVertexArrays(1, &vao));
-	GL_CALL(glBindVertexArray(vao));
-
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
-	GL_CALL(glEnableVertexAttribArray(0));
-	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboCol));
-	GL_CALL(glEnableVertexAttribArray(1));
-	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
-
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBO));
-	shader->setInt("type", 0);
-	GL_CALL(glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, (void*)0));
-
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBOL));
-	shader->setInt("type", 2);
-	shader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
-	GL_CALL(glLineWidth(8.0f));
-	GL_CALL(glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, (void*)0))
-
-	GL_CALL(glBindVertexArray(0));
-
-	GL_CALL(glDeleteBuffers(1, &vboPos));
-	GL_CALL(glDeleteBuffers(1, &vboCol));
-	GL_CALL(glDeleteVertexArrays(1, &vao));
+	aPosition.insert(aPosition.end(), std::begin(pos), std::end(pos));
+	aColor.insert(aColor.end(), std::begin(colors), std::end(colors));
+	aIndices.insert(aIndices.end(), std::begin(indices),std::end(indices));
+	aIndicesL.insert(aIndicesL.end(), std::begin(indicesL),std::end(indicesL));
 }
 
 void Render::hexasRender(const std::vector<Hexa>& hexas, float r)
 {
-	for (auto& hexa : hexas)
+	aPosition.clear();
+	aColor.clear();
+	aIndices.clear();
+	aIndicesL.clear();
+	for (int i = 0; i < hexas.size(); i++)
 	{
 		float color[3];
-		switch (hexa.getColor())
+		switch (hexas[i].getColor())
 		{
 		case'W':
 		{
@@ -106,38 +121,35 @@ void Render::hexasRender(const std::vector<Hexa>& hexas, float r)
 		}
 		break;
 		}
-		hexaRender(hexa, r, color);
+		hexaRender(hexas[i], r, color, i);
 	}
-}
 
-void Render::init_hexaEBO()
-{
-	unsigned int indices[] = {
-	   0, 1, 2,
-	   0, 2, 3,
-	   0, 3, 4,
-	   0, 4, 5,
-	   0, 5, 6,
-	   0, 6, 1
-	};
-	GL_CALL(glGenBuffers(1, &Render::hexaEBO));
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBO));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
-}
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, aPosition.size()*sizeof(float), aPosition.data(), GL_STATIC_DRAW));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, aColor.size()*sizeof(float), aColor.data(), GL_STATIC_DRAW));
 
-void Render::init_hexaEBOL()
-{
-	unsigned int indices[] = {
-	   1, 2,
-	   2, 3,
-	   3, 4,
-	   4, 5,
-	   5, 6,
-	   6, 1
-	};
-	GL_CALL(glGenBuffers(1, &Render::hexaEBOL));
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Render::hexaEBOL));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+	GL_CALL(glBindVertexArray(vao));
+
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
+	GL_CALL(glEnableVertexAttribArray(1));
+	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
+
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, aIndices.size()*sizeof(unsigned int), aIndices.data(), GL_STATIC_DRAW));
+	shader->setInt("type", 0);
+	GL_CALL(glDrawElements(GL_TRIANGLES, aIndices.size(), GL_UNSIGNED_INT, (void*)0));
+
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboL));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, aIndicesL.size() * sizeof(unsigned int), aIndicesL.data(), GL_STATIC_DRAW));
+	shader->setInt("type", 2);
+	shader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
+	GL_CALL(glDrawElements(GL_LINES, aIndicesL.size(), GL_UNSIGNED_INT, (void*)0))
+
+	GL_CALL(glBindVertexArray(0));
 }
 
 void Render::test()
