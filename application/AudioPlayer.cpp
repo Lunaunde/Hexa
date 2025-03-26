@@ -161,7 +161,7 @@ void AudioPlayer::play(int loopCount) {
 void AudioPlayer::stop() {
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        if (!m_isPlaying) return;
+        //if (!m_isPlaying) return;
         m_isPlaying = false;
     }
 

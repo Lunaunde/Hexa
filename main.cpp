@@ -13,6 +13,7 @@
 #include"application/Application.h"
 #include"application/AudioPlayer.h"
 #include"application/TextDisplay.h"
+#include"application/PlaySound.h"
 #include"game/render.h"
 #include"game/state.h"
 #include"game/logic.h"
@@ -44,6 +45,9 @@ int main()
 	Logic::buildLevel(4, sta);
 	
 	sta->setHexaRadius(0.1f);
+
+	AudioPlayer player("D:\\0.wav");
+	player.play(1);
 
 	while (aplct->update())
 	{
@@ -78,7 +82,6 @@ int main()
 		}
 	}
 	aplct->destroy();
-
 	return 0;
 }
 //	AudioPlayer bgm("D:\\space.wav");

@@ -1,8 +1,10 @@
 ﻿#ifndef STATE_H
 #define STATE_H
 #define sta State::getInstance()
+#include<array>
 #include<vector>
 #include "hexa.h"
+#include"../application/AudioPlayer.h"
 
 class HexaColorBackup
 {
@@ -27,6 +29,8 @@ public:
 	std::vector<Hexa*>& getAnsSteps();
 	std::vector<Hexa*>& getPlayerSteps();
 	HexaColorBackup& getHexaColorBackup();
+
+	void playStoneSound();
 
     float getHexaRadius();
 	void setHexaRadius(float hexaRadius);
@@ -53,6 +57,7 @@ private:
 	std::vector<Hexa*> mAnsSteps;
 	std::vector<Hexa*> mPlayerSteps;
 	HexaColorBackup mHexaColorBackup;
+
 	static State* instance;
 };
 

@@ -27,11 +27,7 @@ void HexaColorBackup::restore(std::vector<Hexa>& hexas)
 	}
 }
 
-State::State():mHexas(),mAnsSteps(),mPlayerSteps(), mHexaColorBackup()
-{
-}
-
-State::~State()
+State::State() : mHexas(), mAnsSteps(), mPlayerSteps(), mHexaColorBackup()
 {
 }
 
@@ -85,6 +81,21 @@ HexaColorBackup& State::getHexaColorBackup()
 	return mHexaColorBackup;
 }
 
+void State::playStoneSound()
+{
+	int soundID = rand() % 4;
+	switch (soundID)
+	{
+	case 0:
+	default:
+	{
+		AudioPlayer Sound("assets/sounds/deepStone/3.wav");
+		Sound.play(1);
+	}
+		break;
+	}
+}
+
 float State::getHexaRadius()
 {
 	return mHexaRadius;
@@ -113,7 +124,7 @@ int State::getMouseButton()
 void State::clearMouse()
 {
 	mMouseAction = NULL;
-    mMouseButton = NULL;
+	mMouseButton = NULL;
 }
 int State::getKey()
 {
