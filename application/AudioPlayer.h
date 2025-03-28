@@ -7,35 +7,52 @@
 #include <atomic>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <vector>
+#include <utility>
 
-class AudioPlayer {
+class AudioPlayer
+{
 public:
-    explicit AudioPlayer(const std::string& filename);
-    ~AudioPlayer();
+	explicit AudioPlayer(const std::string& filename);
+	~AudioPlayer();
 
-    void play(int loopCount = 1);
-    void stop();
-    void setLoopCount(int count);
-    void setVolume(float volume);
+	void play(int loopCount = 1);
+	void stop();
+	void setLoopCount(int count);
+	void setVolume(float volume);
+
+	bool isPlaying() const;
 
 private:
-    static ALCdevice* m_device;
-    static ALCcontext* m_context;
-    static std::atomic<int> m_instanceCount;
+	static ALCdevice* m_device;
+	static ALCcontext* m_context;
+	static std::atomic<int> m_instanceCount;
 
-    ALuint m_source;
-    ALuint m_buffer;
-    std::thread m_playbackThread;
-    std::mutex m_mutex;
-    std::atomic<bool> m_isPlaying;
-    int m_loopCount;
+	ALuint m_source;
+	ALuint m_buffer;
+	std::thread m_playbackThread;
+	std::mutex m_mutex;
+	std::atomic<bool> m_isPlaying;
+	int m_loopCount;
 
-    bool loadWavFile(const std::string& filename,
-        ALenum& format,
-        ALvoid*& data,
-        ALsizei& size,
-        ALsizei& freq);
-    void playbackLoop();
+	bool loadWavFile(const std::string& filename,
+		ALenum& format,
+		ALvoid*& data,
+		ALsizei& size,
+		ALsizei& freq);
+	void playbackLoop();
 };
 
+class AutoDeleteAudioPlayer
+{
+public:
+	AutoDeleteAudioPlayer(const std::string& filename);
+	~AutoDeleteAudioPlayer();
+private:
+	std::atomic<bool> mBeingDeleted;
+	AudioPlayer* mAudioPlayer;
+	std::thread mThread;
+	void deleteAudio();
+	void autoCheckLoop();
+};
 #endif

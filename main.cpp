@@ -42,9 +42,9 @@ int main()
 
 	txtdp->init("assets/fonts/MSYH.TTC"); 
 	rdr->init();
-	Logic::buildLevel(4, sta);
+	Logic::buildLevel(8, sta);
 	
-	sta->setHexaRadius(0.1f);
+	sta->setHexaRadius(0.04f);
 
 	AudioPlayer player("D:\\0.wav");
 	player.play(1);
@@ -64,7 +64,7 @@ int main()
 		rdr->draw();
 		txtdp->renderText(L"123 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 
-		Logic::finishPuzzle(sta->getHexas(), 4);
+		Logic::finishPuzzle(sta->getHexas(), 8);
 		sta->clearMouse();
 		sta->clearKey();
 
