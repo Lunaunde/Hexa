@@ -268,7 +268,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
 			{
 				sta->getPlayerSteps().push_back(&hexas[i]);
 				hexas[i].setColor(hexas[i].getColor() == 'W' ? 'B' : 'W');
-				//sta->playStoneSound();
+				sta->playStoneSound();
 			}
 		}
 	}
@@ -291,7 +291,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
 					return;
 				sta->getPlayerSteps().push_back(lastStep->getNear(i));
 				lastStep->getNear(i)->setColor(lastStep->getNear(i)->getColor() == 'W' ? 'B' : 'W');
-				//sta->playStoneSound();
+				sta->playStoneSound();
 			}
 		}
 	}

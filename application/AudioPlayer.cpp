@@ -55,11 +55,7 @@ AudioPlayer::~AudioPlayer() {
 	}
 }
 
-bool AudioPlayer::loadWavFile(const std::string& filename,
-	ALenum& format,
-	ALvoid*& data,
-	ALsizei& size,
-	ALsizei& freq) {
+bool AudioPlayer::loadWavFile(const std::string& filename,ALenum& format,ALvoid*& data,ALsizei& size,ALsizei& freq) {
 	std::ifstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << filename << std::endl;
@@ -162,7 +158,7 @@ void AudioPlayer::play(int loopCount) {
 void AudioPlayer::stop() {
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		if (!m_isPlaying) return;
+		//if (!m_isPlaying) return;
 		m_isPlaying = false;
 	}
 
@@ -213,13 +209,16 @@ bool AudioPlayer::isPlaying() const {
 AutoDeleteAudioPlayer::AutoDeleteAudioPlayer(const std::string& filename) : mAudioPlayer(nullptr), mBeingDeleted(false)
 {
 	mAudioPlayer = new AudioPlayer(filename);
+	mAudioPlayer->setVolume(2.0f);
+	mAudioPlayer->play(1);
 	mThread = std::thread(&AutoDeleteAudioPlayer::autoCheckLoop, this);
+	mThread.detach();
 }
 AutoDeleteAudioPlayer::~AutoDeleteAudioPlayer()
 {
 	mBeingDeleted = true;
-	if (mThread.joinable())
-		mThread.join();
+	//if (mThread.joinable())
+	//	mThread.join();
 	deleteAudio();
 }
 

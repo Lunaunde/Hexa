@@ -13,7 +13,6 @@
 #include"application/Application.h"
 #include"application/AudioPlayer.h"
 #include"application/TextDisplay.h"
-#include"application/PlaySound.h"
 #include"game/render.h"
 #include"game/state.h"
 #include"game/logic.h"
@@ -42,12 +41,17 @@ int main()
 
 	txtdp->init("assets/fonts/MSYH.TTC"); 
 	rdr->init();
-	Logic::buildLevel(8, sta);
 	
+	int mapSize = 8;
 	sta->setHexaRadius(0.04f);
 
-	AudioPlayer player("D:\\0.wav");
-	player.play(1);
+	Logic::buildLevel(mapSize, sta);
+
+	//AudioPlayer player("assets/sounds/deepStone/0.wav");
+	//player.play(1);
+
+	//new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
+	new AutoDeleteAudioPlayer("D:\\music.wav");
 
 	while (aplct->update())
 	{
@@ -64,7 +68,7 @@ int main()
 		rdr->draw();
 		txtdp->renderText(L"123 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 
-		Logic::finishPuzzle(sta->getHexas(), 8);
+		Logic::finishPuzzle(sta->getHexas(), mapSize);
 		sta->clearMouse();
 		sta->clearKey();
 

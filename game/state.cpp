@@ -89,10 +89,24 @@ void State::playStoneSound()
 	case 0:
 	default:
 	{
-		AudioPlayer Sound("assets/sounds/deepStone/3.wav");
-		Sound.play(1);
+		new AutoDeleteAudioPlayer("assets/sounds/deepStone/0.wav");
 	}
-		break;
+	break;
+	case 1:
+	{
+		new AutoDeleteAudioPlayer("assets/sounds/deepStone/1.wav");
+	}
+	break;
+	case 2:
+	{
+		new AutoDeleteAudioPlayer("assets/sounds/deepStone/2.wav");
+	}
+	break;
+	case 3:
+	{
+		new AutoDeleteAudioPlayer("assets/sounds/deepStone/3.wav");
+	}
+	break;
 	}
 }
 

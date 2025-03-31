@@ -48,11 +48,16 @@ class AutoDeleteAudioPlayer
 public:
 	AutoDeleteAudioPlayer(const std::string& filename);
 	~AutoDeleteAudioPlayer();
+
+
 private:
 	std::atomic<bool> mBeingDeleted;
 	AudioPlayer* mAudioPlayer;
 	std::thread mThread;
+	bool m_isHeapCreated = false;
 	void deleteAudio();
 	void autoCheckLoop();
+
+	static void clearing();
 };
 #endif
