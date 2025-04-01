@@ -14,9 +14,11 @@ public:
 
     Hexa* getNear(int index)const;
 
-    float getRenderXPos(float r)const;
-    float getRenderYPos(float r)const;
+    float getCenterXPos(float r)const;
+    float getCenterYPos(float r)const;
+    float getVertexXPos(float r, int number, float scale)const;
     float getVertexXPos(float r,int number)const;
+    float getVertexYPos(float r, int number, float scale)const;
     float getVertexYPos(float r,int number)const;
 
     bool ifPositionInHexa(float x, float y, float r)const;

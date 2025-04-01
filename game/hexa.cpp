@@ -41,26 +41,34 @@ Hexa* Hexa::getNear(int index)const
 	return mNear[index];
 }
 
-float Hexa::getRenderXPos(float r)const
+float Hexa::getCenterXPos(float r)const
 {
 	return this->getXPos() * r * sqrt(3) + this->getYPos() * r * 0.5 * sqrt(3);
 }
 
-float Hexa::getRenderYPos(float r)const
+float Hexa::getCenterYPos(float r)const
 {
 	return this->getYPos() * r * 1.5;
 }
 
+float Hexa::getVertexXPos(float r, int number,float scale)const
+{
+	double angle = 2 * PI * number / 6;
+	return this->getCenterXPos(r) + r * scale * sin(angle);
+}
 float Hexa::getVertexXPos(float r, int number)const
 {
-	double angle = 2 * PI * number / 6;
-	return this->getRenderXPos(r) + r * sin(angle);
+	return this->getVertexXPos(r, number, 1);
 }
 
-float Hexa::getVertexYPos(float r, int number)const
+float Hexa::getVertexYPos(float r, int number, float scale)const
 {
 	double angle = 2 * PI * number / 6;
-	return this->getRenderYPos(r) + r * cos(angle);
+	return this->getCenterYPos(r) + r * scale * cos(angle);
+}
+float Hexa::getVertexYPos(float r, int number)const
+{
+	return this->getVertexYPos(r, number, 1);
 }
 
 bool Hexa::ifPositionInHexa(float x, float y, float r)const

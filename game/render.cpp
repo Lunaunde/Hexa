@@ -14,6 +14,8 @@ Render::~Render()
 {
 	mShader->end();
 	delete mShader;
+	GL_CALL(glDeleteBuffers(1, &vboPositionType));
+	GL_CALL(glDeleteBuffers(1, &vboPos));
 	GL_CALL(glDeleteBuffers(1, &vboPos));
 	GL_CALL(glDeleteBuffers(1, &vboColor));
 	GL_CALL(glDeleteVertexArrays(1, &vao));
@@ -30,7 +32,9 @@ Render* Render::getInstance()
 void Render::init()
 {
 	mShader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	GL_CALL(glGenBuffers(1,&vboPositionType))
 	GL_CALL(glGenBuffers(1, &vboPos));
+	GL_CALL(glGenBuffers(1, &vboColorType));
 	GL_CALL(glGenBuffers(1, &vboColor));
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glGenBuffers(1, &ebo));
@@ -39,12 +43,11 @@ void Render::init()
 
 void Render::dataLoad()
 {
-	mTrianglesPosition.clear();
-	mTrianglesColor.clear();
-	mLinesPosition.clear();
-	mLinesColor.clear();
-	mTrianglesIndices.clear();
-	mLinesIndices.clear();
+	mPosition.clear();
+	mColor.clear();
+	mIndices.clear();
+	mColorType.clear();
+	mPositionType.clear();
 	hexasDataLoad(sta->getHexas(), sta->getHexaRadius());
 }
 
@@ -54,40 +57,46 @@ void Render::draw()
 
 	GL_CALL(glBindVertexArray(vao));
 
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPositionType));
 	GL_CALL(glEnableVertexAttribArray(0));
-	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
+	GL_CALL(glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(unsigned int), (void*)0));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mPositionType.size() * sizeof(unsigned int), mPositionType.data(), GL_STATIC_DRAW));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
 	GL_CALL(glEnableVertexAttribArray(1));
 	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mPosition.size() * sizeof(float), mPosition.data(), GL_STATIC_DRAW));
 
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mTrianglesPosition.size() * sizeof(float), mTrianglesPosition.data(), GL_STATIC_DRAW));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColorType));
+	GL_CALL(glEnableVertexAttribArray(8));
+	GL_CALL(glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(unsigned int), (void*)0));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mColorType.size() * sizeof(unsigned int), mColorType.data(), GL_STATIC_DRAW));
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mTrianglesColor.size() * sizeof(float), mTrianglesColor.data(), GL_STATIC_DRAW));
+	GL_CALL(glEnableVertexAttribArray(9));
+	GL_CALL(glVertexAttribPointer(9, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mColor.size() * sizeof(float), mColor.data(), GL_STATIC_DRAW));
 
 	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mTrianglesIndices.size() * sizeof(unsigned int), mTrianglesIndices.data(), GL_STATIC_DRAW));
-	mShader->setInt("type", 0);
-	GL_CALL(glDrawElements(GL_TRIANGLES, mTrianglesIndices.size(), GL_UNSIGNED_INT, (void*)0));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(unsigned int), mIndices.data(), GL_STATIC_DRAW));
+	GL_CALL(glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, (void*)0));
 
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesPosition.size() * sizeof(float), mLinesPosition.data(), GL_STATIC_DRAW));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesColor.size() * sizeof(float), mLinesColor.data(), GL_STATIC_DRAW));
+	//GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
+	//GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesPosition.size() * sizeof(float), mLinesPosition.data(), GL_STATIC_DRAW));
+	//GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
+	//GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesColor.size() * sizeof(float), mLinesColor.data(), GL_STATIC_DRAW));
 
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mLinesIndices.size() * sizeof(unsigned int), mLinesIndices.data(), GL_STATIC_DRAW));
-	mShader->setInt("type", 2);
-	mShader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
-	GL_CALL(glDrawElements(GL_LINES, mLinesIndices.size(), GL_UNSIGNED_INT, (void*)0));
+	//GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	//GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mLinesIndices.size() * sizeof(unsigned int), mLinesIndices.data(), GL_STATIC_DRAW));
+	//mShader->setInt("type", 2);
+	//mShader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
+	//GL_CALL(glDrawElements(GL_LINES, mLinesIndices.size(), GL_UNSIGNED_INT, (void*)0));
 
-	GL_CALL(glBindVertexArray(0));
+	//GL_CALL(glBindVertexArray(0));
 	mShader->end();
 }
 
-void Render::hexaDataLoad(Hexa hexa, float r, float color[3], int num)
+void Render::hexaDataLoad(Hexa hexa, float r, float color[3], float scale)
 {
+	int startNumber = mPosition.size()/3;
 	std::array<float, 21> pos, colors;
 	std::array<unsigned int, 18> indices = {
 	   0, 1, 2,
@@ -97,49 +106,40 @@ void Render::hexaDataLoad(Hexa hexa, float r, float color[3], int num)
 	   0, 5, 6,
 	   0, 6, 1
 	};
-	std::array<unsigned int, 18> indicesL = {
-		1, 2,
-		2, 3,
-		3, 4,
-		4, 5,
-		5, 6,
-		6, 1
-	};
+	std::array<unsigned int, 6> positionType = { 0,0,0,0,0,0 };
+	std::array<unsigned int, 6> colorType = { 0,0,0,0,0,0 };
 
-	pos[0] = hexa.getRenderXPos(r);  // 中心点
-	pos[1] = hexa.getRenderYPos(r) * ScreenRatio;
+	pos[0] = hexa.getCenterXPos(r);  // 中心点
+	pos[1] = hexa.getCenterYPos(r) * ScreenRatio;
 	pos[2] = 0;
 	colors[0] = color[0];
 	colors[1] = color[1];
 	colors[2] = color[2];
 
 	for (int i = 1; i < 7; i++) { // 从第1个顶点开始计算
-		pos[i * 3] = hexa.getVertexXPos(r, i);
-		pos[i * 3 + 1] = hexa.getVertexYPos(r, i) * ScreenRatio;
+		pos[i * 3] = hexa.getVertexXPos(r, i, scale);
+		pos[i * 3 + 1] = hexa.getVertexYPos(r, i, scale) * ScreenRatio;
 		pos[i * 3 + 2] = 0;
 		colors[i * 3] = color[0];
 		colors[i * 3 + 1] = color[1];
 		colors[i * 3 + 2] = color[2];
 	}
+
 	for (int i = 0;i < indices.size();i++)
 	{
-		indices[i] += 7 * num;
-	}
-	for (int i = 0;i < indicesL.size();i++)
-	{
-		indicesL[i] += 7 * num;
+		indices[i] += startNumber;
 	}
 
-	mTrianglesPosition.insert(mTrianglesPosition.end(), std::begin(pos), std::end(pos));
-	mTrianglesColor.insert(mTrianglesColor.end(), std::begin(colors), std::end(colors));
-	mLinesPosition.insert(mLinesPosition.end(), std::begin(pos), std::end(pos));
-	mLinesColor.insert(mLinesColor.end(), std::begin(colors), std::end(colors));
-	mTrianglesIndices.insert(mTrianglesIndices.end(), std::begin(indices), std::end(indices));
-	mLinesIndices.insert(mLinesIndices.end(), std::begin(indicesL), std::end(indicesL));
+	mPosition.insert(mPosition.end(), std::begin(pos), std::end(pos));
+	mColor.insert(mColor.end(), std::begin(colors), std::end(colors));
+	mIndices.insert(mIndices.end(), std::begin(indices), std::end(indices));
+	mPositionType.insert(mPositionType.end(), std::begin(positionType), std::end(positionType));
+	mColorType.insert(mColorType.end(), std::begin(colorType), std::end(colorType));
 }
 
 void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float r)
 {
+	float grey[3] = { 0.5f,0.5f,0.5f };
 	for (int i = 0; i < hexas.size(); i++)
 	{
 		float color[3];
@@ -161,7 +161,8 @@ void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float r)
 		}
 		break;
 		}
-		hexaDataLoad(hexas[i], r, color, i);
+		hexaDataLoad(hexas[i], r, grey, 1);
+		hexaDataLoad(hexas[i], r, color, 0.9);
 	}
 }
 

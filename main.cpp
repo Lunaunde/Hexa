@@ -42,16 +42,15 @@ int main()
 	txtdp->init("assets/fonts/MSYH.TTC"); 
 	rdr->init();
 	
-	int mapSize = 8;
-	sta->setHexaRadius(0.04f);
+	int mapSize = 4;
+	sta->setHexaRadius(0.05f);
 
 	Logic::buildLevel(mapSize, sta);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);
 
-	//new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
-	new AutoDeleteAudioPlayer("D:\\music.wav");
+	new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
 
 	while (aplct->update())
 	{
