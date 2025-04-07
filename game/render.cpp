@@ -79,18 +79,6 @@ void Render::draw()
 	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(unsigned int), mIndices.data(), GL_STATIC_DRAW));
 	GL_CALL(glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, (void*)0));
 
-	//GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboPos));
-	//GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesPosition.size() * sizeof(float), mLinesPosition.data(), GL_STATIC_DRAW));
-	//GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColor));
-	//GL_CALL(glBufferData(GL_ARRAY_BUFFER, mLinesColor.size() * sizeof(float), mLinesColor.data(), GL_STATIC_DRAW));
-
-	//GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-	//GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mLinesIndices.size() * sizeof(unsigned int), mLinesIndices.data(), GL_STATIC_DRAW));
-	//mShader->setInt("type", 2);
-	//mShader->setVec3("uColor", 0.5f, 0.5f, 0.5f);
-	//GL_CALL(glDrawElements(GL_LINES, mLinesIndices.size(), GL_UNSIGNED_INT, (void*)0));
-
-	//GL_CALL(glBindVertexArray(0));
 	mShader->end();
 }
 
@@ -242,4 +230,48 @@ void Render::test()
 
 Render::Render() : mShader(nullptr)
 {
+}
+
+DistortedBackground::DistortedBackground()
+{
+	mShader = new Shader("assets/shaders/vertex_DB.glsl", "assets/shaders/fragment_DB.glsl");
+}
+DistortedBackground::~DistortedBackground()
+{
+	delete mShader;
+}
+DistortedBackground* DistortedBackground::instance = nullptr;
+DistortedBackground* DistortedBackground::getInstance()
+{
+	if(instance==nullptr)
+        instance = new DistortedBackground();
+	return instance;
+}
+void DistortedBackground::init()
+{
+	vao = 0;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+	vbo = 0;
+	GL_CALL(glGenBuffers(1, &vbo));
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL_CALL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float)*4, (void*)0));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), vertices.data(), GL_STATIC_DRAW));
+	ebo = 0;
+	GL_CALL(glGenBuffers(1, &ebo));
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW));
+	GL_CALL(glBindVertexArray(0));
+}
+
+void DistortedBackground::draw()
+{
+	mShader->begin();
+	mShader->setVec2("iResolution", aplct->getWidth(), aplct->getLength());
+	mShader->setFloat("iTime", glfwGetTime());
+	GL_CALL(glBindVertexArray(vao));
+	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));
+	GL_CALL(glBindVertexArray(0));
+	mShader->end();
 }

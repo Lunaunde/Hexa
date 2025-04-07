@@ -41,6 +41,7 @@ int main()
 
 	txtdp->init("assets/fonts/MSYH.TTC"); 
 	rdr->init();
+	dtbg->init();
 	
 	int mapSize = 4;
 	sta->setHexaRadius(0.05f);
@@ -63,6 +64,7 @@ int main()
 
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
+		dtbg->draw();
 		rdr->dataLoad();
 		rdr->draw();
 		txtdp->renderText(L"123 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);

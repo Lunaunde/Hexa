@@ -109,6 +109,12 @@ void Shader::setUint(const std::string& name, unsigned int value)
 
 	GL_CALL(glUniform1ui(location, value));
 }
+void Shader::setVec2(const std::string& name, float v1, float v2)
+{
+	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
+	GLfloat vec2[2] = { v1,v2 };
+	GL_CALL(glUniform2fv(location, 1, vec2));
+}
 void Shader::setVec3(const std::string& name, float v1, float v2, float v3)
 {
 	GLuint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
