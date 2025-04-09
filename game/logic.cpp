@@ -253,7 +253,7 @@ bool Logic::finishPuzzle(std::vector<Hexa>& hexas, int size)
 	return true;
 }
 
-void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
+void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 {
 	if (sta->getKey() == GLFW_KEY_R&&sta->getKeyAction() == GLFW_PRESS)
 	{
@@ -264,7 +264,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
 	{
 		for (int i = 0; i < hexas.size(); i++)
 		{
-			if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), r) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				sta->getPlayerSteps().push_back(&hexas[i]);
 				hexas[i].setColor(hexas[i].getColor() == 'W' ? 'B' : 'W');
@@ -279,7 +279,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
 		{
 			if(lastStep->getNear(i) == nullptr)
                 continue;
-            if (lastStep->getNear(i)->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), r) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+            if (lastStep->getNear(i)->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				bool flag = true;
 				for (int j = 0;j < sta->getPlayerSteps().size();j++)
@@ -296,7 +296,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float r)
 		}
 	}
 }
-void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float r)
+void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float side)
 {
 	for (int i = 0; i < hexas.size(); i++)
 	{

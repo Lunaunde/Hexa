@@ -32,8 +32,8 @@ Render* Render::getInstance()
 void Render::init()
 {
 	mShader = new Shader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
-	GL_CALL(glGenBuffers(1,&vboPositionType))
-	GL_CALL(glGenBuffers(1, &vboPos));
+	GL_CALL(glGenBuffers(1, &vboPositionType))
+		GL_CALL(glGenBuffers(1, &vboPos));
 	GL_CALL(glGenBuffers(1, &vboColorType));
 	GL_CALL(glGenBuffers(1, &vboColor));
 	GL_CALL(glGenVertexArrays(1, &vao));
@@ -82,9 +82,9 @@ void Render::draw()
 	mShader->end();
 }
 
-void Render::hexaDataLoad(Hexa hexa, float r, float color[3], float scale)
+void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 {
-	int startNumber = mPosition.size()/3;
+	int startNumber = mPosition.size() / 3;
 	std::array<float, 21> pos, colors;
 	std::array<unsigned int, 18> indices = {
 	   0, 1, 2,
@@ -97,23 +97,26 @@ void Render::hexaDataLoad(Hexa hexa, float r, float color[3], float scale)
 	std::array<unsigned int, 6> positionType = { 0,0,0,0,0,0 };
 	std::array<unsigned int, 6> colorType = { 0,0,0,0,0,0 };
 
-	pos[0] = hexa.getCenterXPos(r);  // 中心点
-	pos[1] = hexa.getCenterYPos(r) * ScreenRatio;
+	float rotation = 0;
+	rotation = glfwGetTime();
+
+	pos[0] = hexa.getCenterXPos(side, rotation);  // 中心点
+	pos[1] = hexa.getCenterYPos(side, rotation) * ScreenRatio;
 	pos[2] = 0;
 	colors[0] = color[0];
 	colors[1] = color[1];
 	colors[2] = color[2];
 
 	for (int i = 1; i < 7; i++) { // 从第1个顶点开始计算
-		pos[i * 3] = hexa.getVertexXPos(r, i, scale);
-		pos[i * 3 + 1] = hexa.getVertexYPos(r, i, scale) * ScreenRatio;
+		pos[i * 3] = hexa.getVertexXPos(side, i, scale, rotation);
+		pos[i * 3 + 1] = hexa.getVertexYPos(side, i, scale, rotation) * ScreenRatio;
 		pos[i * 3 + 2] = 0;
 		colors[i * 3] = color[0];
 		colors[i * 3 + 1] = color[1];
 		colors[i * 3 + 2] = color[2];
 	}
 
-	for (int i = 0;i < indices.size();i++)
+	for (int i = 0; i < indices.size(); i++)
 	{
 		indices[i] += startNumber;
 	}
@@ -125,7 +128,7 @@ void Render::hexaDataLoad(Hexa hexa, float r, float color[3], float scale)
 	mColorType.insert(mColorType.end(), std::begin(colorType), std::end(colorType));
 }
 
-void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float r)
+void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
 {
 	float grey[3] = { 0.5f,0.5f,0.5f };
 	for (int i = 0; i < hexas.size(); i++)
@@ -149,8 +152,8 @@ void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float r)
 		}
 		break;
 		}
-		hexaDataLoad(hexas[i], r, grey, 1);
-		hexaDataLoad(hexas[i], r, color, 0.9);
+		//hexaDataLoad(hexas[i], side, grey, 1.05);
+		hexaDataLoad(hexas[i], side, color, 0.95);
 	}
 }
 
@@ -243,8 +246,8 @@ DistortedBackground::~DistortedBackground()
 DistortedBackground* DistortedBackground::instance = nullptr;
 DistortedBackground* DistortedBackground::getInstance()
 {
-	if(instance==nullptr)
-        instance = new DistortedBackground();
+	if (instance == nullptr)
+		instance = new DistortedBackground();
 	return instance;
 }
 void DistortedBackground::init()
@@ -256,7 +259,7 @@ void DistortedBackground::init()
 	GL_CALL(glGenBuffers(1, &vbo));
 	GL_CALL(glEnableVertexAttribArray(0));
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GL_CALL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float)*4, (void*)0));
+	GL_CALL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), vertices.data(), GL_STATIC_DRAW));
 	ebo = 0;
 	GL_CALL(glGenBuffers(1, &ebo));

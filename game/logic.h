@@ -21,8 +21,8 @@ public:
 
 	static bool finishPuzzle(std::vector<Hexa>& hexas,int size);
 
-	static void playerStepCheck(std::vector<Hexa>& hexas, float r);
-	static void clickChangeHexa(std::vector<Hexa>& hexas, float r);
+	static void playerStepCheck(std::vector<Hexa>& hexas, float side);
+	static void clickChangeHexa(std::vector<Hexa>& hexas, float side);
 };
 
 #endif

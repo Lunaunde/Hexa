@@ -43,15 +43,15 @@ int main()
 	rdr->init();
 	dtbg->init();
 	
-	int mapSize = 4;
-	sta->setHexaRadius(0.05f);
+	int mapSize = 3;
+	sta->setHexaRadius(0.1f);
 
 	Logic::buildLevel(mapSize, sta);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);
 
-	new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
+	//new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
 
 	while (aplct->update())
 	{
