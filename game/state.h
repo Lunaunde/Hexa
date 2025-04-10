@@ -14,7 +14,7 @@ public:
 	~HexaColorBackup();
 	void restore(std::vector<Hexa>& hexas);
 private:
-	std::vector<char> mHexaColorBackup;
+	std::vector<Color> mHexaColorBackup;
 };
 
 class State

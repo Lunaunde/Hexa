@@ -1,6 +1,8 @@
 ﻿#ifndef HEXA_H
 #define HEXA_H
 
+#include"color.h"
+
 class Hexa
 {
 public:
@@ -10,7 +12,7 @@ public:
 	int getXPos()const;
 	int getYPos()const;
 	int getZPos()const;
-	char getColor()const;
+	Color getColor()const;
 
 	Hexa* getNear(int index)const;
 
@@ -28,12 +30,14 @@ public:
 	bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const;
 	bool ifPositionInHexa(int x, int y, float side)const;
 
-	void setColor(char color);
+	void setColor(Color color);
+	void setColor(int r, int g, int b);
+	void setColor(float r, float g, float b);
 	void setNear(int index, Hexa* hexa);
 
 	int distanceToCenter()const;
 private:
-	char mColor;
+	Color mColor;
 	const int xPos;
 	const int yPos;
 	const int zPos;

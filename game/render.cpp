@@ -133,27 +133,10 @@ void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
 	float grey[3] = { 0.5f,0.5f,0.5f };
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		float color[3];
-		switch (hexas[i].getColor())
-		{
-		case'W':
-		{
-			color[0] = 1.0f;	color[1] = 1.0f;	color[2] = 1.0f;
-		}
-		break;
-		case 'B':
-		{
-			color[0] = 0.0f;	color[1] = 0.0f;	color[2] = 0.0f;
-		}
-		break;
-		default:
-		{
-			color[0] = 0.5f;	color[1] = 0.5f;	color[2] = 0.5f;
-		}
-		break;
-		}
+		Color &color = hexas[i].getColor();
+		float colors[3] = {color.getRedPercent(),color.getGreenPercent(), color.getBluePercent()};
 		//hexaDataLoad(hexas[i], side, grey, 1.05);
-		hexaDataLoad(hexas[i], side, color, 0.95);
+		hexaDataLoad(hexas[i], side, colors, 0.95);
 	}
 }
 

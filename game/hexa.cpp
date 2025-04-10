@@ -9,7 +9,7 @@ const double PI = 3.141592653589793238463;
 const double epsilon = 0.000001;
 const double ScreenRatio = 16.0 / 9.0;
 
-Hexa::Hexa(int x, int y, int z) :xPos(x), yPos(y), zPos(z), mColor(' ')
+Hexa::Hexa(int x, int y, int z) :xPos(x), yPos(y), zPos(z), mColor(-1,-1,-1)
 {
 }
 
@@ -32,7 +32,7 @@ int Hexa::getZPos()const
 	return zPos;
 }
 
-char Hexa::getColor()const
+Color Hexa::getColor()const
 {
 	return mColor;
 }
@@ -137,9 +137,17 @@ bool Hexa::ifPositionInHexa(int x, int y, float side)const
 	return ifPositionInHexa(fx, fy, side);
 }
 
-void Hexa::setColor(char color)
+void Hexa::setColor(Color color)
 {
 	mColor = color;
+}
+void Hexa::setColor(int r, int g, int b)
+{
+	mColor = Color(r, g, b);
+}
+void Hexa::setColor(float r, float g, float b)
+{
+	mColor = Color(r, g, b);
 }
 
 void Hexa::setNear(int index, Hexa* hexa)

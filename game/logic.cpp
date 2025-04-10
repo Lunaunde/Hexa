@@ -113,10 +113,10 @@ void Logic::setHexaColor(int size, std::vector<Hexa>& hexas, std::mt19937& gen)
 				switch (colorID)
 				{
 				case 0:
-					hexas[j].setColor('W');
+					hexas[j].setColor(Color::pureWhite);
 					break;
 				case 1:
-					hexas[j].setColor('B');
+					hexas[j].setColor(Color::pureBlack);
 					break;
 				}
 			}
@@ -139,7 +139,7 @@ int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::vector<Hexa*>& steps, 
 	for (int i = 0; true; i++)
 	{
 		steps.push_back(step);
-		step->setColor(step->getColor() == 'W' ? 'B' : 'W');
+		step->setColor(step->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 		std::vector<Hexa*> enableNear;
 		for (int j = 0; j < 6; j++)
 		{
@@ -181,7 +181,7 @@ bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 	HexaColorBackup backup(hexas);
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		if (hexas[i].getColor() == 'W')
+		if (hexas[i].getColor() == Color::pureWhite)
 		{
 			nearSameColorChange(hexas[i]);
 			bool flag = true;
@@ -189,7 +189,7 @@ bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 			{
 				if (hexas[j].distanceToCenter() == 0)
 					continue;
-				if (hexas[j].getColor() == 'W')
+				if (hexas[j].getColor() == Color::pureWhite)
 					flag = false;
 			}
 			if (flag)
@@ -200,7 +200,7 @@ bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 	backup.restore(hexas);
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		if (hexas[i].getColor() == 'B')
+		if (hexas[i].getColor() == Color::pureBlack)
 		{
 			nearSameColorChange(hexas[i]);
 			bool flag = true;
@@ -208,7 +208,7 @@ bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 			{
 				if (hexas[j].distanceToCenter() == 0)
 					continue;
-				if (hexas[j].getColor() == 'B')
+				if (hexas[j].getColor() == Color::pureBlack)
 					flag = false;
 			}
 			if (flag)
@@ -221,7 +221,7 @@ bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 }
 void Logic::nearSameColorChange(Hexa& hexa)
 {
-	hexa.setColor(hexa.getColor() == 'W' ? 'B' : 'W');
+	hexa.setColor(hexa.getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 	for (int i = 0; i < 6; i++)
 	{
 		if (hexa.getNear(i) == nullptr)
@@ -238,12 +238,12 @@ bool Logic::finishPuzzle(std::vector<Hexa>& hexas, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		char color = ' ';
+		Color color(-1,-1,-1);
 		for (int j = 0; j < hexas.size(); j++)
 		{
 			if (hexas[j].distanceToCenter() == i)
 			{
-				if (color == ' ')
+				if (color.getRed() == -1&&color.getGreen() == -1&&color.getBlue() == -1)
 					color = hexas[j].getColor();
 				else if (color != hexas[j].getColor())
 					return false;
@@ -267,7 +267,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 			if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				sta->getPlayerSteps().push_back(&hexas[i]);
-				hexas[i].setColor(hexas[i].getColor() == 'W' ? 'B' : 'W');
+				hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 				sta->playStoneSound();
 			}
 		}
@@ -290,7 +290,7 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 				if(!flag)
 					return;
 				sta->getPlayerSteps().push_back(lastStep->getNear(i));
-				lastStep->getNear(i)->setColor(lastStep->getNear(i)->getColor() == 'W' ? 'B' : 'W');
+				lastStep->getNear(i)->setColor(lastStep->getNear(i)->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 				sta->playStoneSound();
 			}
 		}
@@ -302,7 +302,7 @@ void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float side)
 	{
 		if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 0.05f) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS )
 		{
-			hexas[i].setColor(hexas[i].getColor() == 'W' ? 'B' : 'W');
+			hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 		}
 	}
 }
