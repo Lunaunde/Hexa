@@ -48,7 +48,8 @@ float Hexa::getCenterXPos(float side)const
 }
 float Hexa::getCenterXPos(float side, float rotation)const
 {
-	return this->getCenterXPos(side) * sin(rotation) - this->getCenterYPos(side) * cos(rotation);
+	//return this->getCenterXPos(side) * sin(rotation) - this->getCenterYPos(side) * cos(rotation);
+	return this->getCenterXPos(side);
 }
 float Hexa::getCenterYPos(float side)const
 {
@@ -56,7 +57,8 @@ float Hexa::getCenterYPos(float side)const
 }
 float Hexa::getCenterYPos(float side, float rotation)const
 {
-	return this->getCenterYPos(side) * sin(rotation) + this->getCenterXPos(side) * cos(rotation);
+	//return this->getCenterYPos(side) * sin(rotation) + this->getCenterXPos(side) * cos(rotation);
+	return this->getCenterYPos(side);
 }
 
 float Hexa::getVertexXPos(float side, int number, float scale)const
@@ -70,7 +72,8 @@ float Hexa::getVertexXPos(float side, int number)const
 }
 float Hexa::getVertexXPos(float side, int number, float scale, float rotation)const
 {
-	return this->getVertexXPos(side, number, scale) * sin(rotation) - this->getVertexYPos(side, number, scale) * cos(rotation);
+	//return this->getVertexXPos(side, number, scale) * sin(rotation) - this->getVertexYPos(side, number, scale) * cos(rotation);
+	return this->getVertexXPos(side, number, scale);
 }
 
 float Hexa::getVertexYPos(float side, int number, float scale)const
@@ -84,7 +87,8 @@ float Hexa::getVertexYPos(float side, int number)const
 }
 float Hexa::getVertexYPos(float side, int number, float scale, float rotation)const
 {
-	return this->getVertexYPos(side, number, scale) * sin(rotation) + this->getVertexXPos(side, number, scale) * cos(rotation);
+	//return this->getVertexYPos(side, number, scale) * sin(rotation) + this->getVertexXPos(side, number, scale) * cos(rotation);
+	return this->getVertexYPos(side, number, scale);
 }
 
 bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float rotation = 0)const

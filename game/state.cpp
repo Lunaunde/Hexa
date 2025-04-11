@@ -110,13 +110,22 @@ void State::playStoneSound()
 	}
 }
 
-float State::getHexaRadius()
+float State::getHexaRadius() const
 {
 	return mHexaRadius;
 }
 void State::setHexaRadius(float hexaRadius)
 {
 	mHexaRadius = hexaRadius;
+}
+
+short State::getColorMode() const
+{
+	return mColorMode;
+}
+void State::setColorMode(short colorMode)
+{
+	mColorMode = colorMode;
 }
 
 int State::getCursorXPos()

@@ -32,8 +32,11 @@ public:
 
 	void playStoneSound();
 
-    float getHexaRadius();
+    float getHexaRadius() const;
 	void setHexaRadius(float hexaRadius);
+
+	short getColorMode() const;
+    void setColorMode(short colorMode);
 
 	int getCursorXPos();
 	int getCursorYPos();
@@ -57,6 +60,8 @@ private:
 	std::vector<Hexa*> mAnsSteps;
 	std::vector<Hexa*> mPlayerSteps;
 	HexaColorBackup mHexaColorBackup;
+
+	short mColorMode=2;
 
 	static State* instance;
 };

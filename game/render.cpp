@@ -95,7 +95,7 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	   0, 6, 1
 	};
 	std::array<unsigned int, 6> positionType = { 0,0,0,0,0,0 };
-	std::array<unsigned int, 6> colorType = { 0,0,0,0,0,0 };
+	std::array<unsigned int, 6> colorType = { 3,3,3,3,3,3 };
 
 	float rotation = 0;
 	rotation = glfwGetTime();
@@ -134,7 +134,7 @@ void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
 	for (int i = 0; i < hexas.size(); i++)
 	{
 		Color &color = hexas[i].getColor();
-		float colors[3] = {color.getRedPercent(),color.getGreenPercent(), color.getBluePercent()};
+		float colors[3] = {color.getRed(),color.getGreen(), color.getBlue()};
 		//hexaDataLoad(hexas[i], side, grey, 1.05);
 		hexaDataLoad(hexas[i], side, colors, 0.95);
 	}

@@ -43,8 +43,10 @@ int main()
 	rdr->init();
 	dtbg->init();
 	
-	int mapSize = 3;
-	sta->setHexaRadius(0.1f);
+	//glfwSwapInterval(0);
+
+	int mapSize = 8;
+	sta->setHexaRadius(0.035f);
 
 	Logic::buildLevel(mapSize, sta);
 

@@ -10,6 +10,7 @@ void main()
 	{
 	case 0:
 	case 2:
+	case 3:
 	{
 		FragColor = vec4(color,1.0);
 	}
