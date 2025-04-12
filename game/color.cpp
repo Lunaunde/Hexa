@@ -2,6 +2,9 @@
 
 const Color Color::pureBlack(0, 0, 0);
 const Color Color::pureWhite(255, 255, 255);
+const Color Color::pureRed(255, 0, 0);
+const Color Color::pureYellow(255, 255, 0);
+const Color Color::pureBlue(0, 0, 255);
 
 Color::Color(int r, int g, int b)
 {

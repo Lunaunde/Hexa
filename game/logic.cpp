@@ -13,27 +13,24 @@ Logic::~Logic()
 {
 }
 
-void Logic::buildLevel(int size, State* state)
+void Logic::buildLevel(int size)
 {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	if (state->getHexas().size() > 0)
-		state->getHexas().clear();
-	initHexa(size, state->getHexas());
-	setHexaNear(state->getHexas());
+	if (sta->getHexas().size() > 0)
+		sta->getHexas().clear();
+	initHexa(size, sta->getHexas());
+	setHexaNear(sta->getHexas());
 	do
-		setHexaColor(size, state->getHexas(), gen);
-	while (badHexaColor(state->getHexas()) && size > 1);
-	HexaColorBackup defaultBackup(state->getHexas());
+		setHexaColor(size, sta->getHexas());
+	while (badHexaColor(sta->getHexas()) && size > 1);
+	HexaColorBackup defaultBackup(sta->getHexas());
 	int stepCount;
 	do
 	{
-		defaultBackup.restore(state->getHexas());
-		state->getAnsSteps().clear();
-		stepCount = randomHexaColor(state->getHexas(), state->getAnsSteps(), gen);
-	} while (size > 2 && badLevel(state->getHexas(), stepCount));
-	state->getHexaColorBackup() = HexaColorBackup(state->getHexas());
+		defaultBackup.restore(sta->getHexas());
+		sta->getAnsSteps().clear();
+		stepCount = randomHexaColor(sta->getHexas(), sta->getAnsSteps());
+	} while (size > 2 && badLevel(sta->getHexas(), stepCount));
+	sta->getHexaColorBackup() = HexaColorBackup(sta->getHexas());
 }
 
 void Logic::initHexa(int size, std::vector<Hexa>& hexas)
@@ -102,12 +99,20 @@ void Logic::setHexaNear(std::vector<Hexa>& hexas)
 		}
 	}
 }
-void Logic::setHexaColor(int size, std::vector<Hexa>& hexas, std::mt19937& gen)
+void Logic::setHexaColor(int size, std::vector<Hexa>& hexas)
 {
-	std::uniform_real_distribution<> dis(0, 2147483647);
 	for (int i = 0; i < size; i++)
 	{
-		int colorID = (int)(dis(gen)) % 2;
+		int colorID = 0;
+		switch (sta->getColorMode())
+		{
+		case 2:
+			colorID = sta->genInt(0, 1);
+			break;
+		case 3:
+			colorID = sta->genInt(2, 4);
+			break;
+		}
 		for (int j = 0; j < hexas.size(); j++)
 			if (hexas[j].distanceToCenter() == i)
 			{
@@ -118,6 +123,15 @@ void Logic::setHexaColor(int size, std::vector<Hexa>& hexas, std::mt19937& gen)
 					break;
 				case 1:
 					hexas[j].setColor(Color::pureBlack);
+					break;
+				case 2:
+					hexas[j].setColor(Color::pureRed);
+					break;
+				case 3:
+					hexas[j].setColor(Color::pureYellow);
+					break;
+				case 4:
+					hexas[j].setColor(Color::pureBlue);
 					break;
 				}
 			}
@@ -132,26 +146,47 @@ bool Logic::badHexaColor(std::vector<Hexa>& hexas)
 	}
 	return true;
 }
-int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::vector<Hexa*>& steps, std::mt19937& gen)
+int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::vector<Hexa*>& steps)
 {
-	std::uniform_real_distribution<> dis(0, 2147483647);
 	std::vector<char> colorBackups;
-	Hexa* step = &hexas[(int)(dis(gen)) % hexas.size()];
+	Hexa* step = &hexas[sta->genInt(0, hexas.size() - 1)];
 	for (int i = 0; true; i++)
 	{
 		steps.push_back(step);
-		step->setColor(step->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+		switch (sta->getColorMode())
+		{
+		case 2:
+			step->setColor(step->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+			break;
+		case 3:
+			if (step->getColor() == Color::pureRed)
+				step->setColor(Color::pureBlue);
+			else if (step->getColor() == Color::pureBlue)
+				step->setColor(Color::pureYellow);
+			else if (step->getColor() == Color::pureYellow)
+				step->setColor(Color::pureRed);
+			break;
+		}
 		std::vector<Hexa*> enableNear;
 		for (int j = 0; j < 6; j++)
 		{
 			if (step->getNear(j) != nullptr)
 			{
-				int flag = true;
+				int count = 0;
 				for (int k = 0; k < steps.size(); k++)
 					if (steps[k] == step->getNear(j))
-						flag = false;
-				if (flag)
-					enableNear.push_back(step->getNear(j));
+						count++;
+				switch (sta->getColorMode())
+				{
+				case 2:
+					if (count == 0)
+						enableNear.push_back(step->getNear(j));
+					break;
+				case 3:
+					if (count <= 1)
+						enableNear.push_back(step->getNear(j));
+					break;
+				}
 			}
 		}
 		std::vector<int> weight;
@@ -172,13 +207,22 @@ int Logic::randomHexaColor(std::vector<Hexa>& hexas, std::vector<Hexa*>& steps, 
 		}
 		if (weight.size() == 0)
 			return steps.size();
-		step = enableNear[weight[(int)dis(gen) % weight.size()]];
+		step = enableNear[weight[sta->genInt(0, weight.size() - 1)]];
 	}
 }
 bool Logic::badLevel(std::vector<Hexa>& hexas, int stepCount)
 {
-	if (stepCount < hexas.size() / 3)
-		return true;
+	switch (sta->getColorMode())
+	{
+	case 2:
+		if (stepCount < hexas.size() / 3)
+			return true;
+		break;
+	case 3:
+		if (stepCount < hexas.size() / 3 * 2)
+			return true;
+		break;
+	}
 	HexaColorBackup backup(hexas);
 	for (int i = 0; i < hexas.size(); i++)
 	{
@@ -273,7 +317,20 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 			if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				sta->getPlayerSteps().push_back(&hexas[i]);
-				hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+				switch (sta->getColorMode())
+				{
+				case 2:
+					hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+					break;
+				case 3:
+					if (hexas[i].getColor() == Color::pureRed)
+						hexas[i].setColor(Color::pureYellow);
+					else if (hexas[i].getColor() == Color::pureYellow)
+						hexas[i].setColor(Color::pureBlue);
+					else if (hexas[i].getColor() == Color::pureBlue)
+						hexas[i].setColor(Color::pureRed);
+					break;
+				}
 				//sta->playStoneSound();
 			}
 		}
@@ -283,20 +340,43 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 		Hexa* lastStep = sta->getPlayerSteps()[sta->getPlayerSteps().size() - 1];
 		for (int i = 0; i < 6; i++)
 		{
-			if (lastStep->getNear(i) == nullptr)
+			Hexa* nowStep = lastStep->getNear(i);
+			if (nowStep == nullptr)
 				continue;
-			if (lastStep->getNear(i)->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			if (nowStep->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
-				bool flag = true;
-				for (int j = 0;j < sta->getPlayerSteps().size();j++)
+				int count = 0;
+				for (int j = 0; j < sta->getPlayerSteps().size(); j++)
 				{
-					if (sta->getPlayerSteps()[j] == lastStep->getNear(i))
-						flag = false;
+					if (sta->getPlayerSteps()[j] == nowStep)
+						count++;
 				}
-				if (!flag)
-					return;
-				sta->getPlayerSteps().push_back(lastStep->getNear(i));
-				lastStep->getNear(i)->setColor(lastStep->getNear(i)->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+				switch (sta->getColorMode())
+				{
+				case 2:
+					if (count > 0)
+						return;
+					break;
+				case 3:
+					if (count > 1)
+						return;
+				}
+				sta->getPlayerSteps().push_back(nowStep);
+				switch (sta->getColorMode())
+				{
+				case 2:
+					nowStep->setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+					break;
+				case 3:
+					if (nowStep->getColor() == Color::pureRed)
+						nowStep->setColor(Color::pureYellow);
+					else if (nowStep->getColor() == Color::pureYellow)
+						nowStep->setColor(Color::pureBlue);
+					else if (nowStep->getColor() == Color::pureBlue)
+						nowStep->setColor(Color::pureRed);
+					break;
+				}
+				break;
 				//sta->playStoneSound();
 			}
 		}

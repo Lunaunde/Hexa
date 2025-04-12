@@ -46,6 +46,10 @@ void State::init()
 	aplct->setCursorPosCallback(State::onCursorPos);
 	aplct->setMouseButtonCallback(State::onMouseButton);
 	aplct->setKeyCallback(State::onKey);
+
+	mSeed = std::random_device{}();
+	mSeed %= 524288;
+	mGen = std::mt19937(mSeed);
 }
 
 void State::onCursorPos(double xpos, double ypos)
@@ -117,6 +121,20 @@ float State::getHexaRadius() const
 void State::setHexaRadius(float hexaRadius)
 {
 	mHexaRadius = hexaRadius;
+}
+
+uint32_t State::getSeed()
+{
+	return mSeed;
+}
+void State::setSeed(uint32_t seed)
+{
+	mSeed = seed;
+	mGen = std::mt19937(mSeed);
+}
+int State::genInt(int min, int max)
+{
+	return std::uniform_int_distribution<int>(min, max)(mGen);
 }
 
 short State::getColorMode() const

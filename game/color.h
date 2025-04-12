@@ -12,6 +12,9 @@ public:
 
     static const Color pureBlack;
     static const Color pureWhite;
+    static const Color pureRed;
+    static const Color pureYellow;
+    static const Color pureBlue;
 
     std::string toHex() const;
     void getRGB(int& r, int& g, int& b) const;

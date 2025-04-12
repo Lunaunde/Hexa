@@ -39,16 +39,18 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	txtdp->init("assets/fonts/MSYH.TTC"); 
+	txtdp->init("assets/fonts/MSYH.TTC");
 	rdr->init();
 	dtbg->init();
-	
+
 	//glfwSwapInterval(0);
 
-	int mapSize = 8;
-	sta->setHexaRadius(0.035f);
+	int mapSize = 4;
+	sta->setHexaRadius(0.1f);
 
-	Logic::buildLevel(mapSize, sta);
+	sta->setSeed(114514);
+	sta->setColorMode(3);
+	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);

@@ -3,6 +3,8 @@
 #define sta State::getInstance()
 #include<array>
 #include<vector>
+#include<random>
+#include<functional>
 #include "hexa.h"
 #include"../application/AudioPlayer.h"
 
@@ -38,6 +40,10 @@ public:
 	short getColorMode() const;
     void setColorMode(short colorMode);
 
+	uint32_t getSeed();
+    void setSeed(uint32_t seed);
+	int genInt(int min,int max);
+
 	int getCursorXPos();
 	int getCursorYPos();
 	int getMouseButton();
@@ -62,6 +68,9 @@ private:
 	HexaColorBackup mHexaColorBackup;
 
 	short mColorMode=2;
+
+	uint32_t mSeed;
+	std::mt19937 mGen;
 
 	static State* instance;
 };
