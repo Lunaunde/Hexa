@@ -6,6 +6,7 @@
 #include<random>
 #include<functional>
 #include "hexa.h"
+#include"color.h"
 #include"../application/AudioPlayer.h"
 
 class HexaColorBackup
@@ -34,23 +35,29 @@ public:
 
 	void playStoneSound();
 
-    float getHexaRadius() const;
+	float getHexaRadius() const;
 	void setHexaRadius(float hexaRadius);
 
 	short getColorMode() const;
-    void setColorMode(short colorMode);
+	void setColorMode(short colorMode);
+
+	void setColorChangeMode(bool colorChangeMode);
+	bool getColorChangeMode() const;
+	void add1CCFC();
+	void colorChange(int needFrame);
+	Color getChangedColor(Color color);
 
 	uint32_t getSeed();
-    void setSeed(uint32_t seed);
-	int genInt(int min,int max);
+	void setSeed(uint32_t seed);
+	int genInt(int min, int max);
 
-	int getCursorXPos();
-	int getCursorYPos();
-	int getMouseButton();
-	int getMouseAction();
+	int getCursorXPos() const;
+	int getCursorYPos() const;
+	int getMouseButton() const;
+	int getMouseAction() const;
 	void clearMouse();
-	int getKey();
-	int getKeyAction();
+	int getKey() const;
+	int getKeyAction() const;
 	void clearKey();
 private:
 	State();
@@ -59,7 +66,7 @@ private:
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
 
-	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction,mKey,mKeyAction;
+	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;
 
 	std::vector<Hexa> mHexas;
@@ -67,7 +74,13 @@ private:
 	std::vector<Hexa*> mPlayerSteps;
 	HexaColorBackup mHexaColorBackup;
 
-	short mColorMode=2;
+	short mColorMode = 2;
+
+	bool mColorChangeMode = false;
+	int mColorChangeFrameCount = 0;
+	short mColorChange = 0;
+
+	bool mRotationMode = false;
 
 	uint32_t mSeed;
 	std::mt19937 mGen;

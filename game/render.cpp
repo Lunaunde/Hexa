@@ -131,10 +131,16 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
 {
 	float grey[3] = { 0.5f,0.5f,0.5f };
+	sta->add1CCFC();
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		Color &color = hexas[i].getColor();
-		float colors[3] = {color.getRed(),color.getGreen(), color.getBlue()};
+		Color color = hexas[i].getColor();
+		if (sta->getColorChangeMode() == true)
+		{
+			sta->colorChange(60);
+			color = sta->getChangedColor(color);
+		}
+		float colors[3] = { color.getRed(),color.getGreen(), color.getBlue() };
 		//hexaDataLoad(hexas[i], side, grey, 1.05);
 		hexaDataLoad(hexas[i], side, colors, 0.95);
 	}

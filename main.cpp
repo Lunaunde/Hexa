@@ -50,6 +50,7 @@ int main()
 
 	sta->setSeed(114514);
 	sta->setColorMode(3);
+	sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
@@ -68,7 +69,7 @@ int main()
 
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
-		dtbg->draw();
+		//dtbg->draw();
 		rdr->dataLoad();
 		rdr->draw();
 		txtdp->renderText(L"123 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);

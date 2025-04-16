@@ -146,19 +146,66 @@ void State::setColorMode(short colorMode)
 	mColorMode = colorMode;
 }
 
-int State::getCursorXPos()
+void State::setColorChangeMode(bool colorChangeMode)
+{
+	mColorChangeMode = colorChangeMode;
+}
+bool State::getColorChangeMode() const
+{
+	return mColorChangeMode;
+}
+void State::add1CCFC()
+{
+	mColorChangeFrameCount++;
+}
+void State::colorChange(int needFrame)
+{
+	mColorChange = mColorChangeFrameCount / needFrame;
+}
+Color State::getChangedColor(Color color)
+{
+	if (mColorMode == 2)
+	{
+		if (mColorChange % 2 == 1)
+			color = (color == Color::pureWhite) ? Color::pureBlack : Color::pureWhite;
+	}
+	else if (mColorMode == 3)
+	{
+		if (mColorChange % 3 == 1)
+		{
+			if (color == Color::pureRed)
+				color = Color::pureYellow;
+			else if (color == Color::pureYellow)
+				color = Color::pureBlue;
+			else if (color == Color::pureBlue)
+				color = Color::pureRed;
+		}
+		else if (mColorChange % 3 == 2)
+		{
+			if (color == Color::pureRed)
+				color = Color::pureBlue;
+			else if (color == Color::pureBlue)
+				color = Color::pureYellow;
+			else if (color == Color::pureYellow)
+				color = Color::pureRed;
+		}
+	}
+	return color;
+}
+
+int State::getCursorXPos() const
 {
 	return mCursorXPos;
 }
-int State::getCursorYPos()
+int State::getCursorYPos() const
 {
 	return mCursorYPos;
 }
-int State::getMouseAction()
+int State::getMouseAction() const
 {
 	return mMouseAction;
 }
-int State::getMouseButton()
+int State::getMouseButton() const
 {
 	return mMouseButton;
 }
@@ -167,11 +214,11 @@ void State::clearMouse()
 	mMouseAction = NULL;
 	mMouseButton = NULL;
 }
-int State::getKey()
+int State::getKey() const
 {
 	return mKey;
 }
-int State::getKeyAction()
+int State::getKeyAction() const
 {
 	return mKeyAction;
 }
