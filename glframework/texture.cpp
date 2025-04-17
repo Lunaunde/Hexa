@@ -1,4 +1,5 @@
 ﻿#include"texture.h"
+#include<iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -27,6 +28,10 @@ Texture::Texture(const std::string& path, unsigned int unit)
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	if (mWidth == 0 || mHeight == 0) {
+		std::cerr << "Failed to load texture: " << path << std::endl;
+	}
 }
 
 Texture::~Texture()

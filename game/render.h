@@ -5,6 +5,7 @@
 #include<vector>
 #include"../glframework/core.h"
 #include"../glframework/shader.h"
+#include"../glframework/texture.h"
 #include"state.h"
 
 class Render
@@ -59,5 +60,32 @@ private:
 	GLuint vbo;
 	GLuint ebo;
 	DistortedBackground();
+};
+
+class CrystalBackground
+{
+public:
+	~CrystalBackground();
+	static CrystalBackground* getInstance();
+	void init();
+	void draw();
+private:
+	static CrystalBackground* instance;
+	Shader* mShader;
+	Texture* mTexture;
+	static constexpr std::array<float, 16> vertices = {
+		-1.0f,  1.0f, 0.1f, 0.9f,
+		-1.0f, -1.0f, 0.1f, 0.1f,
+		 1.0f, -1.0f, 0.9f, 0.1f,
+		 1.0f,  1.0f, 0.9f, 0.9f
+	};
+	static constexpr std::array<unsigned int, 6> indices = {
+		0, 1, 2,
+		0, 2, 3
+	};
+	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	CrystalBackground();
 };
 #endif

@@ -267,3 +267,61 @@ void DistortedBackground::draw()
 	GL_CALL(glBindVertexArray(0));
 	mShader->end();
 }
+
+
+CrystalBackground::CrystalBackground()
+{
+	mShader = new Shader("assets/shaders/vertex_C.glsl", "assets/shaders/fragment_C.glsl");
+}
+CrystalBackground::~CrystalBackground()
+{
+	delete mShader;
+}
+CrystalBackground* CrystalBackground::instance = nullptr;
+CrystalBackground* CrystalBackground::getInstance()
+{
+	if (instance == nullptr)
+		instance = new CrystalBackground();
+	return instance;
+}
+void CrystalBackground::init()
+{
+	mTexture = new Texture("assets/textures/p.jpeg",0);
+	vao = 0;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+
+	vbo = 0;
+	GL_CALL(glGenBuffers(1, &vbo));
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW));
+
+	GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0)); // 位置
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)))); // 纹理坐标
+	GL_CALL(glEnableVertexAttribArray(1)); 
+
+	ebo = 0;
+	GL_CALL(glGenBuffers(1, &ebo));
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW));
+	GL_CALL(glBindVertexArray(0));
+}
+
+void CrystalBackground::draw()
+{
+	mShader->begin();
+	mShader->setInt("uBackground", 0);
+	mTexture->bind();
+	mShader->setVec2("uResolution", aplct->getWidth(), aplct->getLength());
+	mShader->setFloat("uTime", glfwGetTime());
+	mShader->setFloat("uEta", 0.75f);
+	mShader->setFloat("uDistortionStrength", 0.1f);
+	mShader->setFloat("uNoiseScale", 8.0f); 
+
+	GL_CALL(glBindVertexArray(vao));
+	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));
+	GL_CALL(glBindVertexArray(0));
+	mShader->end();
+}
