@@ -24,6 +24,8 @@ public:
 
 	static void playerStepCheck(std::vector<Hexa>& hexas, float side);
 	static void clickChangeHexa(std::vector<Hexa>& hexas, float side);
+
+	static void showAnswer();
 };
 
 #endif

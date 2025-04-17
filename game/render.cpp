@@ -98,7 +98,7 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	std::array<unsigned int, 6> colorType = { 3,3,3,3,3,3 };
 
 	float rotation = 0;
-	rotation = glfwGetTime();
+	//rotation = glfwGetTime();
 
 	pos[0] = hexa.getCenterXPos(side, rotation);  // 中心点
 	pos[1] = hexa.getCenterYPos(side, rotation) * ScreenRatio;

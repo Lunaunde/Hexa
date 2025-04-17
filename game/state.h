@@ -51,6 +51,12 @@ public:
 	void setSeed(uint32_t seed);
 	int genInt(int min, int max);
 
+	void setShowAnswer(bool bo);
+	bool getShowAnswer() const;
+	void add1SAF();
+	void clearSAF();
+	int getSAF() const;
+
 	int getCursorXPos() const;
 	int getCursorYPos() const;
 	int getMouseButton() const;
@@ -79,6 +85,9 @@ private:
 	bool mColorChangeMode = false;
 	int mColorChangeFrameCount = 0;
 	short mColorChange = 0;
+
+	int mShowAnswerFrameCount = 0;
+	bool mShowAnswer = false;
 
 	bool mRotationMode = false;
 

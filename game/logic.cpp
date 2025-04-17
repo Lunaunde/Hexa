@@ -309,78 +309,80 @@ void Logic::playerStepCheck(std::vector<Hexa>& hexas, float side)
 	{
 		sta->getHexaColorBackup().restore(hexas);
 		sta->getPlayerSteps().clear();
+		sta->setShowAnswer(false);
 	}
-	if (sta->getPlayerSteps().size() == 0)
-	{
-		for (int i = 0; i < hexas.size(); i++)
+	if (!sta->getShowAnswer())
+		if (sta->getPlayerSteps().size() == 0)
 		{
-			if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			for (int i = 0; i < hexas.size(); i++)
 			{
-				sta->getPlayerSteps().push_back(&hexas[i]);
-				switch (sta->getColorMode())
+				if (hexas[i].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
-				case 2:
-					hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
-					break;
-				case 3:
-					if (hexas[i].getColor() == Color::pureRed)
-						hexas[i].setColor(Color::pureYellow);
-					else if (hexas[i].getColor() == Color::pureYellow)
-						hexas[i].setColor(Color::pureBlue);
-					else if (hexas[i].getColor() == Color::pureBlue)
-						hexas[i].setColor(Color::pureRed);
-					break;
+					sta->getPlayerSteps().push_back(&hexas[i]);
+					switch (sta->getColorMode())
+					{
+					case 2:
+						hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+						break;
+					case 3:
+						if (hexas[i].getColor() == Color::pureRed)
+							hexas[i].setColor(Color::pureYellow);
+						else if (hexas[i].getColor() == Color::pureYellow)
+							hexas[i].setColor(Color::pureBlue);
+						else if (hexas[i].getColor() == Color::pureBlue)
+							hexas[i].setColor(Color::pureRed);
+						break;
+					}
+					//sta->playStoneSound();
 				}
-				//sta->playStoneSound();
 			}
 		}
-	}
-	else
-	{
-		Hexa* lastStep = sta->getPlayerSteps()[sta->getPlayerSteps().size() - 1];
-		for (int i = 0; i < 6; i++)
+		else
 		{
-			Hexa* nowStep = lastStep->getNear(i);
-			if (nowStep == nullptr)
-				continue;
-			if (nowStep->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			Hexa* lastStep = sta->getPlayerSteps()[sta->getPlayerSteps().size() - 1];
+			for (int i = 0; i < 6; i++)
 			{
-				int count = 0;
-				for (int j = 0; j < sta->getPlayerSteps().size(); j++)
+				Hexa* nowStep = lastStep->getNear(i);
+				if (nowStep == nullptr)
+					continue;
+				if (nowStep->ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), side) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
-					if (sta->getPlayerSteps()[j] == nowStep)
-						count++;
-				}
-				switch (sta->getColorMode())
-				{
-				case 2:
-					if (count > 0)
-						return;
+					int count = 0;
+					for (int j = 0; j < sta->getPlayerSteps().size(); j++)
+					{
+						if (sta->getPlayerSteps()[j] == nowStep)
+							count++;
+					}
+					switch (sta->getColorMode())
+					{
+					case 2:
+						if (count > 0)
+							return;
+						break;
+					case 3:
+						if (count > 1)
+							return;
+					}
+					sta->getPlayerSteps().push_back(nowStep);
+					switch (sta->getColorMode())
+					{
+					case 2:
+						nowStep->setColor(nowStep->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+						break;
+					case 3:
+						if (nowStep->getColor() == Color::pureRed)
+							nowStep->setColor(Color::pureYellow);
+						else if (nowStep->getColor() == Color::pureYellow)
+							nowStep->setColor(Color::pureBlue);
+						else if (nowStep->getColor() == Color::pureBlue)
+							nowStep->setColor(Color::pureRed);
+						break;
+					}
 					break;
-				case 3:
-					if (count > 1)
-						return;
+					//sta->playStoneSound();
 				}
-				sta->getPlayerSteps().push_back(nowStep);
-				switch (sta->getColorMode())
-				{
-				case 2:
-					nowStep->setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
-					break;
-				case 3:
-					if (nowStep->getColor() == Color::pureRed)
-						nowStep->setColor(Color::pureYellow);
-					else if (nowStep->getColor() == Color::pureYellow)
-						nowStep->setColor(Color::pureBlue);
-					else if (nowStep->getColor() == Color::pureBlue)
-						nowStep->setColor(Color::pureRed);
-					break;
-				}
-				break;
-				//sta->playStoneSound();
 			}
 		}
-	}
 }
 void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float side)
 {
@@ -390,5 +392,39 @@ void Logic::clickChangeHexa(std::vector<Hexa>& hexas, float side)
 		{
 			hexas[i].setColor(hexas[i].getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
 		}
+	}
+}
+
+void Logic::showAnswer()
+{
+	if (sta->getKey() == GLFW_KEY_A && sta->getKeyAction() == GLFW_PRESS)
+	{
+		sta->setShowAnswer(true);
+		sta->clearSAF();
+		sta->getHexaColorBackup().restore(sta->getHexas());
+		sta->getPlayerSteps().clear();
+	}
+	if (sta->getShowAnswer())
+	{
+		int showStep = sta->getSAF() / 1;
+		if (sta->getSAF() % 1 == 0 && showStep < sta->getAnsSteps().size())//sta->getSAF() % 60 == 59 && 
+		{
+			Hexa* nowStep = sta->getAnsSteps()[showStep];
+			switch (sta->getColorMode())
+			{
+			case 2:
+				nowStep->setColor(nowStep->getColor() == Color::pureWhite ? Color::pureBlack : Color::pureWhite);
+				break;
+			case 3:
+				if (nowStep->getColor() == Color::pureRed)
+					nowStep->setColor(Color::pureYellow);
+				else if (nowStep->getColor() == Color::pureYellow)
+					nowStep->setColor(Color::pureBlue);
+				else if (nowStep->getColor() == Color::pureBlue)
+					nowStep->setColor(Color::pureRed);
+				break;
+			}
+		}
+		sta->add1SAF();
 	}
 }

@@ -193,6 +193,28 @@ Color State::getChangedColor(Color color)
 	return color;
 }
 
+void State::setShowAnswer(bool bo)
+{
+    mShowAnswer = bo;
+}
+bool State::getShowAnswer() const
+{
+    return mShowAnswer;
+}
+void State::add1SAF()
+{
+	mShowAnswerFrameCount++;
+}
+void State::clearSAF()
+{
+    mShowAnswerFrameCount = 0;
+}
+int State::getSAF() const
+{
+    return mShowAnswerFrameCount;
+}
+
+
 int State::getCursorXPos() const
 {
 	return mCursorXPos;
