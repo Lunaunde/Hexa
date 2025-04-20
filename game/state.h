@@ -47,6 +47,9 @@ public:
 	void colorChange(int needFrame);
 	Color getChangedColor(Color color);
 
+	void setRotationMode(bool bo);
+	bool getRotationMode() const;
+
 	uint32_t getSeed();
 	void setSeed(uint32_t seed);
 	int genInt(int min, int max);

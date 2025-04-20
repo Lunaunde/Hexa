@@ -89,7 +89,6 @@ float Hexa::getVertexYPos(float side, int number, float scale, float rotation)co
 
 bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float rotation = 0)const
 {
-	//rotation = glfwGetTime();
 	for (int i = 0; i < 6; i++)
 	{
 		for (int j = 0; j < 6; j++)

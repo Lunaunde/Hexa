@@ -6,10 +6,10 @@ out vec4 FragColor;
 
 uniform vec2 iResolution;    // 屏幕分辨率
 uniform float iTime;         // 时间
-uniform vec3 colour1 = vec3(0.99, 0.77, 0.11);
+uniform vec3 colour1 = vec3(0.77, 0.90, 0.11);
 uniform vec3 colour2 = vec3(0.85, 0.0, 0.0);
 uniform vec3 colour3 = vec3(1.0, 0.0, 0.0);
-uniform vec3 colour4 = vec3(0.99, 0.84, 0.0);
+uniform vec3 colour4 = vec3(0.90, 0.84, 0.0);
 uniform int contrast = 5;
 uniform float gradual = 2.0;
 uniform float width1 = 0.04;
@@ -18,7 +18,7 @@ uniform float scale1 = 10.0;
 uniform float scale2 = 1.0;
 uniform vec2 offset = vec2(0.0);
 uniform float intensity = 0.2;
-uniform float spin_speed = 0.4;
+uniform float spin_speed = 0.05;
 uniform float spin_amount = 1.5;
 
 void main() {

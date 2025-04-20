@@ -193,6 +193,15 @@ Color State::getChangedColor(Color color)
 	return color;
 }
 
+void State::setRotationMode(bool bo)
+{
+	mRotationMode = bo;
+}
+bool State::getRotationMode() const
+{
+	return mRotationMode;
+}
+
 void State::setShowAnswer(bool bo)
 {
     mShowAnswer = bo;
