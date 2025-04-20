@@ -50,10 +50,9 @@ int main()
 	sta->setHexaRadius(0.04f);
 
 	//sta->setSeed();
-	sta->setColorMode(2);
+	sta->setColorMode(3);
 	//sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
-	sta->setRotationMode(true);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);
@@ -72,7 +71,7 @@ int main()
 
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
-		dtbg->draw();
+		//dtbg->draw();
 		CrystalBackground::getInstance()->draw();
 		rdr->dataLoad();
 		rdr->draw();

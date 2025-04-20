@@ -98,8 +98,7 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	std::array<unsigned int, 6> colorType = { 3,3,3,3,3,3 };
 
 	float rotation = 0;
-	if (sta->getRotationMode())
-		rotation = glfwGetTime();
+	//rotation = glfwGetTime();
 
 	pos[0] = hexa.getCenterXPos(side, rotation);  // 中心点
 	pos[1] = hexa.getCenterYPos(side, rotation) * ScreenRatio;
@@ -242,16 +241,6 @@ DistortedBackground* DistortedBackground::getInstance()
 }
 void DistortedBackground::init()
 {
-	GL_CALL(glGenFramebuffers(1, &fbo));
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-
-	GL_CALL(glGenTextures(1, &texColor));
-	GL_CALL(glBindTexture(GL_TEXTURE_2D, texColor));
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColor, 0));
-
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
@@ -270,10 +259,6 @@ void DistortedBackground::init()
 
 void DistortedBackground::draw()
 {
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-	GL_CALL(glViewport(0, 0, texWidth, texHeight));
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-
 	mShader->begin();
 	mShader->setVec2("iResolution", aplct->getWidth(), aplct->getLength());
 	mShader->setFloat("iTime", glfwGetTime());
@@ -281,13 +266,8 @@ void DistortedBackground::draw()
 	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));
 	GL_CALL(glBindVertexArray(0));
 	mShader->end();
+}
 
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-	GL_CALL(glViewport(0, 0, aplct->getWidth(), aplct->getLength()));
-}
-GLuint DistortedBackground::getOutputTexture() const {
-	return texColor;
-}
 
 CrystalBackground::CrystalBackground()
 {
@@ -306,10 +286,7 @@ CrystalBackground* CrystalBackground::getInstance()
 }
 void CrystalBackground::init()
 {
-	// 恢复默认缓冲
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-	//mTexture = new Texture("assets/textures/stone1.jpg",0);
+	mTexture = new Texture("assets/textures/p.jpeg",0);
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
@@ -323,7 +300,7 @@ void CrystalBackground::init()
 	GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0)); // 位置
 	GL_CALL(glEnableVertexAttribArray(0));
 	GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)))); // 纹理坐标
-	GL_CALL(glEnableVertexAttribArray(1));
+	GL_CALL(glEnableVertexAttribArray(1)); 
 
 	ebo = 0;
 	GL_CALL(glGenBuffers(1, &ebo));
@@ -335,15 +312,13 @@ void CrystalBackground::init()
 void CrystalBackground::draw()
 {
 	mShader->begin();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, dtbg->getOutputTexture());
 	mShader->setInt("uBackground", 0);
-
+	mTexture->bind();
 	mShader->setVec2("uResolution", aplct->getWidth(), aplct->getLength());
 	mShader->setFloat("uTime", glfwGetTime());
 	mShader->setFloat("uEta", 0.75f);
 	mShader->setFloat("uDistortionStrength", 0.1f);
-	mShader->setFloat("uNoiseScale", 8.0f);
+	mShader->setFloat("uNoiseScale", 8.0f); 
 
 	GL_CALL(glBindVertexArray(vao));
 	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));

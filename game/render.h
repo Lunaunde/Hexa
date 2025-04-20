@@ -43,7 +43,6 @@ public:
 	static DistortedBackground* getInstance();
 	void init();
 	void draw();
-	GLuint DistortedBackground::getOutputTexture() const;
 private:
 	static DistortedBackground* instance;
 	Shader* mShader;
@@ -60,10 +59,6 @@ private:
 	GLuint vao;
 	GLuint vbo;
 	GLuint ebo;
-	GLuint fbo;
-	GLuint texColor;
-	int texWidth = 1920;
-	int texHeight = 1080;
 	DistortedBackground();
 };
 
