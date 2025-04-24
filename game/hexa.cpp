@@ -9,7 +9,7 @@ const double PI = 3.141592653589793238463;
 const double epsilon = 0.000001;
 const double ScreenRatio = 16.0 / 9.0;
 
-Hexa::Hexa(int x, int y, int z) :xPos(x), yPos(y), zPos(z), mColor(-1,-1,-1)
+Hexa::Hexa(int x, int y, int z) :xPos(x), yPos(y), zPos(z), mColor(-1, -1, -1), mShowColor(-1, -1, -1), mScale(0), mStartTime(glfwGetTime())
 {
 }
 
@@ -36,6 +36,12 @@ Color Hexa::getColor()const
 {
 	return mColor;
 }
+Color Hexa::getShowColor()const
+{
+	if (mScale >= 0)
+		mShowColor = mColor;
+	return mShowColor;
+}
 
 Hexa* Hexa::getNear(int index)const
 {
@@ -59,28 +65,20 @@ float Hexa::getCenterYPos(float side, float rotation)const
 	return this->getCenterYPos(side) * sin(rotation) + this->getCenterXPos(side) * cos(rotation);
 }
 
-float Hexa::getVertexXPos(float side, int number, float scale)const
+float Hexa::getVertexXPos(float side, int number, float scale = 1)const
 {
 	double angle = 2 * PI * number / 6;
-	return this->getCenterXPos(side) + side * scale * sin(angle);
-}
-float Hexa::getVertexXPos(float side, int number)const
-{
-	return this->getVertexXPos(side, number, 1);
+	return this->getCenterXPos(side) + side * scale * sin(angle) * abs(sin(mScale * PI * 0.5));
 }
 float Hexa::getVertexXPos(float side, int number, float scale, float rotation)const
 {
 	return this->getVertexXPos(side, number, scale) * sin(rotation) - this->getVertexYPos(side, number, scale) * cos(rotation);
 }
 
-float Hexa::getVertexYPos(float side, int number, float scale)const
+float Hexa::getVertexYPos(float side, int number, float scale = 1)const
 {
 	double angle = 2 * PI * number / 6;
-	return this->getCenterYPos(side) + side * scale * cos(angle);
-}
-float Hexa::getVertexYPos(float side, int number)const
-{
-	return this->getVertexYPos(side, number, 1);
+	return this->getCenterYPos(side) + side * scale * cos(angle) * abs(sin(mScale * PI * 0.5));
 }
 float Hexa::getVertexYPos(float side, int number, float scale, float rotation)const
 {
@@ -98,7 +96,7 @@ bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float
 				continue;
 			if (abs(this->getVertexYPos(side, i) - this->getVertexYPos(side, j)) < epsilon && abs(y - this->getVertexYPos(side, i) * ScreenRatio) < epsilon && (x - this->getVertexXPos(side, i) * (x - this->getVertexYPos(side, i) < 0)))
 			{
-				std::cout<<1<<std::endl;
+				std::cout << 1 << std::endl;
 				return true;
 			}
 		}
@@ -139,6 +137,12 @@ bool Hexa::ifPositionInHexa(int x, int y, float side)const
 	float fy = ((float)y - (float)(aplct->getLength() / 2)) / (float)(aplct->getLength() / 2);
 	return ifPositionInHexa(fx, fy, side);
 }
+bool Hexa::ifPositionInHexa(int x, int y, float side, float scale = 1, float rotation = 0)const
+{
+	float fx = ((float)x - (float)(aplct->getWidth() / 2)) / (float)(aplct->getWidth() / 2);
+	float fy = ((float)y - (float)(aplct->getLength() / 2)) / (float)(aplct->getLength() / 2);
+	return ifPositionInHexa(fx, fy, side, scale, rotation);
+}
 
 void Hexa::setColor(Color color)
 {
@@ -147,10 +151,20 @@ void Hexa::setColor(Color color)
 void Hexa::setColor(int r, int g, int b)
 {
 	mColor = Color(r, g, b);
+	mScale = -1;
+	mStartTime = glfwGetTime();
 }
 void Hexa::setColor(float r, float g, float b)
 {
 	mColor = Color(r, g, b);
+	mScale = -1;
+	mStartTime = glfwGetTime();
+}
+void Hexa::changeColor(Color color)
+{
+	mColor = color;
+	mScale = -1;
+	mStartTime = glfwGetTime() + 1;
 }
 
 void Hexa::setNear(int index, Hexa* hexa)
@@ -161,4 +175,12 @@ void Hexa::setNear(int index, Hexa* hexa)
 int Hexa::distanceToCenter()const
 {
 	return std::max(std::max(abs(xPos), abs(yPos)), abs(zPos));
+}
+
+void Hexa::mScaleAdd()
+{
+	if (mScale < 1)
+		mScale = glfwGetTime() - mStartTime;
+	else if (mScale > 1)
+		mScale = 1;
 }

@@ -50,8 +50,8 @@ int main()
 	sta->setHexaRadius(0.04f);
 
 	//sta->setSeed();
-	sta->setColorMode(3);
-	//sta->setColorChangeMode(true);
+	sta->setColorMode(2);
+	sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
@@ -69,6 +69,7 @@ int main()
 		Logic::playerStepCheck(sta->getHexas(), sta->getHexaRadius());
 		Logic::showAnswer();
 
+		sta->hexasScaleAdd();
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
 		//dtbg->draw();

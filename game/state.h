@@ -16,6 +16,7 @@ public:
 	HexaColorBackup();
 	~HexaColorBackup();
 	void restore(std::vector<Hexa>& hexas);
+	void softRestore(std::vector<Hexa>& hexas);
 private:
 	std::vector<Color> mHexaColorBackup;
 };
@@ -47,15 +48,22 @@ public:
 	void colorChange(int needFrame);
 	Color getChangedColor(Color color);
 
+	void setRotationMode(bool bo);
+    bool getRotationMode() const;
+
 	uint32_t getSeed();
 	void setSeed(uint32_t seed);
 	int genInt(int min, int max);
 
+	void setSAST();
+	float getSAST() const;
 	void setShowAnswer(bool bo);
 	bool getShowAnswer() const;
 	void add1SAF();
 	void clearSAF();
 	int getSAF() const;
+
+	void hexasScaleAdd();
 
 	int getCursorXPos() const;
 	int getCursorYPos() const;
@@ -71,6 +79,10 @@ private:
 	void static onCursorPos(double xpos, double ypos);
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
+
+	int mState = 0;
+	int mLevelBase = 3;
+	int mLevel = 1;
 
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;
@@ -88,6 +100,7 @@ private:
 
 	int mShowAnswerFrameCount = 0;
 	bool mShowAnswer = false;
+	float mShowAnswerStartTime = 0;
 
 	bool mRotationMode = false;
 

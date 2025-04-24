@@ -26,6 +26,13 @@ void HexaColorBackup::restore(std::vector<Hexa>& hexas)
 		hexas[i].setColor(mHexaColorBackup[i]);
 	}
 }
+void HexaColorBackup::softRestore(std::vector<Hexa>& hexas)
+{
+	for (int i = 0; i < mHexaColorBackup.size(); i++)
+	{
+		hexas[i].changeColor(mHexaColorBackup[i]);
+	}
+}
 
 State::State() : mHexas(), mAnsSteps(), mPlayerSteps(), mHexaColorBackup()
 {
@@ -193,13 +200,30 @@ Color State::getChangedColor(Color color)
 	return color;
 }
 
+void State::setRotationMode(bool bo)
+{
+	mRotationMode = bo;
+}
+bool State::getRotationMode() const
+{
+	return mRotationMode;
+}
+
+void State::setSAST()
+{
+	mShowAnswerStartTime = glfwGetTime();
+}
+float State::getSAST()const
+{
+	return mShowAnswerStartTime;
+}
 void State::setShowAnswer(bool bo)
 {
-    mShowAnswer = bo;
+	mShowAnswer = bo;
 }
 bool State::getShowAnswer() const
 {
-    return mShowAnswer;
+	return mShowAnswer;
 }
 void State::add1SAF()
 {
@@ -207,13 +231,18 @@ void State::add1SAF()
 }
 void State::clearSAF()
 {
-    mShowAnswerFrameCount = 0;
+	mShowAnswerFrameCount = 0;
 }
 int State::getSAF() const
 {
-    return mShowAnswerFrameCount;
+	return mShowAnswerFrameCount;
 }
 
+void State::hexasScaleAdd()
+{
+	for (auto& hexa : mHexas)
+		hexa.mScaleAdd();
+}
 
 int State::getCursorXPos() const
 {

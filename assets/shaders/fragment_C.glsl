@@ -45,7 +45,7 @@ float fractalVoronoi(vec2 p) {
     float amplitude = 0.5;
     for(int i = 0; i < 2; i++) {
         total += voronoi(p) * amplitude;
-        p *= vec2(2.0, 1.8); // 非均匀缩放
+        p *= vec2(4.0, 3.6); // 非均匀缩放
         amplitude *= 0.6;
     }
     return 1.0 - total;

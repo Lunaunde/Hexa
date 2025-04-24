@@ -98,7 +98,8 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	std::array<unsigned int, 6> colorType = { 3,3,3,3,3,3 };
 
 	float rotation = 0;
-	//rotation = glfwGetTime();
+	if (sta->getRotationMode())
+		rotation = glfwGetTime();
 
 	pos[0] = hexa.getCenterXPos(side, rotation);  // 中心点
 	pos[1] = hexa.getCenterYPos(side, rotation) * ScreenRatio;
@@ -134,7 +135,7 @@ void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
 	sta->add1CCFC();
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		Color color = hexas[i].getColor();
+		Color color = hexas[i].getShowColor();
 		if (sta->getColorChangeMode() == true)
 		{
 			sta->colorChange(60);
@@ -286,7 +287,7 @@ CrystalBackground* CrystalBackground::getInstance()
 }
 void CrystalBackground::init()
 {
-	mTexture = new Texture("assets/textures/p.jpeg",0);
+	mTexture = new Texture("assets/textures/background01.png",0);
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
