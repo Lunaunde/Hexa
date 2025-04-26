@@ -44,7 +44,7 @@ int main()
 	CrystalBackground::getInstance()->init();
 	dtbg->init();
 
-	//glfwSwapInterval(0);
+	glfwSwapInterval(0);
 
 	int mapSize = 4;
 	sta->setHexaRadius(0.08f);
@@ -52,7 +52,7 @@ int main()
 
 	//sta->setSeed();
 	sta->setColorMode(2);
-	//sta->setColorChangeMode(true);
+	sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
@@ -89,14 +89,14 @@ int main()
 		auto end = std::chrono::steady_clock::now();
 		std::chrono::duration<double, std::milli> elapsed = end - start;
 
-		std::chrono::milliseconds waitTime(16);
+		std::chrono::milliseconds waitTime(8);
 		if (elapsed < waitTime)
 		{
 			std::this_thread::sleep_for(waitTime - elapsed);
 		}
 		else
 		{
-			std::cout << local_time->tm_year + 1900 << '/' << local_time->tm_mon << '/' << local_time->tm_mday << " " << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << std::endl << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 16.0 << "tick behind." << std::endl;
+			std::cout << local_time->tm_year + 1900 << '/' << local_time->tm_mon << '/' << local_time->tm_mday << " " << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << std::endl << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
 		}
 	}
 	aplct->destroy();

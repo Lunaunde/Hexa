@@ -366,7 +366,7 @@ void Logic::reloadLevel()
 		sta->getHexaColorBackup().softRestore(hexas);
 		sta->getPlayerSteps().clear();
 		sta->setShowAnswer(false);
-		for (int i = 0;i < sta->getColorChange();i++)
+		for (int i = 0; i < sta->getColorChange(); i++)
 			for (auto& hexa : hexas)
 				hexa.changeColor();
 	}
@@ -377,19 +377,23 @@ void Logic::showAnswer()
 	{
 		sta->setSAST();
 		sta->setShowAnswer(true);
-		sta->clearSAF();
 		sta->getHexaColorBackup().softRestore(sta->getHexas());
 		sta->getPlayerSteps().clear();
+		std::cout << sta->getMShowStepIndex() << " " << sta->getAnsSteps().size();
 	}
-	if (sta->getShowAnswer() && glfwGetTime() - sta->getSAST() > 2)
+	if (sta->getShowAnswer())
 	{
-		int showStep = sta->getSAF() / 15;
-		if (sta->getSAF() % 15 == 0 && showStep < sta->getAnsSteps().size())//sta->getSAF() % 60 == 59 && 
+		if (sta->getMShowStepIndex() < (int)sta->getAnsSteps().size())
 		{
-			Hexa* nowStep = sta->getAnsSteps()[showStep];
-			nowStep->softChangeColor();
-			sta->playStoneSound();
+			std::vector<Hexa*>& ansSteps = sta->getAnsSteps();
+			int ms = (glfwGetTime() - sta->getSAST()) * 1000;
+			int index = ms / 300;
+			while (index > sta->getMShowStepIndex() && sta->getMShowStepIndex() < (int)ansSteps.size())
+			{
+				ansSteps[sta->getMShowStepIndex()]->softChangeColor();
+				sta->add1MShowStepIndex();
+				sta->playStoneSound();
+			}
 		}
-		sta->add1SAF();
 	}
 }

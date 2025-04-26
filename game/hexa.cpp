@@ -96,7 +96,6 @@ bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float
 				continue;
 			if (abs(this->getVertexYPos(side, i) - this->getVertexYPos(side, j)) < epsilon && abs(y - this->getVertexYPos(side, i) * ScreenRatio) < epsilon && (x - this->getVertexXPos(side, i) * (x - this->getVertexYPos(side, i) < 0)))
 			{
-				std::cout << 1 << std::endl;
 				return true;
 			}
 		}

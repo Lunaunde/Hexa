@@ -157,38 +157,34 @@ void State::colorChange()
 {
 	if (!mColorChangeMode)
 		return;
-	sta->add1CCFC(180);
 	if (shoudeColorChange())
 		for (auto& hexa : mHexas)
 			hexa.softChangeColor();
 }
-short State::getColorChange() const
-{
-	return mColorChange;
-}
 void State::setColorChangeMode(bool colorChangeMode)
 {
 	mColorChangeMode = colorChangeMode;
-	mColorChangeFrameCount = 0;
+	mColorChangeModeTime = glfwGetTime();
+	mColorChange = 0;
 }
 bool State::getColorChangeMode() const
 {
 	return mColorChangeMode;
 }
-void State::add1CCFC(int needFrame)
-{
-	mColorChangeFrameCount++;
-	if (mColorChangeFrameCount >= needFrame)
-		mColorChangeFrameCount %= needFrame;
-}
 bool State::shoudeColorChange() const
 {
-	if (mColorChangeFrameCount == 0)
+	if (glfwGetTime() - mColorChangeModeTime > 3)
 	{
-		mColorChange = (mColorChange + 1) % this->getColorMode();
+		mColorChangeModeTime += 3;
+		mColorChange++;
+		mColorChange %= mColorMode;
 		return true;
 	}
 	return false;
+}
+int State::getColorChange() const
+{
+	return mColorChange;
 }
 
 
@@ -203,7 +199,8 @@ bool State::getRotationMode() const
 
 void State::setSAST()
 {
-	mShowAnswerStartTime = glfwGetTime();
+	mShowAnswerStartTime = glfwGetTime() + 2;
+	mShowStepIndex = 0;
 }
 float State::getSAST()const
 {
@@ -217,17 +214,13 @@ bool State::getShowAnswer() const
 {
 	return mShowAnswer;
 }
-void State::add1SAF()
+void State::add1MShowStepIndex()
 {
-	mShowAnswerFrameCount++;
+	mShowStepIndex++;
 }
-void State::clearSAF()
+int State::getMShowStepIndex()
 {
-	mShowAnswerFrameCount = 0;
-}
-int State::getSAF() const
-{
-	return mShowAnswerFrameCount;
+	return mShowStepIndex;
 }
 
 void State::hexasScaleAdd()

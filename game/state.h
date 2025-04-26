@@ -43,11 +43,10 @@ public:
 	void setColorMode(short colorMode);
 
 	void colorChange();
-	short getColorChange() const;
 	void setColorChangeMode(bool colorChangeMode);
 	bool getColorChangeMode() const;
-	void add1CCFC(int needFrame);
 	bool shoudeColorChange() const;
+	int getColorChange() const;
 
 	void setRotationMode(bool bo);
     bool getRotationMode() const;
@@ -60,9 +59,8 @@ public:
 	float getSAST() const;
 	void setShowAnswer(bool bo);
 	bool getShowAnswer() const;
-	void add1SAF();
-	void clearSAF();
-	int getSAF() const;
+	void add1MShowStepIndex();
+	int getMShowStepIndex();
 
 	void hexasScaleAdd();
 
@@ -96,12 +94,12 @@ private:
 	short mColorMode = 2;
 
 	bool mColorChangeMode = false;
-	int mColorChangeFrameCount = 0;
 	mutable short mColorChange = 0;
+	mutable float mColorChangeModeTime = -1;
 
-	int mShowAnswerFrameCount = 1;
 	bool mShowAnswer = false;
 	float mShowAnswerStartTime = 0;
+	int mShowStepIndex = -1;
 
 	bool mRotationMode = false;
 
