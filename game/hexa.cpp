@@ -148,23 +148,51 @@ void Hexa::setColor(Color color)
 {
 	mColor = color;
 }
-void Hexa::setColor(int r, int g, int b)
+
+void Hexa::changeColor()
 {
-	mColor = Color(r, g, b);
-	mScale = -1;
-	mStartTime = glfwGetTime();
+	if (mColor == Color::pureWhite)
+		mColor = Color::pureBlack;
+	else if (mColor == Color::pureBlack)
+		mColor = Color::pureWhite;
+	else if (mColor == Color::pureRed)
+		mColor = Color::pureYellow;
+	else if (mColor == Color::pureYellow)
+		mColor = Color::pureBlue;
+	else if (mColor == Color::pureBlue)
+		mColor = Color::pureRed;
 }
-void Hexa::setColor(float r, float g, float b)
+void Hexa::softChangeColor()
 {
-	mColor = Color(r, g, b);
-	mScale = -1;
-	mStartTime = glfwGetTime();
+	mStartTime = glfwGetTime() + abs(mScale);
+	mScale = -abs(mScale);
+	this->changeColor();
 }
-void Hexa::changeColor(Color color)
+void Hexa::antiChangeColor()
 {
+	if (mColor == Color::pureWhite)
+		mColor = Color::pureBlack;
+	else if (mColor == Color::pureBlack)
+		mColor = Color::pureWhite;
+	else if (mColor == Color::pureRed)
+		mColor = Color::pureBlue;
+	else if (mColor == Color::pureYellow)
+		mColor = Color::pureRed;
+	else if (mColor == Color::pureBlue)
+		mColor = Color::pureYellow;
+}
+void Hexa::softAntiChangeColor()
+{
+	mStartTime = glfwGetTime() + abs(mScale);
+	mScale = -abs(mScale);
+	this->antiChangeColor();
+}
+
+void Hexa::freeChangeColor(Color color)
+{
+	mStartTime = glfwGetTime() + abs(mScale);
+	mScale = -abs(mScale);
 	mColor = color;
-	mScale = -1;
-	mStartTime = glfwGetTime() + 1;
 }
 
 void Hexa::setNear(int index, Hexa* hexa)
@@ -180,7 +208,7 @@ int Hexa::distanceToCenter()const
 void Hexa::mScaleAdd()
 {
 	if (mScale < 1)
-		mScale = glfwGetTime() - mStartTime;
+		mScale = 1 * (glfwGetTime() - mStartTime);
 	else if (mScale > 1)
 		mScale = 1;
 }

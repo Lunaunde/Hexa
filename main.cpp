@@ -46,12 +46,13 @@ int main()
 
 	//glfwSwapInterval(0);
 
-	int mapSize = 8;
-	sta->setHexaRadius(0.04f);
+	int mapSize = 4;
+	sta->setHexaRadius(0.08f);
+	sta->setRotationMode(true);
 
 	//sta->setSeed();
 	sta->setColorMode(2);
-	sta->setColorChangeMode(true);
+	//sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
@@ -66,8 +67,11 @@ int main()
 		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 		std::tm* local_time = std::localtime(&now_time);
 
-		Logic::playerStepCheck(sta->getHexas(), sta->getHexaRadius());
-		Logic::showAnswer();
+		Logic::playerStepCheck();
+		Logic::reloadLevel();
+		Logic::showAnswer(); 
+
+		sta->colorChange();
 
 		sta->hexasScaleAdd();
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));

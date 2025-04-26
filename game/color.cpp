@@ -81,3 +81,4 @@ bool Color::operator!=(const Color& other) const
 {
     return !(*this == other);
 }
+

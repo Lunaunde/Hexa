@@ -30,7 +30,7 @@ void HexaColorBackup::softRestore(std::vector<Hexa>& hexas)
 {
 	for (int i = 0; i < mHexaColorBackup.size(); i++)
 	{
-		hexas[i].changeColor(mHexaColorBackup[i]);
+		hexas[i].freeChangeColor(mHexaColorBackup[i]);
 	}
 }
 
@@ -153,52 +153,44 @@ void State::setColorMode(short colorMode)
 	mColorMode = colorMode;
 }
 
+void State::colorChange()
+{
+	if (!mColorChangeMode)
+		return;
+	sta->add1CCFC(180);
+	if (shoudeColorChange())
+		for (auto& hexa : mHexas)
+			hexa.softChangeColor();
+}
+short State::getColorChange() const
+{
+	return mColorChange;
+}
 void State::setColorChangeMode(bool colorChangeMode)
 {
 	mColorChangeMode = colorChangeMode;
+	mColorChangeFrameCount = 0;
 }
 bool State::getColorChangeMode() const
 {
 	return mColorChangeMode;
 }
-void State::add1CCFC()
+void State::add1CCFC(int needFrame)
 {
 	mColorChangeFrameCount++;
+	if (mColorChangeFrameCount >= needFrame)
+		mColorChangeFrameCount %= needFrame;
 }
-void State::colorChange(int needFrame)
+bool State::shoudeColorChange() const
 {
-	mColorChange = mColorChangeFrameCount / needFrame;
-}
-Color State::getChangedColor(Color color)
-{
-	if (mColorMode == 2)
+	if (mColorChangeFrameCount == 0)
 	{
-		if (mColorChange % 2 == 1)
-			color = (color == Color::pureWhite) ? Color::pureBlack : Color::pureWhite;
+		mColorChange = (mColorChange + 1) % this->getColorMode();
+		return true;
 	}
-	else if (mColorMode == 3)
-	{
-		if (mColorChange % 3 == 1)
-		{
-			if (color == Color::pureRed)
-				color = Color::pureYellow;
-			else if (color == Color::pureYellow)
-				color = Color::pureBlue;
-			else if (color == Color::pureBlue)
-				color = Color::pureRed;
-		}
-		else if (mColorChange % 3 == 2)
-		{
-			if (color == Color::pureRed)
-				color = Color::pureBlue;
-			else if (color == Color::pureBlue)
-				color = Color::pureYellow;
-			else if (color == Color::pureYellow)
-				color = Color::pureRed;
-		}
-	}
-	return color;
+	return false;
 }
+
 
 void State::setRotationMode(bool bo)
 {

@@ -32,9 +32,13 @@ public:
 	bool ifPositionInHexa(int x, int y, float side, float scale, float rotation)const;
 
 	void setColor(Color color);
-	void setColor(int r, int g, int b);
-	void setColor(float r, float g, float b);
-	void changeColor(Color color);
+
+	void changeColor();
+	void softChangeColor();
+	void antiChangeColor();
+	void softAntiChangeColor();
+
+	void freeChangeColor(Color color);
 	void setNear(int index, Hexa* hexa);
 
 	void mScaleAdd();

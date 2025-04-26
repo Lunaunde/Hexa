@@ -42,11 +42,12 @@ public:
 	short getColorMode() const;
 	void setColorMode(short colorMode);
 
+	void colorChange();
+	short getColorChange() const;
 	void setColorChangeMode(bool colorChangeMode);
 	bool getColorChangeMode() const;
-	void add1CCFC();
-	void colorChange(int needFrame);
-	Color getChangedColor(Color color);
+	void add1CCFC(int needFrame);
+	bool shoudeColorChange() const;
 
 	void setRotationMode(bool bo);
     bool getRotationMode() const;
@@ -96,9 +97,9 @@ private:
 
 	bool mColorChangeMode = false;
 	int mColorChangeFrameCount = 0;
-	short mColorChange = 0;
+	mutable short mColorChange = 0;
 
-	int mShowAnswerFrameCount = 0;
+	int mShowAnswerFrameCount = 1;
 	bool mShowAnswer = false;
 	float mShowAnswerStartTime = 0;
 
