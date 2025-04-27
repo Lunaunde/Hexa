@@ -199,15 +199,57 @@ void Hexa::setNear(int index, Hexa* hexa)
 	mNear[index] = hexa;
 }
 
+void Hexa::mScaleAdd()
+{
+	if (!mDeleteMode)
+	{
+		if (mScale < 1)
+			mScale = 1 * (glfwGetTime() - mStartTime);
+		else if (mScale > 1)
+			mScale = 1;
+	}
+	else
+	{
+		if (mScale < 0)
+			mScale = 1 * (glfwGetTime() - mStartTime);
+		else if (mScale > 0)
+		{
+			mScale = 0;
+			deleted = true;
+		}
+	}
+}
+
+void Hexa::deleteModeOn()
+{
+	mStartTime = glfwGetTime() + abs(mScale);
+	mScale = -abs(mScale);
+	mDeleteMode = true;
+}
+bool Hexa::isDeleted()const
+{
+	return mDeleteMode;
+}
+
 int Hexa::distanceToCenter()const
 {
 	return std::max(std::max(abs(xPos), abs(yPos)), abs(zPos));
 }
 
-void Hexa::mScaleAdd()
+HexaButton::HexaButton(float xOffset, float yOffset, float side) : mXOffset(xOffset), mYOffset(yOffset), mSide(side), Hexa(0, 0, 0) {}
+HexaButton::HexaButton(int xOffset, int yOffset, float side) : mSide(side), Hexa(0, 0, 0)
 {
-	if (mScale < 1)
-		mScale = 1 * (glfwGetTime() - mStartTime);
-	else if (mScale > 1)
-		mScale = 1;
+	mXOffset = (xOffset - aplct->getWidth() / 2) / (aplct->getWidth() / 2);
+	mYOffset = (yOffset - aplct->getLength() / 2) / (aplct->getLength() / 2);
+}
+HexaButton::HexaButton(float side): mXOffset(0), mYOffset(0), mSide(side), Hexa(0, 0, 0) {}
+
+void HexaButton::setSide(float side)
+{
+	mSide = side;
+}
+
+bool HexaButton::ifPositionInHexa(float x, float y, float side, float scale, float rotation)const
+{
+	return Hexa::ifPositionInHexa(x + mXOffset, y + mYOffset, side, scale, rotation);
 }

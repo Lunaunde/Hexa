@@ -36,10 +36,10 @@ void Logic::buildLevel(int size)
 void Logic::initHexa(int size, std::vector<Hexa>& hexas)
 {
 	hexas.emplace_back(0, 0, 0);
-	for (int i = 0; true; i++)//六边形地图位置初始化
+	for (int i = 0; i<hexas.size(); i++)//六边形地图位置初始化
 	{
-		if (i >= hexas.size())
-			break;
+		//if (i >= hexas.size())
+		//	break;
 		Hexa temp[6] = {
 			Hexa(hexas[i].getXPos() + 1,hexas[i].getYPos(),hexas[i].getZPos() - 1),
 			Hexa(hexas[i].getXPos() - 1,hexas[i].getYPos(),hexas[i].getZPos() + 1),

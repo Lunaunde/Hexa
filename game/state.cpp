@@ -37,6 +37,27 @@ void HexaColorBackup::softRestore(std::vector<Hexa>& hexas)
 State::State() : mHexas(), mAnsSteps(), mPlayerSteps(), mHexaColorBackup()
 {
 }
+State::~State()
+{
+	delete instance;
+}
+
+void State::stateLoad()
+{
+	switch (mState)
+	{
+		case 0:
+		{
+			if (mHexasButton.size() == 0)
+			{
+				mHexasButton.push_back(Hexa(-2,0,+2));
+				mHexasButton.push_back(Hexa(0,0,0));
+				mHexasButton.push_back(Hexa(+2,0,-2));
+			}
+		}
+		break;
+	}
+}
 
 State* State::getInstance()
 {

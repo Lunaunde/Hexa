@@ -27,7 +27,7 @@ public:
 	float getVertexYPos(float side, int number, float scale)const;
 	float getVertexYPos(float side, int number, float scale, float rotation)const;
 
-	bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const;
+	virtual bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const;
 	bool ifPositionInHexa(int x, int y, float side)const;
 	bool ifPositionInHexa(int x, int y, float side, float scale, float rotation)const;
 
@@ -42,6 +42,8 @@ public:
 	void setNear(int index, Hexa* hexa);
 
 	void mScaleAdd();
+	void deleteModeOn();
+	bool isDeleted()const;
 
 	int distanceToCenter()const;
 private:
@@ -54,6 +56,23 @@ private:
 
 	float mScale;
 	float mStartTime;
+
+	bool mDeleteMode = false;
+	bool deleted = false;
+};
+
+class HexaButton : public Hexa
+{
+public:
+	HexaButton(float xOffset, float yOffset, float side);
+	HexaButton(int xOffset, int yOffset, float side);
+	HexaButton(float side);
+	void setSide(float side);
+	virtual bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const override;
+private:
+	float mXOffset = 0;
+	float mYOffset = 0;
+	float mSide = 0;
 };
 
 #endif

@@ -26,6 +26,8 @@ class State
 public:
 	~State();
 
+	void stateLoad();
+
 	static State* getInstance();
 	void init();
 
@@ -79,12 +81,15 @@ private:
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
 
-	int mState = 0;
-	int mLevelBase = 3;
-	int mLevel = 1;
+	int mLevelBase = 0;
+	int mLevel = 0;
+	int mDifficulty = 0;
+	int mState = 0;// 0 menu,1 game,2 lose
 
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;
+
+	std::vector<Hexa> mHexasButton;
 
 	std::vector<Hexa> mHexas;
 	std::vector<Hexa*> mAnsSteps;

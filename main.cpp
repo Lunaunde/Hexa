@@ -51,7 +51,7 @@ int main()
 	sta->setRotationMode(true);
 
 	//sta->setSeed();
-	sta->setColorMode(2);
+	sta->setColorMode(3);
 	sta->setColorChangeMode(true);
 	Logic::buildLevel(mapSize);
 
