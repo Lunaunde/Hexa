@@ -48,7 +48,12 @@ void Render::dataLoad()
 	mIndices.clear();
 	mColorType.clear();
 	mPositionType.clear();
-	hexasDataLoad(sta->getHexas(), sta->getHexaRadius());
+	std::vector<Hexa*> hexas;
+	for (auto& hexa : sta->getHexaButtons())
+		hexas.push_back(&hexa);
+	//for (auto& hexa : sta->getHexas())
+	//	hexas.push_back(&hexa);
+	hexasDataLoad(hexas, sta->getHexaRadius());
 }
 
 void Render::draw()
@@ -82,7 +87,7 @@ void Render::draw()
 	mShader->end();
 }
 
-void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
+void Render::hexaDataLoad(Hexa* hexa, float side, float color[3], float scale)
 {
 	int startNumber = mPosition.size() / 3;
 	std::array<float, 21> pos, colors;
@@ -94,23 +99,23 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	   0, 5, 6,
 	   0, 6, 1
 	};
-	std::array<unsigned int, 6> positionType = { 0,0,0,0,0,0 };
-	std::array<unsigned int, 6> colorType = { 3,3,3,3,3,3 };
+	std::array<unsigned int, 7> positionType = { 0,0,0,0,0,0,0 };
+	std::array<unsigned int, 7> colorType = { 3,3,3,3,3,3,3 };
 
 	float rotation = 0;
 	if (sta->getRotationMode())
 		rotation = glfwGetTime();
 
-	pos[0] = hexa.getCenterXPos(side, rotation);  // 中心点
-	pos[1] = hexa.getCenterYPos(side, rotation) * ScreenRatio;
+	pos[0] = hexa->getCenterXPos(side, rotation);  // 中心点
+	pos[1] = hexa->getCenterYPos(side, rotation) * ScreenRatio;
 	pos[2] = 0;
 	colors[0] = color[0];
 	colors[1] = color[1];
 	colors[2] = color[2];
 
 	for (int i = 1; i < 7; i++) { // 从第1个顶点开始计算
-		pos[i * 3] = hexa.getVertexXPos(side, i, scale, rotation);
-		pos[i * 3 + 1] = hexa.getVertexYPos(side, i, scale, rotation) * ScreenRatio;
+		pos[i * 3] = hexa->getVertexXPos(side, i, scale, rotation);
+		pos[i * 3 + 1] = hexa->getVertexYPos(side, i, scale, rotation) * ScreenRatio;
 		pos[i * 3 + 2] = 0;
 		colors[i * 3] = color[0];
 		colors[i * 3 + 1] = color[1];
@@ -129,12 +134,12 @@ void Render::hexaDataLoad(Hexa hexa, float side, float color[3], float scale)
 	mColorType.insert(mColorType.end(), std::begin(colorType), std::end(colorType));
 }
 
-void Render::hexasDataLoad(const std::vector<Hexa>& hexas, float side)
+void Render::hexasDataLoad(const std::vector<Hexa*>& hexas, float side)
 {
 	float grey[3] = { 0.5f,0.5f,0.5f };
 	for (int i = 0; i < hexas.size(); i++)
 	{
-		Color color = hexas[i].getShowColor();
+		Color color = hexas[i]->getShowColor();
 		float colors[3] = { color.getRed(),color.getGreen(), color.getBlue() };
 		//hexaDataLoad(hexas[i], side, grey, 1.05);
 		hexaDataLoad(hexas[i], side, colors, 0.90);
@@ -281,7 +286,7 @@ CrystalBackground* CrystalBackground::getInstance()
 }
 void CrystalBackground::init()
 {
-	mTexture = new Texture("assets/textures/background01.png",0);
+	mTexture = new Texture("assets/textures/background01.png", 0);
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
@@ -295,7 +300,7 @@ void CrystalBackground::init()
 	GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0)); // 位置
 	GL_CALL(glEnableVertexAttribArray(0));
 	GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)))); // 纹理坐标
-	GL_CALL(glEnableVertexAttribArray(1)); 
+	GL_CALL(glEnableVertexAttribArray(1));
 
 	ebo = 0;
 	GL_CALL(glGenBuffers(1, &ebo));
@@ -313,7 +318,7 @@ void CrystalBackground::draw()
 	mShader->setFloat("uTime", glfwGetTime());
 	mShader->setFloat("uEta", 0.75f);
 	mShader->setFloat("uDistortionStrength", 0.1f);
-	mShader->setFloat("uNoiseScale", 8.0f); 
+	mShader->setFloat("uNoiseScale", 8.0f);
 
 	GL_CALL(glBindVertexArray(vao));
 	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));

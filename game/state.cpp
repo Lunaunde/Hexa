@@ -42,20 +42,27 @@ State::~State()
 	delete instance;
 }
 
-void State::stateLoad()
+void State::allState()
 {
 	switch (mState)
 	{
-		case 0:
+	case 0:
+	{
+		if (mHexaButtons.size() == 0)
 		{
-			if (mHexasButton.size() == 0)
-			{
-				mHexasButton.push_back(Hexa(-2,0,+2));
-				mHexasButton.push_back(Hexa(0,0,0));
-				mHexasButton.push_back(Hexa(+2,0,-2));
-			}
+			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
+			mHexaButtons[0].setColor(Color(124, 252, 0));
+			mHexaButtons[1].setColor(Color(135, 206, 235));
+			mHexaButtons[2].setColor(Color(255, 127, 0));
 		}
-		break;
+		else
+		{
+
+		}
+	}
+	break;
 	}
 }
 
@@ -111,6 +118,11 @@ std::vector<Hexa*>& State::getPlayerSteps()
 HexaColorBackup& State::getHexaColorBackup()
 {
 	return mHexaColorBackup;
+}
+
+std::vector<HexaButton>& State::getHexaButtons()
+{
+	return mHexaButtons;
 }
 
 void State::playStoneSound()
@@ -246,6 +258,8 @@ int State::getMShowStepIndex()
 
 void State::hexasScaleAdd()
 {
+	for (auto& hexaButton : mHexaButtons)
+		hexaButton.mScaleAdd();
 	for (auto& hexa : mHexas)
 		hexa.mScaleAdd();
 }

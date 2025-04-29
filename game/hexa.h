@@ -18,14 +18,14 @@ public:
 
 	Hexa* getNear(int index)const;
 
-	float getCenterXPos(float side)const;
-	float getCenterYPos(float side)const;
-	float getCenterXPos(float side, float rotation)const;
-	float getCenterYPos(float side, float rotation)const;
-	float getVertexXPos(float side, int number, float scale)const;
-	float getVertexXPos(float side, int number, float scale, float rotation)const;
-	float getVertexYPos(float side, int number, float scale)const;
-	float getVertexYPos(float side, int number, float scale, float rotation)const;
+	virtual float getCenterXPos(float side)const;
+	virtual float getCenterYPos(float side)const;
+	virtual float getCenterXPos(float side, float rotation)const;
+	virtual float getCenterYPos(float side, float rotation)const;
+	virtual float getVertexXPos(float side, int number, float scale)const;
+	virtual float getVertexXPos(float side, int number, float scale, float rotation)const;
+	virtual float getVertexYPos(float side, int number, float scale)const;
+	virtual float getVertexYPos(float side, int number, float scale, float rotation)const;
 
 	virtual bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const;
 	bool ifPositionInHexa(int x, int y, float side)const;
@@ -61,18 +61,29 @@ private:
 	bool deleted = false;
 };
 
-class HexaButton : public Hexa
-{
-public:
-	HexaButton(float xOffset, float yOffset, float side);
-	HexaButton(int xOffset, int yOffset, float side);
-	HexaButton(float side);
-	void setSide(float side);
-	virtual bool ifPositionInHexa(float x, float y, float side, float scale, float rotation)const override;
-private:
-	float mXOffset = 0;
-	float mYOffset = 0;
-	float mSide = 0;
+class HexaButton : public Hexa  
+{  
+public:  
+   HexaButton(float xOffset, float yOffset, float side);  
+   HexaButton(int xOffset, int yOffset, float side);  
+   HexaButton(float side);  
+   void setSide(float side);  
+
+   virtual float getCenterXPos() const;  
+   virtual float getCenterXPos(float side, float rotation) const;
+   virtual float getCenterYPos() const;  
+   virtual float getCenterYPos(float side, float rotation) const;
+   virtual float getVertexXPos(int number, float scale) const;  
+   virtual float getVertexXPos(float side, int number, float scale, float rotation) const;  
+   virtual float getVertexYPos(int number, float scale) const;  
+   virtual float getVertexYPos(float side, int number, float scale, float rotation) const;  
+   virtual bool ifPositionInHexa(float x, float y, float scale, float rotation) const;  
+   virtual bool ifPositionInHexa(int x, int y, float scale, float rotation) const;  
+
+private:  
+   float mXOffset = 0;  
+   float mYOffset = 0;  
+   float mSide = 0;  
 };
 
 #endif

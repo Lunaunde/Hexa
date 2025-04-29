@@ -46,7 +46,7 @@ int main()
 
 	glfwSwapInterval(0);
 
-	int mapSize = 4;
+	int mapSize = 3;
 	sta->setHexaRadius(0.08f);
 	sta->setRotationMode(true);
 
@@ -67,6 +67,7 @@ int main()
 		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
 		std::tm* local_time = std::localtime(&now_time);
 
+		sta->allState();
 		Logic::playerStepCheck();
 		Logic::reloadLevel();
 		Logic::showAnswer(); 

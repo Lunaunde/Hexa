@@ -28,7 +28,9 @@ void main()
 	break;
 	case 3:
 	{
-	color=aColor.rgb/255.0;
+	color.r = aColor.r/255.0;
+    color.g = aColor.g/255.0;
+    color.b = aColor.b/255.0;
 	}
 	break;
 	}

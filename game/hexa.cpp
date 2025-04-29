@@ -242,14 +242,53 @@ HexaButton::HexaButton(int xOffset, int yOffset, float side) : mSide(side), Hexa
 	mXOffset = (xOffset - aplct->getWidth() / 2) / (aplct->getWidth() / 2);
 	mYOffset = (yOffset - aplct->getLength() / 2) / (aplct->getLength() / 2);
 }
-HexaButton::HexaButton(float side): mXOffset(0), mYOffset(0), mSide(side), Hexa(0, 0, 0) {}
+HexaButton::HexaButton(float side) : mXOffset(0), mYOffset(0), mSide(side), Hexa(0, 0, 0) {}
 
 void HexaButton::setSide(float side)
 {
 	mSide = side;
 }
 
-bool HexaButton::ifPositionInHexa(float x, float y, float side, float scale, float rotation)const
+float HexaButton::getCenterXPos()const
 {
-	return Hexa::ifPositionInHexa(x + mXOffset, y + mYOffset, side, scale, rotation);
+	return Hexa::getCenterXPos(mSide) + mXOffset;
+}
+float HexaButton::getCenterXPos(float side,float rotation)const
+{
+	return Hexa::getCenterXPos(mSide) + mXOffset;
+}
+float HexaButton::getCenterYPos()const
+{
+	return Hexa::getCenterYPos(mSide) + mYOffset;
+}
+float HexaButton::getCenterYPos(float side,float rotation)const
+{
+	return Hexa::getCenterYPos(mSide) + mYOffset;
+}
+float HexaButton::getVertexXPos(int number, float scale = 1)const
+{
+	return Hexa::getVertexXPos(mSide, number, scale) + mXOffset;
+}
+float HexaButton::getVertexXPos(float side, int number, float scale, float rotation)const
+{
+	return Hexa::getVertexXPos(mSide, number, scale) + mXOffset;
+}
+float HexaButton::getVertexYPos(int number, float scale = 1)const
+{
+	return Hexa::getVertexYPos(mSide, number, scale) + mYOffset;
+}
+float HexaButton::getVertexYPos(float side, int number, float scale, float rotation)const
+{
+	return Hexa::getVertexYPos(mSide, number, scale) + mYOffset;
+}
+
+bool HexaButton::ifPositionInHexa(float x, float y, float scale = 1, float rotation = 0)const
+{
+	return Hexa::ifPositionInHexa(x - mXOffset, y - mYOffset, mSide, scale, rotation);
+}
+bool HexaButton::ifPositionInHexa(int x, int y, float scale = 1, float rotation = 0) const
+{
+	float fx = ((float)x - (float)(aplct->getWidth() / 2)) / (float)(aplct->getWidth() / 2);
+	float fy = ((float)y - (float)(aplct->getLength() / 2)) / (float)(aplct->getLength() / 2);
+	return ifPositionInHexa(fx, fy, scale, rotation);
 }

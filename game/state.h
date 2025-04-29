@@ -26,7 +26,7 @@ class State
 public:
 	~State();
 
-	void stateLoad();
+	void allState();
 
 	static State* getInstance();
 	void init();
@@ -35,6 +35,8 @@ public:
 	std::vector<Hexa*>& getAnsSteps();
 	std::vector<Hexa*>& getPlayerSteps();
 	HexaColorBackup& getHexaColorBackup();
+
+	std::vector<HexaButton>& getHexaButtons();
 
 	void playStoneSound();
 
@@ -89,7 +91,7 @@ private:
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;
 
-	std::vector<Hexa> mHexasButton;
+	std::vector<HexaButton> mHexaButtons;
 
 	std::vector<Hexa> mHexas;
 	std::vector<Hexa*> mAnsSteps;

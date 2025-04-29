@@ -16,8 +16,8 @@ public:
 	void init();
 	void dataLoad();
 	void draw();
-	void hexaDataLoad(Hexa hexa, float side, float color[3], float scale);
-	void hexasDataLoad(const std::vector<Hexa>& hexas, float side);
+	void hexaDataLoad(Hexa* hexa, float side, float color[3], float scale);
+	void hexasDataLoad(const std::vector<Hexa*>& hexas, float side);
 	void test();
 private:
 	static Render* instance;
