@@ -3,6 +3,7 @@
 #include<cmath>
 #include"../application/Application.h"
 #include"../glframework/core.h"
+#include"logic.h"
 
 State* State::instance = nullptr;
 
@@ -44,6 +45,10 @@ State::~State()
 
 void State::allState()
 {
+	if (mHexaButtons.size() > 0 && mHexaButtons[0].isDeleted())
+		mHexaButtons.clear();
+	if (mHexas.size() > 0 && mHexas[0].isDeleted())
+		mHexas.clear();
 	switch (mState)
 	{
 	case 0:
@@ -59,10 +64,64 @@ void State::allState()
 		}
 		else
 		{
-
+			bool startGame = false;
+			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+			{
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					startGame = true;
+					mDifficulty = 0;
+				}
+			}
+			if (mHexaButtons[1].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+			{
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					startGame = true;
+					mDifficulty = 1;
+				}
+			}
+			if (mHexaButtons[2].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+			{
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					startGame = true;
+					mDifficulty = 2;
+				}
+			}
+			if (startGame)
+			{
+				mLevel = 1;
+				mLevelBase = 3;
+				mState = 1;
+				for (auto& hexa : mHexaButtons)
+				{
+					hexa.deleteModeOn();
+				}
+			}
 		}
 	}
 	break;
+	case 1:
+	{
+		if (mHexaButtons.size() == 0 && mHexas.size() == 0)
+		{
+			setRotationMode(false);
+			setColorChangeMode(false);
+			setColorMode(2);
+			if (mLevel == 3)
+			{
+				switch (mDifficulty)
+				{
+				case 1:
+				{
+					
+				}
+				}
+			}
+			Logic::buildLevel(mLevelBase);
+		}
+	}
 	}
 }
 
@@ -163,6 +222,12 @@ void State::setHexaRadius(float hexaRadius)
 	mHexaRadius = hexaRadius;
 }
 
+void State::randSeed()
+{
+	mSeed = std::random_device{}();
+	mSeed %= 524288;
+	mGen = std::mt19937(mSeed);
+}
 uint32_t State::getSeed()
 {
 	return mSeed;

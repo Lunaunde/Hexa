@@ -55,6 +55,7 @@ public:
 	void setRotationMode(bool bo);
     bool getRotationMode() const;
 
+	void randSeed();
 	uint32_t getSeed();
 	void setSeed(uint32_t seed);
 	int genInt(int min, int max);
@@ -87,6 +88,7 @@ private:
 	int mLevel = 0;
 	int mDifficulty = 0;
 	int mState = 0;// 0 menu,1 game,2 lose
+	float mClock = 0;
 
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;

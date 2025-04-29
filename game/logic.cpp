@@ -35,6 +35,7 @@ void Logic::buildLevel(int size)
 
 void Logic::initHexa(int size, std::vector<Hexa>& hexas)
 {
+	hexas.clear();
 	hexas.emplace_back(0, 0, 0);
 	for (int i = 0; i<hexas.size(); i++)//六边形地图位置初始化
 	{
