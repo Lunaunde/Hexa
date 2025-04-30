@@ -2,8 +2,8 @@
 out vec4 FragColor;
 in vec3 color;
 in vec2 uv;
+in flat uint colorType;
 uniform sampler2D sampler;
-uniform int colorType;
 void main()
 {
 	switch(colorType)

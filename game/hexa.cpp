@@ -94,7 +94,11 @@ bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float
 		{
 			if (i == j)
 				continue;
-			if (abs(this->getVertexYPos(side, i) - this->getVertexYPos(side, j)) < epsilon && abs(y - this->getVertexYPos(side, i) * ScreenRatio) < epsilon && (x - this->getVertexXPos(side, i) * (x - this->getVertexXPos(side, j) < 0)))
+			float vertexX1 = this->getVertexXPos(side, i, scale, rotation);
+			float vertexX2 = this->getVertexXPos(side, i + 1, scale, rotation);
+			float vertexY1 = this->getVertexYPos(side, i, scale, rotation) * ScreenRatio;
+			float vertexY2 = this->getVertexYPos(side, i + 1, scale, rotation) * ScreenRatio;
+			if (abs(vertexY1 - vertexY2) < epsilon && abs(y -vertexY1) < epsilon && (x - vertexX1) * (x - vertexX2) < 0)
 			{
 				return true;
 			}
@@ -284,7 +288,7 @@ float HexaButton::getVertexYPos(float side, int number, float scale, float rotat
 
 bool HexaButton::ifPositionInHexa(float x, float y, float scale = 1, float rotation = 0)const
 {
-	return Hexa::ifPositionInHexa(x - mXOffset, y - mYOffset, mSide, scale, rotation);
+	return Hexa::ifPositionInHexa(x, y, mSide, scale, rotation);
 }
 bool HexaButton::ifPositionInHexa(int x, int y, float scale = 1, float rotation = 0) const
 {

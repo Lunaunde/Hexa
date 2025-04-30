@@ -5,6 +5,7 @@
 #include"../application/Application.h"
 #include"../glframework/core.h"
 #include"logic.h"
+#include"render.h"
 
 State* State::instance = nullptr;
 
@@ -46,6 +47,7 @@ State::~State()
 
 void State::allState()
 {
+	hexasScaleAdd();
 	if (mHexaButtons.size() > 0 && mHexaButtons[0].isDeleted())
 		mHexaButtons.clear();
 	if (mHexas.size() > 0 && mHexas[0].isDeleted())
@@ -68,7 +70,6 @@ void State::allState()
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
-				std::cout<<"Test true"<<std::endl;
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -77,7 +78,6 @@ void State::allState()
 			}
 			if (mHexaButtons[1].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
-				std::cout << "Test1 true" << std::endl;
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -119,11 +119,53 @@ void State::allState()
 				{
 				case 1:
 				{
-					
+					switch (genInt(0, 2))
+					{
+					case 0:
+						setRotationMode(true);
+						break;
+					case 1:
+						setColorChangeMode(true);
+						break;
+					case 3:
+						setColorMode(3);
+						break;
+					}
+				}
+				break;
+				case 2:
+				{
+					setRotationMode(true);
+					setColorChangeMode(true);
+					setColorMode(3);
+					switch (genInt(0, 2))
+					{
+					case 0:
+						setRotationMode(false);
+						break;
+					case 1:
+						setColorChangeMode(false);
+						break;
+					case 3:
+						setColorMode(2);
+						break;
+					}
 				}
 				}
 			}
 			Logic::buildLevel(mLevelBase);
+		}
+		else if (mHexas.size() > 0)
+		{
+			Logic::playerStepCheck();
+			Logic::reloadLevel();
+			Logic::showAnswer();
+
+			colorChange();
+
+			Logic::finishPuzzle(getHexas(), mLevelBase);
+			clearMouse();
+			clearKey();
 		}
 	}
 	}

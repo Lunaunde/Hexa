@@ -14,6 +14,7 @@ public:
 	~Render();
 	static Render* getInstance();
 	void init();
+	void clear();
 	void dataLoad();
 	void draw();
 	void hexaDataLoad(Hexa* hexa, float side, float color[3], float scale);

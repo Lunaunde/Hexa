@@ -8,6 +8,7 @@ layout (location = 10) in vec2 aUV;
 
 out vec3 color;
 out vec2 uv;
+out flat uint colorType;
 
 uniform vec3 uColor;
 void main()
@@ -36,4 +37,5 @@ void main()
 	}
 
 	uv=aUV;
+	colorType=aColorType;
 }

@@ -41,6 +41,11 @@ void Render::init()
 	GL_CALL(glLineWidth(8.0f));
 }
 
+void Render::clear()
+{
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+}
+
 void Render::dataLoad()
 {
 	mPosition.clear();
@@ -51,8 +56,8 @@ void Render::dataLoad()
 	std::vector<Hexa*> hexas;
 	for (auto& hexa : sta->getHexaButtons())
 		hexas.push_back(&hexa);
-	//for (auto& hexa : sta->getHexas())
-	//	hexas.push_back(&hexa);
+	for (auto& hexa : sta->getHexas())
+		hexas.push_back(&hexa);
 	hexasDataLoad(hexas, sta->getHexaRadius());
 }
 

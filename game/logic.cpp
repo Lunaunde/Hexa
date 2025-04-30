@@ -29,7 +29,7 @@ void Logic::buildLevel(int size)
 		defaultBackup.restore(sta->getHexas());
 		sta->getAnsSteps().clear();
 		stepCount = randomHexaColor(sta->getHexas(), sta->getAnsSteps());
-	} while (size > 2 && badLevel(sta->getHexas(), stepCount));
+	} while (size > 2 && badLevel(sta->getHexas(), stepCount));//
 	sta->getHexaColorBackup() = HexaColorBackup(sta->getHexas());
 }
 

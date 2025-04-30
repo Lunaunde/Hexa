@@ -46,14 +46,8 @@ int main()
 
 	glfwSwapInterval(0);
 
-	int mapSize = 3;
 	sta->setHexaRadius(0.08f);
-	sta->setRotationMode(true);
-
 	//sta->setSeed();
-	sta->setColorMode(3);
-	sta->setColorChangeMode(true);
-	Logic::buildLevel(mapSize);
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);
@@ -68,24 +62,12 @@ int main()
 		std::tm* local_time = std::localtime(&now_time);
 
 		sta->allState();
-		Logic::playerStepCheck();
-		Logic::reloadLevel();
-		Logic::showAnswer(); 
 
-		sta->colorChange();
-
-		sta->hexasScaleAdd();
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-
-		//dtbg->draw();
+		rdr->clear();
 		CrystalBackground::getInstance()->draw();
 		rdr->dataLoad();
 		rdr->draw();
 		txtdp->renderText(L"123 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-
-		Logic::finishPuzzle(sta->getHexas(), mapSize);
-		sta->clearMouse();
-		sta->clearKey();
 
 		auto end = std::chrono::steady_clock::now();
 		std::chrono::duration<double, std::milli> elapsed = end - start;
