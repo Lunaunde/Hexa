@@ -1,6 +1,7 @@
 ﻿#include"state.h"
 #include<vector>
 #include<cmath>
+#include<iostream>
 #include"../application/Application.h"
 #include"../glframework/core.h"
 #include"logic.h"
@@ -67,6 +68,7 @@ void State::allState()
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
+				std::cout<<"Test true"<<std::endl;
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -75,6 +77,7 @@ void State::allState()
 			}
 			if (mHexaButtons[1].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
+				std::cout << "Test1 true" << std::endl;
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -94,6 +97,7 @@ void State::allState()
 				mLevel = 1;
 				mLevelBase = 3;
 				mState = 1;
+				randSeed();
 				for (auto& hexa : mHexaButtons)
 				{
 					hexa.deleteModeOn();

@@ -97,7 +97,7 @@ int main()
 		}
 		else
 		{
-			std::cout << local_time->tm_year + 1900 << '/' << local_time->tm_mon << '/' << local_time->tm_mday << " " << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << std::endl << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
+			//std::cout << local_time->tm_year + 1900 << '/' << local_time->tm_mon << '/' << local_time->tm_mday << " " << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << std::endl << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
 		}
 	}
 	aplct->destroy();

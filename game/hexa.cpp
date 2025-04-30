@@ -94,7 +94,7 @@ bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float
 		{
 			if (i == j)
 				continue;
-			if (abs(this->getVertexYPos(side, i) - this->getVertexYPos(side, j)) < epsilon && abs(y - this->getVertexYPos(side, i) * ScreenRatio) < epsilon && (x - this->getVertexXPos(side, i) * (x - this->getVertexYPos(side, i) < 0)))
+			if (abs(this->getVertexYPos(side, i) - this->getVertexYPos(side, j)) < epsilon && abs(y - this->getVertexYPos(side, i) * ScreenRatio) < epsilon && (x - this->getVertexXPos(side, i) * (x - this->getVertexXPos(side, j) < 0)))
 			{
 				return true;
 			}
@@ -228,7 +228,7 @@ void Hexa::deleteModeOn()
 }
 bool Hexa::isDeleted()const
 {
-	return mDeleteMode;
+	return mDeleteMode && mScale == 0;
 }
 
 int Hexa::distanceToCenter()const
