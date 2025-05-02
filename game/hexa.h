@@ -42,7 +42,9 @@ public:
 	void setNear(int index, Hexa* hexa);
 
 	void mScaleAdd();
+
 	void deleteModeOn();
+	bool getDeleteMode()const;
 	bool isDeleted()const;
 
 	int distanceToCenter()const;

@@ -230,6 +230,10 @@ void Hexa::deleteModeOn()
 	mScale = -abs(mScale);
 	mDeleteMode = true;
 }
+bool Hexa::getDeleteMode()const
+{
+	return mDeleteMode;
+}
 bool Hexa::isDeleted()const
 {
 	return mDeleteMode && mScale == 0;

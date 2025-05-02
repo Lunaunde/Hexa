@@ -380,7 +380,6 @@ void Logic::showAnswer()
 		sta->setShowAnswer(true);
 		sta->getHexaColorBackup().softRestore(sta->getHexas());
 		sta->getPlayerSteps().clear();
-		std::cout << sta->getMShowStepIndex() << " " << sta->getAnsSteps().size();
 	}
 	if (sta->getShowAnswer())
 	{

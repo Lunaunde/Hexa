@@ -3,6 +3,7 @@
 #include<cmath>
 #include<iostream>
 #include"../application/Application.h"
+#include"../application/TextDisplay.h"
 #include"../glframework/core.h"
 #include"logic.h"
 #include"render.h"
@@ -127,7 +128,7 @@ void State::allState()
 					case 1:
 						setColorChangeMode(true);
 						break;
-					case 3:
+					case 2:
 						setColorMode(3);
 						break;
 					}
@@ -163,7 +164,17 @@ void State::allState()
 
 			colorChange();
 
-			Logic::finishPuzzle(getHexas(), mLevelBase);
+			if (Logic::finishPuzzle(getHexas(), mLevelBase) == true && mHexas[0].getDeleteMode() == false)
+			{
+				for (auto& hexa : mHexas)
+					hexa.deleteModeOn();
+				mLevel++;
+				if (mLevel >= 4)
+				{
+					mLevel = 1;
+					mLevelBase++;
+				}
+			}
 			clearMouse();
 			clearKey();
 		}
