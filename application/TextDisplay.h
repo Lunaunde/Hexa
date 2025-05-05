@@ -5,43 +5,61 @@
 #include<string>
 #include<map>
 #include<list>
+#include <vector>
 #include<unordered_map>
 #include"../glframework/core.h"
 #include"../glframework/shader.h"
 #include FT_FREETYPE_H
 
+
+class Shader; // 假设你有Shader类
+
 struct Character {
-	GLuint     textureID;  // 字形纹理ID
-	int xSize, ySize;      // 字形大大小
-	int xBearing, yBearing;// 字形基于基线和起点的位置
-	GLuint     Advance;    // 起点到下一个字形起点的距离
+    GLuint textureID;
+    GLuint width, height;
+    GLint bearingX, bearingY;
+    GLuint advance;
 };
 
-class TextDisplay
-{
+// 文字渲染任务结构体
+struct TextTask {
+    std::wstring text;
+    float x, y;
+    float scale;
+    float r, g, b, a;
+};
+
+class TextDisplay {
 public:
-	~TextDisplay();
-	static TextDisplay* getInstance();
-	bool init(const std::string& fontPath);
-	void renderText(const std::wstring& text, float x, float y, float scale, GLfloat colorR, GLfloat colorG, GLfloat colorB);
+    static TextDisplay* getInstance();
+    bool init(const std::string& fontPath);
+
+    void loadText(const std::wstring& text, float x, float y, float scale, const float r,const float g,const float b,const float a);
+    void draw();
+    void clearQueue();
+
 private:
-	TextDisplay();
-	void loadCharacter(wchar_t c); // 新增单字符加载函数
-	void updateCache(wchar_t c);   // 新增缓存更新函数
-	void preloadASCII();
+    static TextDisplay* instance;
+    TextDisplay();
+    ~TextDisplay();
 
-	static TextDisplay* instance;
-	Shader mShader;
-	FT_Library mLibrary;
-	FT_Face mFace;
-	GLuint mVAO, mVBO;
-	std::map<wchar_t, Character> Characters;
+    GLuint mVAO, mVBO;
+    Shader* mShader;
+    FT_Library mLibrary;
+    FT_Face mFace;
 
-	// 新增缓存管理成员
-	std::list<wchar_t> lruList; // LRU顺序列表
-	std::unordered_map<wchar_t, std::list<wchar_t>::iterator> cacheMap;
-	const size_t MAX_CACHE_SIZE = 2048;
-	bool isInitialized = false; // 新增初始化标志
+    std::map<wchar_t, Character> Characters;
+    std::list<wchar_t> lruList;
+    std::map<wchar_t, std::list<wchar_t>::iterator> cacheMap;
+    static const size_t MAX_CACHE_SIZE = 4096;
+
+    void loadCharacter(wchar_t c);
+    void updateCache(wchar_t c);
+    void preloadASCII();
+
+    std::vector<TextTask> renderQueue;
+
+    bool isInitialized = false;
 };
 
-#endif
+#endif // TEXTDISPLAY_H#endif

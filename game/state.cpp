@@ -68,6 +68,9 @@ void State::allState()
 		}
 		else
 		{
+			txtdp->loadText(L"简单模式", 480.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.5f);
+			txtdp->loadText(L"简单模式", 880.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+			txtdp->loadText(L"简单模式", 1280.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f);
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{

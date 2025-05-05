@@ -67,7 +67,10 @@ int main()
 		CrystalBackground::getInstance()->draw();
 		rdr->dataLoad();
 		rdr->draw();
-		txtdp->renderText(L"123 abc 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		//txtdp->Text(L"123 abc 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"123 abc 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f);
+		txtdp->draw();
+		txtdp->clearQueue();
 
 		auto end = std::chrono::steady_clock::now();
 		std::chrono::duration<double, std::milli> elapsed = end - start;

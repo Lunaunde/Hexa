@@ -1,10 +1,14 @@
 ﻿#include "TextDisplay.h"
 #include<iostream>
 
+#include "TextDisplay.h"
+#include <iostream>
+
 TextDisplay* TextDisplay::instance = nullptr;
 
-TextDisplay::TextDisplay() : mShader("assets/shaders/vertex_text.glsl", "assets/shaders/fragment_text.glsl")
+TextDisplay::TextDisplay()
 {
+	mShader = new Shader("assets/shaders/vertex_text.glsl", "assets/shaders/fragment_text.glsl");
 }
 
 TextDisplay::~TextDisplay()
@@ -26,7 +30,8 @@ TextDisplay* TextDisplay::getInstance()
 	return instance;
 }
 
-bool TextDisplay::init(const std::string& fontPath) {
+bool TextDisplay::init(const std::string& fontPath)
+{
 	if (FT_Init_FreeType(&mLibrary)) {
 		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 		return false;
@@ -56,7 +61,8 @@ bool TextDisplay::init(const std::string& fontPath) {
 	return true;
 }
 
-void TextDisplay::loadCharacter(wchar_t c) {
+void TextDisplay::loadCharacter(wchar_t c)
+{
 	if (FT_Load_Char(mFace, c, FT_LOAD_RENDER)) {
 		std::wcout << L"Failed to load glyph: " << c << std::endl;
 		return;
@@ -94,7 +100,8 @@ void TextDisplay::loadCharacter(wchar_t c) {
 	updateCache(c);
 }
 
-void TextDisplay::updateCache(wchar_t c) {
+void TextDisplay::updateCache(wchar_t c)
+{
 	if (cacheMap.find(c) != cacheMap.end()) {
 		lruList.erase(cacheMap[c]);
 	}
@@ -110,7 +117,8 @@ void TextDisplay::updateCache(wchar_t c) {
 	}
 }
 
-void TextDisplay::preloadASCII() {
+void TextDisplay::preloadASCII()
+{
 	for (wchar_t c = 0; c < 128; ++c) {
 		if (FT_Load_Char(mFace, c, FT_LOAD_RENDER)) {
 			continue;
@@ -148,19 +156,24 @@ void TextDisplay::preloadASCII() {
 	}
 }
 
-void TextDisplay::renderText(const std::wstring& text, float x, float y, float scale, GLfloat colorR, GLfloat colorG, GLfloat colorB) {
-	if (!isInitialized) return;
+void TextDisplay::loadText(const std::wstring& text, float x, float y, float scale, const float r, const float g, const float b, const float a)
+{
+	renderQueue.push_back({ text, x, y, scale, r , g , b ,a });
 
 	// 只加载缺失的中文字符
 	for (wchar_t c : text) {
-		if (c >= 0x4e00 && c <= 0x9fa5) { // 中文范围
+		if ((c >= 0x4e00 && c <= 0x9fa5) || (c >= 128)) { // 中文或非ASCII字符
 			if (Characters.find(c) == Characters.end()) {
 				loadCharacter(c);
 			}
 		}
 	}
+}
 
-	// 设置渲染参数（正交投影等）
+void TextDisplay::draw()
+{
+	if (!isInitialized || renderQueue.empty()) return;
+
 	const float ortho[16] = {
 		1.0f / 960.0f, 0.0f,        0.0f, 0.0f,
 		0.0f,        1.0f / 540.0f, 0.0f, 0.0f,
@@ -168,42 +181,51 @@ void TextDisplay::renderText(const std::wstring& text, float x, float y, float s
 		-1.0f,      -1.0f,        0.0f, 1.0f
 	};
 
-	mShader.begin();
-	mShader.setMat4("projection", ortho);
-	mShader.setFloat3("textColor", colorR, colorG, colorB);
+	mShader->begin();
+	mShader->setMat4("projection", ortho);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(mVAO);
 
-	float currentX = x;
+	for (const auto& task : renderQueue) {
+		float currentX = task.x;
+		float currentY = task.y;
 
-	for (wchar_t c : text) {
-		if (Characters.find(c) == Characters.end()) continue;
+		mShader->setFloat4("textColor", task.r, task.g, task.b, task.a);
 
-		Character ch = Characters[c];
-		float xpos = currentX + ch.xBearing * scale;
-		float ypos = y - (ch.ySize - ch.yBearing) * scale;
-		float w = ch.xSize * scale;
-		float h = ch.ySize * scale;
+		for (wchar_t c : task.text) {
+			if (Characters.find(c) == Characters.end()) continue;
 
-		GLfloat vertices[6][4] = {
-			{ xpos,     ypos + h,   0.0, 0.0 },
-			{ xpos,     ypos,       0.0, 1.0 },
-			{ xpos + w, ypos,       1.0, 1.0 },
-			{ xpos,     ypos + h,   0.0, 0.0 },
-			{ xpos + w, ypos,       1.0, 1.0 },
-			{ xpos + w, ypos + h,   1.0, 0.0 }
-		};
+			Character ch = Characters[c];
+			float xpos = currentX + ch.bearingX * task.scale;
+			float ypos = currentY - (ch.height - ch.bearingY) * task.scale;
+			float w = ch.width * task.scale;
+			float h = ch.height * task.scale;
 
-		glBindTexture(GL_TEXTURE_2D, ch.textureID);
-		glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+			GLfloat vertices[6][4] = {
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos,     ypos,       0.0, 1.0 },
+				{ xpos + w, ypos,       1.0, 1.0 },
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos + w, ypos,       1.0, 1.0 },
+				{ xpos + w, ypos + h,   1.0, 0.0 }
+			};
 
-		currentX += (ch.Advance >> 6) * scale;
+			glBindTexture(GL_TEXTURE_2D, ch.textureID);
+			glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			currentX += (ch.advance >> 6) * task.scale;
+		}
 	}
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	mShader.end();
+	mShader->end();
+}
+
+void TextDisplay::clearQueue()
+{
+	renderQueue.clear();
 }
