@@ -49,6 +49,8 @@ State::~State()
 void State::allState()
 {
 	hexasScaleAdd();
+	for (auto& hexaButton : mHexaButtons)
+		hexaButton.loadAllText();
 	if (mHexaButtons.size() > 0 && mHexaButtons[0].isDeleted())
 		mHexaButtons.clear();
 	if (mHexas.size() > 0 && mHexas[0].isDeleted())
@@ -63,14 +65,17 @@ void State::allState()
 			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
 			mHexaButtons[0].setColor(Color(124, 252, 0));
+			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(135, 206, 235));
+			mHexaButtons[1].addText(L"普通模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[2].setColor(Color(255, 127, 0));
+			mHexaButtons[2].addText(L"困难模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		else
 		{
-			txtdp->loadText(L"简单模式", 480.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.5f);
-			txtdp->loadText(L"简单模式", 880.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-			txtdp->loadText(L"简单模式", 1280.0f, 520.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f);
+			/*txtdp->loadText(L"简单模式", 480.0f, 520.0f, 1.0f, 1.0f, 1.0f, 1.0f, mHexaButtons[0].getScale());
+			txtdp->loadText(L"普通模式", 862.5f, 520.0f, 1.0f, 1.0f, 1.0f, 1.0f, mHexaButtons[0].getScale());
+			txtdp->loadText(L"困难模式", 1245.0f, 520.0f, 1.0f, 1.0f, 1.0f, 1.0f, mHexaButtons[0].getScale());*/
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{

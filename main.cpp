@@ -39,7 +39,7 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	txtdp->init("assets/fonts/MSYH.TTC");
+	txtdp->init("assets/fonts/GlowSansSC-Normal-Book.otf");
 	rdr->init();
 	CrystalBackground::getInstance()->init();
 	dtbg->init();
@@ -67,8 +67,6 @@ int main()
 		CrystalBackground::getInstance()->draw();
 		rdr->dataLoad();
 		rdr->draw();
-		//txtdp->Text(L"123 abc 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		txtdp->loadText(L"123 abc 这是一段测试文字", 25.0f, 25.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.5f);
 		txtdp->draw();
 		txtdp->clearQueue();
 

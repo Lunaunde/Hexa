@@ -1,7 +1,9 @@
 ﻿#ifndef HEXA_H
 #define HEXA_H
 
+#include<vector>
 #include"color.h"
+#include"../application/TextDisplay.h"
 
 class Hexa
 {
@@ -43,6 +45,8 @@ public:
 
 	void mScaleAdd();
 
+	float getScale()const;
+
 	void deleteModeOn();
 	bool getDeleteMode()const;
 	bool isDeleted()const;
@@ -63,29 +67,36 @@ private:
 	bool deleted = false;
 };
 
-class HexaButton : public Hexa  
-{  
-public:  
-   HexaButton(float xOffset, float yOffset, float side);  
-   HexaButton(int xOffset, int yOffset, float side);  
-   HexaButton(float side);  
-   void setSide(float side);  
+class HexaButton : public Hexa
+{
+public:
+	HexaButton(float xOffset, float yOffset, float side);
+	HexaButton(int xOffset, int yOffset, float side);
+	HexaButton(float side);
 
-   virtual float getCenterXPos() const;  
-   virtual float getCenterXPos(float side, float rotation) const;
-   virtual float getCenterYPos() const;  
-   virtual float getCenterYPos(float side, float rotation) const;
-   virtual float getVertexXPos(int number, float scale) const;  
-   virtual float getVertexXPos(float side, int number, float scale, float rotation) const;  
-   virtual float getVertexYPos(int number, float scale) const;  
-   virtual float getVertexYPos(float side, int number, float scale, float rotation) const;  
-   virtual bool ifPositionInHexa(float x, float y, float scale, float rotation) const;  
-   virtual bool ifPositionInHexa(int x, int y, float scale, float rotation) const;  
+	void setSide(float side);
 
-private:  
-   float mXOffset = 0;  
-   float mYOffset = 0;  
-   float mSide = 0;  
+	virtual float getCenterXPos() const;
+	virtual float getCenterXPos(float side, float rotation) const;
+	virtual float getCenterYPos() const;
+	virtual float getCenterYPos(float side, float rotation) const;
+	virtual float getVertexXPos(int number, float scale) const;
+	virtual float getVertexXPos(float side, int number, float scale, float rotation) const;
+	virtual float getVertexYPos(int number, float scale) const;
+	virtual float getVertexYPos(float side, int number, float scale, float rotation) const;
+	virtual bool ifPositionInHexa(float x, float y, float scale, float rotation) const;
+	virtual bool ifPositionInHexa(int x, int y, float scale, float rotation) const;
+
+	void addText(const std::wstring& text, float xOffset, float yOffset, float scale, const float r, const float g, const float b, const float a);
+	void deleteText(int index);
+	void loadAllText();
+
+private:
+	float mXOffset = 0;
+	float mYOffset = 0;
+	float mSide = 0;
+
+	std::vector<TextTask> mTextList;
 };
 
 #endif

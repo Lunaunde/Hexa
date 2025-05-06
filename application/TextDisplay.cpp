@@ -1,9 +1,6 @@
 ﻿#include "TextDisplay.h"
 #include<iostream>
 
-#include "TextDisplay.h"
-#include <iostream>
-
 TextDisplay* TextDisplay::instance = nullptr;
 
 TextDisplay::TextDisplay()
@@ -156,9 +153,18 @@ void TextDisplay::preloadASCII()
 	}
 }
 
-void TextDisplay::loadText(const std::wstring& text, float x, float y, float scale, const float r, const float g, const float b, const float a)
+void TextDisplay::loadText(const std::wstring& text, float centerX, float centerY, float scale, const float r, const float g, const float b, const float a)
 {
-	renderQueue.push_back({ text, x, y, scale, r , g , b ,a });
+	if (text.empty()) return;
+
+	// 计算文本实际尺寸
+	TextMetrics metrics = calculateTextMetrics(text, scale);
+
+	// 转换为左下角坐标
+	float startX = centerX - metrics.totalWidth / 2.0f;
+	float startY = centerY + metrics.maxBearingY / 2.0f - metrics.maxHeight / 2.0f; 
+
+	renderQueue.push_back({ text, startX, startY, scale, r, g, b, a });
 
 	// 只加载缺失的中文字符
 	for (wchar_t c : text) {
@@ -228,4 +234,30 @@ void TextDisplay::draw()
 void TextDisplay::clearQueue()
 {
 	renderQueue.clear();
+}
+
+TextMetrics TextDisplay::calculateTextMetrics(const std::wstring& text, float scale) {
+	TextMetrics metrics = { 0.0f, 0.0f, 0.0f };
+
+	for (wchar_t c : text) {
+		if (Characters.find(c) == Characters.end()) continue;
+
+		const Character& ch = Characters[c];
+
+		// 累计宽度（考虑字符间距）
+		metrics.totalWidth += (ch.advance >> 6) * scale;
+
+		// 计算最大高度和基线位置
+		float charHeight = ch.height * scale;
+		float bearingY = ch.bearingY * scale;
+
+		if (charHeight > metrics.maxHeight) {
+			metrics.maxHeight = charHeight;
+		}
+		if (bearingY > metrics.maxBearingY) {
+			metrics.maxBearingY = bearingY;
+		}
+	}
+
+	return metrics;
 }

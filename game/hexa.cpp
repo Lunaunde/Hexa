@@ -98,7 +98,7 @@ bool Hexa::ifPositionInHexa(float x, float y, float side, float scale = 1, float
 			float vertexX2 = this->getVertexXPos(side, i + 1, scale, rotation);
 			float vertexY1 = this->getVertexYPos(side, i, scale, rotation) * ScreenRatio;
 			float vertexY2 = this->getVertexYPos(side, i + 1, scale, rotation) * ScreenRatio;
-			if (abs(vertexY1 - vertexY2) < epsilon && abs(y -vertexY1) < epsilon && (x - vertexX1) * (x - vertexX2) < 0)
+			if (abs(vertexY1 - vertexY2) < epsilon && abs(y - vertexY1) < epsilon && (x - vertexX1) * (x - vertexX2) < 0)
 			{
 				return true;
 			}
@@ -224,6 +224,11 @@ void Hexa::mScaleAdd()
 	}
 }
 
+float Hexa::getScale()const
+{
+	return mScale;
+}
+
 void Hexa::deleteModeOn()
 {
 	mStartTime = glfwGetTime() + abs(mScale);
@@ -261,7 +266,7 @@ float HexaButton::getCenterXPos()const
 {
 	return Hexa::getCenterXPos(mSide) + mXOffset;
 }
-float HexaButton::getCenterXPos(float side,float rotation)const
+float HexaButton::getCenterXPos(float side, float rotation)const
 {
 	return Hexa::getCenterXPos(mSide) + mXOffset;
 }
@@ -269,7 +274,7 @@ float HexaButton::getCenterYPos()const
 {
 	return Hexa::getCenterYPos(mSide) + mYOffset;
 }
-float HexaButton::getCenterYPos(float side,float rotation)const
+float HexaButton::getCenterYPos(float side, float rotation)const
 {
 	return Hexa::getCenterYPos(mSide) + mYOffset;
 }
@@ -299,4 +304,24 @@ bool HexaButton::ifPositionInHexa(int x, int y, float scale = 1, float rotation 
 	float fx = ((float)x - (float)(aplct->getWidth() / 2)) / (float)(aplct->getWidth() / 2);
 	float fy = ((float)y - (float)(aplct->getLength() / 2)) / (float)(aplct->getLength() / 2);
 	return ifPositionInHexa(fx, fy, scale, rotation);
+}
+
+void HexaButton::addText(const std::wstring& text, float xOffset, float yOffset, float scale, const float r, const float g, const float b, const float a)
+{
+	mTextList.push_back(TextTask({ text, xOffset, yOffset, scale, r, g, b, a }));
+}
+
+void HexaButton::deleteText(int index)
+{
+	mTextList.erase(mTextList.begin() + index);
+}
+
+void HexaButton::loadAllText()
+{
+	for (auto& text : mTextList)
+	{
+		float x = (this->getCenterXPos() + text.x) * aplct->getWidth() / 2 + aplct->getWidth() / 2;
+		float y = (this->getCenterYPos() + text.y) * aplct->getLength() / 2 + aplct->getLength() / 2;
+		txtdp->loadText(text.text, x, y, abs(sin(this->getScale() * PI / 2)) * text.scale, text.r, text.g, text.b, abs(sin(this->getScale() * PI / 2)) * text.a);
+	}
 }

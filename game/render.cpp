@@ -289,9 +289,11 @@ CrystalBackground* CrystalBackground::getInstance()
 		instance = new CrystalBackground();
 	return instance;
 }
+Texture* test;
 void CrystalBackground::init()
 {
 	mTexture = new Texture("assets/textures/background01.png", 0);
+	test = new Texture("assets/textures/p.jpeg", 0);
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));

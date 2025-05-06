@@ -29,6 +29,12 @@ struct TextTask {
     float r, g, b, a;
 };
 
+struct TextMetrics {
+    float totalWidth;
+    float maxHeight;
+    float maxBearingY;
+};
+
 class TextDisplay {
 public:
     static TextDisplay* getInstance();
@@ -37,6 +43,8 @@ public:
     void loadText(const std::wstring& text, float x, float y, float scale, const float r,const float g,const float b,const float a);
     void draw();
     void clearQueue();
+
+    TextMetrics calculateTextMetrics(const std::wstring& text, float scale);
 
 private:
     static TextDisplay* instance;
