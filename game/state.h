@@ -7,7 +7,14 @@
 #include<functional>
 #include "hexa.h"
 #include"color.h"
+#include"../glframework/texture.h"
 #include"../application/AudioPlayer.h"
+
+class Picture
+{
+public:
+private:
+};
 
 class HexaColorBackup
 {
@@ -83,6 +90,10 @@ private:
 	void static onCursorPos(double xpos, double ypos);
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
+
+	std::array<int,3> mHRLevelBase = { 3,3,3 };
+	std::array<int,3> mHRLevel = { 0,0,0 };
+	bool newRecord;
 
 	int mLevelBase = 0;
 	int mLevel = 0;

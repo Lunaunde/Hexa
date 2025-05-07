@@ -2,6 +2,8 @@
 #include<vector>
 #include<cmath>
 #include<iostream>
+#include<fstream>
+#include<filesystem>
 #include"../application/Application.h"
 #include"../application/TextDisplay.h"
 #include"../glframework/core.h"
@@ -64,12 +66,20 @@ void State::allState()
 			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
+
 			mHexaButtons[0].setColor(Color(124, 252, 0));
 			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(135, 206, 235));
 			mHexaButtons[1].addText(L"普通模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[2].setColor(Color(255, 127, 0));
 			mHexaButtons[2].addText(L"困难模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+
+			std::wstring text;
+			text = L"最高记录:";
+			for (int i = 0; i < 3; i++)
+			{
+				mHexaButtons[i].addText(text + std::to_wstring(mHRLevelBase[i]) + L"_" + std::to_wstring(mHRLevel[i]), 0.0f, -0.08f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
 		}
 		else
 		{
@@ -79,6 +89,7 @@ void State::allState()
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
+				txtdp->loadText(L"无时间限制,无重置限制,关底无加强", 960.0f, 500.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -107,6 +118,7 @@ void State::allState()
 				mLevelBase = 3;
 				mState = 1;
 				randSeed();
+				newRecord = false;
 				for (auto& hexa : mHexaButtons)
 				{
 					hexa.deleteModeOn();
@@ -174,6 +186,27 @@ void State::allState()
 
 			if (Logic::finishPuzzle(getHexas(), mLevelBase) == true && mHexas[0].getDeleteMode() == false)
 			{
+				if (mLevelBase > mHRLevelBase[mDifficulty])
+				{
+					mHRLevelBase[mDifficulty] = mLevelBase;
+					mHRLevel[mDifficulty] = mLevel;
+					newRecord = true;
+				}
+				else if (mLevelBase == mHRLevelBase[mDifficulty] && mLevel > mHRLevel[mDifficulty])
+				{
+					mHRLevel[mDifficulty] = mLevel;
+					newRecord = true;
+				}
+				if (newRecord)
+				{
+					std::string data;
+					std::ofstream file("data.txt");
+					if (file.is_open())
+						for (int i = 0; i < 3; i++)
+							data += std::to_string(mHRLevelBase[i]) + " " + std::to_string(mHRLevel[i]) + "\n";
+					file.write(data.c_str(), strlen(data.c_str()));
+				}
+
 				for (auto& hexa : mHexas)
 					hexa.deleteModeOn();
 				mLevel++;
@@ -206,9 +239,26 @@ void State::init()
 	aplct->setMouseButtonCallback(State::onMouseButton);
 	aplct->setKeyCallback(State::onKey);
 
-	mSeed = std::random_device{}();
-	mSeed %= 524288;
-	mGen = std::mt19937(mSeed);
+	std::string filePath = "data.txt";
+	if (!std::filesystem::exists(filePath))
+	{
+		std::ofstream file(filePath);
+		if (file.is_open())
+			file.close();
+		else
+			std::cerr << "无法创建文件 " << filePath << std::endl;
+	}
+	else
+	{
+		std::ifstream file(filePath);
+		if (file.is_open())
+			for (int i = 0; i < 3; i++)
+			{
+				file >> mHRLevelBase[i];
+				file >> mHRLevel[i];
+			}
+	}
+
 }
 
 void State::onCursorPos(double xpos, double ypos)
