@@ -89,7 +89,7 @@ void State::allState()
 			bool startGame = false;
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
-				txtdp->loadText(L"无时间限制,无重置限制,关底无加强", 960.0f, 500.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"无时间限制,无重置限制,关底无加强", 960.0f, 350.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -98,6 +98,7 @@ void State::allState()
 			}
 			if (mHexaButtons[1].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
+				txtdp->loadText(L"有时间限制,无重置限制,有关底加强", 960.0f, 350.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -106,6 +107,7 @@ void State::allState()
 			}
 			if (mHexaButtons[2].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 			{
+				txtdp->loadText(L"时间更加少,有重置限制,有双倍加强", 960.0f, 350.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					startGame = true;
@@ -115,7 +117,7 @@ void State::allState()
 			if (startGame)
 			{
 				mLevel = 1;
-				mLevelBase = 3;
+				mLevelBase = 2;
 				mState = 1;
 				randSeed();
 				newRecord = false;
