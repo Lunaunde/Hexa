@@ -395,5 +395,9 @@ void Logic::showAnswer()
 				sta->playStoneSound();
 			}
 		}
+		else
+		{
+			sta->setShowAnswer(false);
+		}
 	}
 }

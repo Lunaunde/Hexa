@@ -180,7 +180,8 @@ void State::allState()
 		}
 		else if (mHexas.size() > 0)
 		{
-			Logic::playerStepCheck();
+			if (!Logic::finishPuzzle(getHexas(), mLevelBase))
+				Logic::playerStepCheck();
 			Logic::reloadLevel();
 			Logic::showAnswer();
 
@@ -208,14 +209,17 @@ void State::allState()
 							data += std::to_string(mHRLevelBase[i]) + " " + std::to_string(mHRLevel[i]) + "\n";
 					file.write(data.c_str(), strlen(data.c_str()));
 				}
-
-				for (auto& hexa : mHexas)
-					hexa.deleteModeOn();
-				mLevel++;
-				if (mLevel >= 4)
+				if (mPlayerSteps.size() > 0 && mPlayerSteps[mPlayerSteps.size() - 1]->getScale() == 1.0f)
 				{
-					mLevel = 1;
-					mLevelBase++;
+					for (auto& hexa : mHexas)
+						hexa.deleteModeOn();
+					mPlayerSteps.clear();
+					mLevel++;
+					if (mLevel >= 4)
+					{
+						mLevel = 1;
+						mLevelBase++;
+					}
 				}
 			}
 			clearMouse();

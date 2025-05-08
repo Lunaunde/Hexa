@@ -91,7 +91,7 @@ private:
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
 
-	std::array<int,3> mHRLevelBase = { 3,3,3 };
+	std::array<int,3> mHRLevelBase = { 2,2,2 };
 	std::array<int,3> mHRLevel = { 0,0,0 };
 	bool newRecord;
 
