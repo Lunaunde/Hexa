@@ -40,6 +40,15 @@ Texture::~Texture()
         glDeleteTextures(1, &mTexture);
 }
 
+int Texture::getWidth() const
+{
+	return mWidth;
+}
+int Texture::getHeight() const
+{
+	return mHeight;
+}
+
 void Texture::bind()
 {
 	glActiveTexture(GL_TEXTURE0+mUnit);

@@ -2,12 +2,10 @@
 layout (location = 0) in uint aPositionType; //0:normal 1:2D rotate 2:fake 3D rotate
 layout (location = 1) in vec3 aPos;
 
-layout (location = 8) in uint aColorType; // 0:fColor 1:texture 2:uniform 3:0xColor
+layout (location = 8) in uint aColorType; // 0:fColor 1:uniform 2:0xColor
 layout (location = 9) in vec3 aColor;
-layout (location = 10) in vec2 aUV;
 
 out vec3 color;
-out vec2 uv;
 out flat uint colorType;
 
 uniform vec3 uColor;
@@ -22,12 +20,12 @@ void main()
 	color=aColor;
 	}
 	break;
-	case 2:
+	case 1:
 	{
 	color=uColor;
 	}
 	break;
-	case 3:
+	case 2:
 	{
 	color.r = aColor.r/255.0;
     color.g = aColor.g/255.0;
@@ -35,7 +33,5 @@ void main()
 	}
 	break;
 	}
-
-	uv=aUV;
 	colorType=aColorType;
 }

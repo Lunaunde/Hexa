@@ -7,7 +7,8 @@ class Texture
 	public:
 		Texture(const std::string& path,unsigned int unit);
 		~Texture();
-
+		int getWidth() const;
+		int getHeight() const;
 		void bind();
 
 	private:

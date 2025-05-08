@@ -8,7 +8,6 @@
 #include"../application/TextDisplay.h"
 #include"../glframework/core.h"
 #include"logic.h"
-#include"render.h"
 
 State* State::instance = nullptr;
 
@@ -61,11 +60,12 @@ void State::allState()
 	{
 	case 0:
 	{
+		mPictures["title"]->draw();
 		if (mHexaButtons.size() == 0)
 		{
-			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
-			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
-			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
+			mHexaButtons.push_back(HexaButton(-0.4f, -0.4f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.0f, -0.4f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.4f, -0.4f, 0.15));
 
 			mHexaButtons[0].setColor(Color(124, 252, 0));
 			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.025f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -265,6 +265,8 @@ void State::init()
 			}
 	}
 
+	mPictures["title"] = new Picture("assets/textures/title.png", 0.0, 0.0, 1.0);
+	mPictures["title"]->dataLoad();
 }
 
 void State::onCursorPos(double xpos, double ypos)

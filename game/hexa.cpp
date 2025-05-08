@@ -322,7 +322,7 @@ void HexaButton::loadAllText()
 	{
 		float sinScale = abs(sin(this->getScale() * PI / 2));
 		float x = (this->getCenterXPos() + sinScale * text.x) * aplct->getWidth() / 2 + aplct->getWidth() / 2;
-		float y = (this->getCenterYPos() + sinScale * text.y) * aplct->getLength() / 2 + aplct->getLength() / 2;
+		float y = (this->getCenterYPos() * ScreenRatio + sinScale * text.y) * aplct->getLength() / 2 + aplct->getLength() / 2;
 		txtdp->loadText(text.text, x, y, sinScale * text.scale, text.r, text.g, text.b, sinScale * text.a);
 	}
 }

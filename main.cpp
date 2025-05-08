@@ -16,6 +16,7 @@
 #include"game/render.h"
 #include"game/state.h"
 #include"game/logic.h"
+#include"game/picture.h"
 
 void onResize(int width, int height)
 {
@@ -51,9 +52,11 @@ int main()
 
 	//AudioPlayer player("assets/sounds/deepStone/0.wav");
 	//player.play(1);
-
+	
 	//new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
 
+	Picture pic("assets/textures/title.png",0.0f, 0.0f, 1);
+	pic.dataLoad();
 	while (aplct->update())
 	{
 		auto start = std::chrono::steady_clock::now();
@@ -62,9 +65,10 @@ int main()
 		std::tm* local_time = std::localtime(&now_time);
 
 		sta->allState();
-
+		
 		rdr->clear();
 		CrystalBackground::getInstance()->draw();
+		pic.draw();
 		rdr->dataLoad();
 		rdr->draw();
 		txtdp->draw();

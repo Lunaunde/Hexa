@@ -5,16 +5,12 @@
 #include<vector>
 #include<random>
 #include<functional>
+#include<map>
 #include "hexa.h"
 #include"color.h"
+#include"picture.h"
 #include"../glframework/texture.h"
 #include"../application/AudioPlayer.h"
-
-class Picture
-{
-public:
-private:
-};
 
 class HexaColorBackup
 {
@@ -60,7 +56,7 @@ public:
 	int getColorChange() const;
 
 	void setRotationMode(bool bo);
-    bool getRotationMode() const;
+	bool getRotationMode() const;
 
 	void randSeed();
 	uint32_t getSeed();
@@ -91,8 +87,8 @@ private:
 	void static onMouseButton(int button, int action, int mods);
 	void static onKey(int key, int scancode, int action, int mods);
 
-	std::array<int,3> mHRLevelBase = { 2,2,2 };
-	std::array<int,3> mHRLevel = { 0,0,0 };
+	std::array<int, 3> mHRLevelBase = { 2,2,2 };
+	std::array<int, 3> mHRLevel = { 0,0,0 };
 	bool newRecord;
 
 	int mLevelBase = 0;
@@ -110,6 +106,8 @@ private:
 	std::vector<Hexa*> mAnsSteps;
 	std::vector<Hexa*> mPlayerSteps;
 	HexaColorBackup mHexaColorBackup;
+
+	std::map<std::string, Picture*> mPictures;
 
 	short mColorMode = 2;
 

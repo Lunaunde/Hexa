@@ -16,7 +16,6 @@ Render::~Render()
 	delete mShader;
 	GL_CALL(glDeleteBuffers(1, &vboPositionType));
 	GL_CALL(glDeleteBuffers(1, &vboPos));
-	GL_CALL(glDeleteBuffers(1, &vboPos));
 	GL_CALL(glDeleteBuffers(1, &vboColor));
 	GL_CALL(glDeleteVertexArrays(1, &vao));
 	instance = nullptr;
@@ -38,7 +37,6 @@ void Render::init()
 	GL_CALL(glGenBuffers(1, &vboColor));
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glGenBuffers(1, &ebo));
-	GL_CALL(glLineWidth(8.0f));
 }
 
 void Render::clear()
@@ -105,7 +103,7 @@ void Render::hexaDataLoad(Hexa* hexa, float side, float color[3], float scale)
 	   0, 6, 1
 	};
 	std::array<unsigned int, 7> positionType = { 0,0,0,0,0,0,0 };
-	std::array<unsigned int, 7> colorType = { 3,3,3,3,3,3,3 };
+	std::array<unsigned int, 7> colorType = { 2,2,2,2,2,2,2 };
 
 	float rotation = 0;
 	if (sta->getRotationMode())
@@ -292,8 +290,7 @@ CrystalBackground* CrystalBackground::getInstance()
 Texture* test;
 void CrystalBackground::init()
 {
-	mTexture = new Texture("assets/textures/background01.png", 0);
-	test = new Texture("assets/textures/p.jpeg", 0);
+	mTexture = new Texture("assets/textures/background02.png", 0);
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));

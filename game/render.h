@@ -8,6 +8,8 @@
 #include"../glframework/texture.h"
 #include"state.h"
 
+
+
 class Render
 {
 public:
@@ -48,7 +50,7 @@ private:
 	static DistortedBackground* instance;
 	Shader* mShader;
 	static constexpr std::array<float, 16> vertices = {
-		-1.0f,  1.0f, 0.0f, 1.0f, 
+		-1.0f,  1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		 1.0f, -1.0f, 1.0f, 0.0f,
 		 1.0f,  1.0f, 1.0f, 1.0f
