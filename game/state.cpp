@@ -375,7 +375,7 @@ void State::lostState()
 		}
 		int finishLevel = mLevel - 1;
 		int finishLevelBase = mLevelBase;
-		if (finishLevel < 0 && mLevelBase>2)
+		if (finishLevel <= 0 && mLevelBase>2)
 		{
 			finishLevelBase--;
 			finishLevel = 3;
