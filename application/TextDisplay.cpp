@@ -1,4 +1,5 @@
 ﻿#include "TextDisplay.h"
+#include"Application.h"
 #include<iostream>
 
 TextDisplay* TextDisplay::instance = nullptr;
@@ -37,7 +38,7 @@ bool TextDisplay::init(const std::string& fontPath)
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 		return false;
 	}
-	FT_Set_Pixel_Sizes(mFace, 0, 48);
+	FT_Set_Pixel_Sizes(mFace, 0, 128);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// 初始化 VAO/VBO
@@ -160,9 +161,11 @@ void TextDisplay::loadText(const std::wstring& text, float centerX, float center
 	// 计算文本实际尺寸
 	TextMetrics metrics = calculateTextMetrics(text, scale);
 
-	// 转换为左下角坐标
+	centerX = (centerX + 1) * (aplct->getWidth() / 2.0f);
+	centerY = (centerY + 1) * (aplct->getLength() / 2.0f);
+
 	float startX = centerX - metrics.totalWidth / 2.0f;
-	float startY = centerY + metrics.maxBearingY / 2.0f - metrics.maxHeight / 2.0f; 
+	float startY = centerY + metrics.maxBearingY / 2.0f - metrics.maxHeight / 2.0f;
 
 	renderQueue.push_back({ text, startX, startY, scale, r, g, b, a });
 

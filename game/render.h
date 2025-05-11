@@ -72,10 +72,14 @@ public:
 	static CrystalBackground* getInstance();
 	void init();
 	void draw();
+	void colorTo(int index);
+	void colorBack();
 private:
 	static CrystalBackground* instance;
 	Shader* mShader;
 	Texture* mTexture;
+	Texture* mTexture2;
+	std::vector<Texture*> mTextures;
 	static constexpr std::array<float, 16> vertices = {
 		-1.0f,  1.0f, 0.1f, 0.9f,
 		-1.0f, -1.0f, 0.1f, 0.1f,
@@ -89,6 +93,8 @@ private:
 	GLuint vao;
 	GLuint vbo;
 	GLuint ebo;
+	float clock = -1;
+	bool state = false;
 	CrystalBackground();
 };
 #endif

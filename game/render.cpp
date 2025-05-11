@@ -61,6 +61,7 @@ void Render::dataLoad()
 
 void Render::draw()
 {
+
 	mShader->begin();
 
 	GL_CALL(glBindVertexArray(vao));
@@ -88,6 +89,9 @@ void Render::draw()
 	GL_CALL(glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, (void*)0));
 
 	mShader->end();
+
+	for (const auto& [key, pic] : sta->getPictures())
+		pic->draw();
 }
 
 void Render::hexaDataLoad(Hexa* hexa, float side, float color[3], float scale)
@@ -290,7 +294,12 @@ CrystalBackground* CrystalBackground::getInstance()
 Texture* test;
 void CrystalBackground::init()
 {
-	mTexture = new Texture("assets/textures/background02.png", 0);
+	mTexture = new Texture("assets/textures/background.png", 0);
+	mTextures.push_back(new Texture("assets/textures/background0.png", 1));
+	mTextures.push_back(new Texture("assets/textures/background1.png", 1));
+	mTextures.push_back(new Texture("assets/textures/background2.png", 1));
+
+	mTexture2 = mTextures[0];
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
@@ -315,9 +324,19 @@ void CrystalBackground::init()
 
 void CrystalBackground::draw()
 {
+	float present = glfwGetTime() - clock;
+	present /= 2;
+	if (present > 1)
+		present = 1;
+	if (state == 0)
+		present = 1 - present;
+
 	mShader->begin();
 	mShader->setInt("uBackground", 0);
 	mTexture->bind();
+	mShader->setInt("uBackground2", 1);
+	mTexture2->bind();
+	mShader->setFloat("uBackgroundPresent", present);
 	mShader->setVec2("uResolution", aplct->getWidth(), aplct->getLength());
 	mShader->setFloat("uTime", glfwGetTime());
 	mShader->setFloat("uEta", 0.75f);
@@ -328,4 +347,28 @@ void CrystalBackground::draw()
 	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));
 	GL_CALL(glBindVertexArray(0));
 	mShader->end();
+}
+
+void CrystalBackground::colorTo(int index)
+{
+	state = true;
+	clock = glfwGetTime();
+	switch (index)
+	{
+	case 0:
+		mTexture2 = mTextures[0];
+		break;
+	case 1:
+		mTexture2 = mTextures[1];
+		break;
+	case 2:
+		mTexture2 = mTextures[2];
+		break;
+	}
+}
+
+void CrystalBackground::colorBack()
+{
+	state = false;
+	clock = glfwGetTime();
 }

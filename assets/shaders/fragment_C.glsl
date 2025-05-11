@@ -3,6 +3,9 @@ in vec2 vTexCoord;
 out vec4 FragColor;
 
 uniform sampler2D uBackground;
+uniform sampler2D uBackground2;
+uniform float uBackgroundPresent;
+
 uniform vec2 uResolution;
 uniform float uTime;
 uniform float uEta = 0.666;
@@ -93,8 +96,8 @@ void main() {
     }
     
     // »ìºÏ²ÉÑù
-    vec3 refractColor = texture(uBackground, safeUV).rgb;
-    vec3 baseColor = texture(uBackground, baseUV).rgb;
+    vec3 refractColor = texture(uBackground, safeUV).rgb * (1.0-uBackgroundPresent) + texture(uBackground2, safeUV).rgb * uBackgroundPresent;
+    vec3 baseColor = texture(uBackground, baseUV).rgb * (1.0-uBackgroundPresent) + texture(uBackground2, baseUV).rgb * uBackgroundPresent;
     vec3 finalColor = mix(refractColor, baseColor, edgeBlend);
     
     FragColor = vec4(finalColor, 1.0);

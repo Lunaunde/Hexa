@@ -321,8 +321,8 @@ void HexaButton::loadAllText()
 	for (auto& text : mTextList)
 	{
 		float sinScale = abs(sin(this->getScale() * PI / 2));
-		float x = (this->getCenterXPos() + sinScale * text.x) * aplct->getWidth() / 2 + aplct->getWidth() / 2;
-		float y = (this->getCenterYPos() * ScreenRatio + sinScale * text.y) * aplct->getLength() / 2 + aplct->getLength() / 2;
+		float x = (this->getCenterXPos() + sinScale * text.x);
+		float y = (this->getCenterYPos() * ScreenRatio + sinScale * text.y);
 		txtdp->loadText(text.text, x, y, sinScale * text.scale, text.r, text.g, text.b, sinScale * text.a);
 	}
 }

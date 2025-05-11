@@ -30,6 +30,12 @@ public:
 	~State();
 
 	void allState();
+	void menuState();
+	void gameState();
+	void lostState();
+	void sandboxState();
+
+	int getLevelBase();
 
 	static State* getInstance();
 	void init();
@@ -72,6 +78,10 @@ public:
 
 	void hexasScaleAdd();
 
+	void resetMM();
+
+	std::map< std::string, Picture*>& getPictures();
+
 	int getCursorXPos() const;
 	int getCursorYPos() const;
 	int getMouseButton() const;
@@ -95,7 +105,11 @@ private:
 	int mLevel = 0;
 	int mDifficulty = 0;
 	int mState = 0;// 0 menu,1 game,2 lose
+	bool mStateChanging = false;
 	float mClock = 0;
+	int mReset = 0;
+
+	int mNum;
 
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;

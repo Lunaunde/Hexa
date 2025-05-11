@@ -29,7 +29,7 @@ void Logic::buildLevel(int size)
 		defaultBackup.restore(sta->getHexas());
 		sta->getAnsSteps().clear();
 		stepCount = randomHexaColor(sta->getHexas(), sta->getAnsSteps());
-	} while (size > 2 && badLevel(sta->getHexas(), stepCount));//
+	} while ((size > 2 && badLevel(sta->getHexas(), stepCount))||finishPuzzle(sta->getHexas(),sta->getLevelBase()));//
 	sta->getHexaColorBackup() = HexaColorBackup(sta->getHexas());
 }
 
@@ -364,6 +364,7 @@ void Logic::reloadLevel()
 	std::vector<Hexa>& hexas = sta->getHexas();
 	if (sta->getKey() == GLFW_KEY_R && sta->getKeyAction() == GLFW_PRESS)
 	{
+		sta->resetMM();
 		sta->getHexaColorBackup().softRestore(hexas);
 		sta->getPlayerSteps().clear();
 		sta->setShowAnswer(false);
