@@ -84,6 +84,8 @@ void State::menuState()
 			mHexaButtons.push_back(HexaButton(-0.25f, -0.3f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.0f, -0.3f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.25f, -0.3f, 0.15));
+			mHexaButtons.push_back(HexaButton(-0.6f, -0.3f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.6f, -0.3f, 0.15));
 
 			mHexaButtons[0].setColor(Color(124, 252, 0));
 			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -91,6 +93,10 @@ void State::menuState()
 			mHexaButtons[1].addText(L"普通模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[2].setColor(Color(255, 127, 0));
 			mHexaButtons[2].addText(L"困难模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[3].setColor(Color(248, 213, 104));
+			mHexaButtons[3].addText(L"沙盒模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[4].setColor(Color(138, 43, 226));
+			mHexaButtons[4].addText(L"对战模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 
 			std::wstring text;
 			text = L"最高记录:";
@@ -109,6 +115,7 @@ void State::menuState()
 				{
 					startGame = true;
 					mDifficulty = 0;
+					mNum = 1;
 					CrystalBackground::getInstance()->colorTo(0);
 				}
 			}
@@ -119,6 +126,7 @@ void State::menuState()
 				{
 					startGame = true;
 					mDifficulty = 1;
+					mNum = 1;
 					CrystalBackground::getInstance()->colorTo(1);
 				}
 			}
@@ -129,7 +137,18 @@ void State::menuState()
 				{
 					startGame = true;
 					mDifficulty = 2;
+					mNum = 1;
 					CrystalBackground::getInstance()->colorTo(2);
+				}
+			}
+			if (mHexaButtons[3].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+			{
+				txtdp->loadText(L"自由设置地图大小和加强", 0.0f, -0.15f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					startGame = true;
+					mNum = 3;
+					//CrystalBackground::getInstance()->colorTo(3);
 				}
 			}
 			if (startGame)
@@ -147,17 +166,26 @@ void State::menuState()
 	{
 		if (mHexaButtons.size() == 0)
 		{
-			mPictures["ghost"]->zoomIn();
-			if (mDifficulty > 0)
-				mPictures["clock"]->zoomIn();
-			if (mDifficulty == 2)
-				mPictures["reset"]->zoomIn();
 			mStateChanging = false;
-			mLevel = 1;
-			mLevelBase = 2;
-			mState = 1;
+			mPictures["ghost"]->zoomIn();
+			switch (mNum)
+			{
+			case 1:
+				if (mDifficulty > 0)
+					mPictures["clock"]->zoomIn();
+				if (mDifficulty == 2)
+					mPictures["reset"]->zoomIn();
+
+				mLevel = 1;
+				mLevelBase = 2;
+				mState = 1;
+				newRecord = false;
+				break;
+			case 3:
+				mState = 3;
+				break;
+			}
 			randSeed();
-			newRecord = false;
 			mNum = 0;
 		}
 	}
@@ -173,6 +201,11 @@ void State::gameState()
 
 	float sinScale = abs(sin(mPictures["ghost"]->getZoom() * PI / 2));
 	txtdp->loadText(L"关卡:" + std::to_wstring(mLevelBase) + L"_" + std::to_wstring(mLevel), -0.885f, 0.9f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"点击六边形改变颜色", -0.70f, 0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"每层内颜色相同通关", -0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"按R键可以重制步数", -0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"鼠标移动到右上角可", -0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"查看该图标对于效果", -0.70f, -0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (mDifficulty > 0)
 		txtdp->loadText(std::to_wstring((int)leftTime), -0.85f, 0.74f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (mDifficulty == 2)
@@ -227,6 +260,12 @@ void State::gameState()
 						break;
 					}
 				}
+				if(getRotationMode())
+                    mPictures["rotationS"]->zoomIn();
+                if(getColorChangeMode())
+                    mPictures["colorChangeS"]->zoomIn();
+                if(getColorMode() == 3)
+                    mPictures["colorfulS"]->zoomIn();
 				}
 			}
 			Logic::buildLevel(mLevelBase);
@@ -375,12 +414,21 @@ void State::lostState()
 		}
 		int finishLevel = mLevel - 1;
 		int finishLevelBase = mLevelBase;
-		if (finishLevel <= 0 && mLevelBase>2)
+		if (finishLevel <= 0 && mLevelBase > 2)
 		{
 			finishLevelBase--;
 			finishLevel = 3;
 		}
 		txtdp->loadText(L"完成关卡:" + std::to_wstring(finishLevelBase) + L"_" + std::to_wstring(finishLevel), 0.0f, 0.0f, 1.0f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	}
+}
+void State::sandboxState()
+{
+	if (!mStateChanging)
+	{
+		if (mHexaButtons.size() == 0)
+		{
+		}
 	}
 }
 
@@ -429,6 +477,9 @@ void State::init()
 	mPictures["clock"] = new Picture("assets/textures/clock.png", -0.95, 0.77, 0.085);
 	mPictures["reset"] = new Picture("assets/textures/reset.png", -0.95, 0.60, 0.1);
 	mPictures["ghost"] = new Picture("assets/textures/ghost.png", 0.0, 0.0, 1);
+	mPictures["rotationS"] = new Picture("assets/textures/rotation.png", 0.75, 0.9, 0.1);
+	mPictures["colorChangeS"] = new Picture("assets/textures/colorChange.png", 0.85, 0.9, 0.1);
+	mPictures["colorfulS"] = new Picture("assets/textures/colorful.png", 0.95, 0.9, 0.1);
 }
 
 void State::onCursorPos(double xpos, double ypos)
