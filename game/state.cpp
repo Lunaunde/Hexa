@@ -199,6 +199,11 @@ void State::gameState()
 		timeLimit = mLevelBase * 20;
 	float leftTime = timeLimit - (glfwGetTime() - mClock);
 
+	if (mPictures["rotationS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+	{
+		std::cout << "test" << std::endl;
+	}
+
 	float sinScale = abs(sin(mPictures["ghost"]->getZoom() * PI / 2));
 	txtdp->loadText(L"关卡:" + std::to_wstring(mLevelBase) + L"_" + std::to_wstring(mLevel), -0.885f, 0.9f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"点击六边形改变颜色", -0.70f, 0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -260,12 +265,12 @@ void State::gameState()
 						break;
 					}
 				}
-				if(getRotationMode())
-                    mPictures["rotationS"]->zoomIn();
-                if(getColorChangeMode())
-                    mPictures["colorChangeS"]->zoomIn();
-                if(getColorMode() == 3)
-                    mPictures["colorfulS"]->zoomIn();
+				if (getRotationMode())
+					mPictures["rotationS"]->zoomIn();
+				if (getColorChangeMode())
+					mPictures["colorChangeS"]->zoomIn();
+				if (getColorMode() == 3)
+					mPictures["colorfulS"]->zoomIn();
 				}
 			}
 			Logic::buildLevel(mLevelBase);

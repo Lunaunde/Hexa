@@ -188,3 +188,20 @@ float Picture::getZoom()
 	zoomCalculate();
 	return zoom;
 }
+
+bool Picture::inPicture(int ix, int iy)
+{
+
+	float hfw = (float)weight / aplct->getWidth();
+	float hfh = (float)height / aplct->getLength();
+	if (isZoom)
+	{
+		zoomCalculate();
+		hfw *= sin(zoom * 3.1415926 / 2.0);
+		hfh *= sin(zoom * 3.1415926 / 2.0);
+	}
+
+	if ((x - hfw + 1) * (aplct->getWidth() / 2)<= ix && ix <= (x + hfw + 1) * (aplct->getWidth() / 2)&& (y - hfh + 1) * (aplct->getLength() / 2) <= iy && iy <= (y + hfh + 1) * (aplct->getLength() / 2))
+		return true;
+	return false;
+}

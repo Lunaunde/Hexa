@@ -27,6 +27,7 @@ public:
     void zoomOff();
 	void zoomCalculate();
 	float getZoom();
+	bool inPicture(int x, int y);
 private:
 	static Shader* shader;
 	void init();
