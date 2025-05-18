@@ -86,7 +86,7 @@ void Logic::setHexaNear(std::vector<Hexa>& hexas)
 			int dx = hexas[i].getXPos() - hexas[j].getXPos();
 			int dy = hexas[i].getYPos() - hexas[j].getYPos();
 			int dz = hexas[i].getZPos() - hexas[j].getZPos();
-			if (std::max(std::max(abs(dx), abs(dy)), abs(dz)) == 1)
+			if (max(max(abs(dx), abs(dy)), abs(dz)) == 1)
 			{
 				for (int k = 0; k < 6; k++)
 				{
@@ -285,6 +285,14 @@ void Logic::nearSameColorChange(Hexa& hexa)
 	return;
 }
 
+void Logic::buildEmptyLevel(int size)
+{
+	if (sta->getHexas().size() > 0)
+		sta->getHexas().clear();
+	initHexa(size, sta->getHexas());
+	setHexaNear(sta->getHexas());
+}
+
 bool Logic::finishPuzzle(std::vector<Hexa>& hexas, int size)
 {
 	for (int i = 0; i < size; i++)
@@ -320,7 +328,7 @@ void Logic::playerStepCheck()
 				{
 					sta->getPlayerSteps().push_back(&hexas[i]);
 					hexas[i].softChangeColor();
-					sta->playStoneSound();
+					sta->clickHexaSound();
 				}
 			}
 		}
@@ -352,8 +360,8 @@ void Logic::playerStepCheck()
 					}
 					sta->getPlayerSteps().push_back(nowStep);
 					nowStep->softChangeColor();
+					sta->clickHexaSound();
 					break;
-					sta->playStoneSound();
 				}
 			}
 		}
@@ -393,7 +401,7 @@ void Logic::showAnswer()
 			{
 				ansSteps[sta->getMShowStepIndex()]->softChangeColor();
 				sta->add1MShowStepIndex();
-				sta->playStoneSound();
+				//sta->playStoneSound();
 			}
 		}
 		else

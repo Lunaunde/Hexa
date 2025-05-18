@@ -17,14 +17,13 @@ public:
 	void showON();
 	void showOFF();
 
-	void fadeIn();
-	void fadeOut();
-	void fadeOff();
-	void fadeCalculate();
+	void setAlpha(float alpha);
+	void changeAlpha(float alpha, float time);
+	float getAlpha();
 
 	void zoomIn();
 	void zoomOut();
-    void zoomOff();
+	void zoomOff();
 	void zoomCalculate();
 	float getZoom();
 	bool inPicture(int x, int y);
@@ -35,10 +34,11 @@ private:
 	float x, y;
 	int weight, height;
 
-	float fadeClock;
-	float fade = 1;
-	bool fadeState = false;
-	bool isFade = false;
+	bool isAlphaChanging = false;
+	float targetAlpha = 1;
+	float lastAlpha = 1;
+	float alphaChangeTime;
+	float alphaChageStartTime;
 
 	float zoomClock;
 	float zoom = 1;

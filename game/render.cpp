@@ -298,6 +298,8 @@ void CrystalBackground::init()
 	mTextures.push_back(new Texture("assets/textures/background0.png", 1));
 	mTextures.push_back(new Texture("assets/textures/background1.png", 1));
 	mTextures.push_back(new Texture("assets/textures/background2.png", 1));
+	mTextures.push_back(new Texture("assets/textures/background3.png", 1));
+	mTextures.push_back(new Texture("assets/textures/background4.png", 1));
 
 	mTexture2 = mTextures[0];
 	vao = 0;
@@ -353,18 +355,7 @@ void CrystalBackground::colorTo(int index)
 {
 	state = true;
 	clock = glfwGetTime();
-	switch (index)
-	{
-	case 0:
-		mTexture2 = mTextures[0];
-		break;
-	case 1:
-		mTexture2 = mTextures[1];
-		break;
-	case 2:
-		mTexture2 = mTextures[2];
-		break;
-	}
+	mTexture2 = mTextures[index];
 }
 
 void CrystalBackground::colorBack()

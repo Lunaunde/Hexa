@@ -5,18 +5,14 @@
 #include <chrono>
 #include <ctime>
 #include <cmath>
-#include <string>
+#include"thirdParty/enet/include/enet/enet.h"
 #include"glframework/core.h"
-#include"glframework/shader.h"
-#include"glframework/texture.h"
 #include"wrapper/GLErrorCheck.h"
+#include"wrapper/LogCoutTime.h"
 #include"application/Application.h"
-#include"application/AudioPlayer.h"
-#include"application/TextDisplay.h"
 #include"game/render.h"
 #include"game/state.h"
-#include"game/logic.h"
-#include"game/picture.h"
+#include"game/net.h"
 
 void onResize(int width, int height)
 {
@@ -35,6 +31,12 @@ int main()
 
 	if (!aplct->init())
 		return -1;
+	if (enet_initialize() != 0) 
+	{
+		std::cerr << "初始化 ENet 失败。\n";
+		return -1;
+	}
+
 	GL_CALL(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));//设置窗口背景色
 
 	glEnable(GL_BLEND);
@@ -46,14 +48,6 @@ int main()
 	dtbg->init();
 
 	glfwSwapInterval(0);
-
-	sta->setHexaRadius(0.1f);
-	//sta->setSeed();
-
-	//AudioPlayer player("assets/sounds/deepStone/0.wav");
-	//player.play(1);
-	
-	//new AutoDeleteAudioPlayer("assets/sounds/NG.wav");
 
 	while (aplct->update())
 	{
@@ -81,15 +75,11 @@ int main()
 		}
 		else
 		{
-			std::cout << local_time->tm_year + 1900 << '/' << local_time->tm_mon << '/' << local_time->tm_mday << " " << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << std::endl << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
+			LCT();
+			std::cout << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
 		}
 	}
 	aplct->destroy();
+	atexit(enet_deinitialize);
 	return 0;
 }
-//	AudioPlayer bgm("D:\\space.wav");
-//
-//	bgm.play(-1);
-//	//player1.setVolume(0.1f);
-//
-//	bgm.stop();

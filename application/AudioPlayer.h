@@ -1,5 +1,6 @@
 ﻿#ifndef AUDIOPLAYER_H
 #define AUDIOPLAYER_H
+#define adap AutoDeleteAudioPlayer::getInstance()
 
 #include <string>
 #include <thread>
@@ -46,18 +47,16 @@ private:
 class AutoDeleteAudioPlayer
 {
 public:
-	AutoDeleteAudioPlayer(const std::string& filename);
-	~AutoDeleteAudioPlayer();
-
-
+	AutoDeleteAudioPlayer();
+	static AutoDeleteAudioPlayer* getInstance();
+	void addAudio(std::string filename, float volume = 1.0f);
 private:
 	std::atomic<bool> mBeingDeleted;
-	AudioPlayer* mAudioPlayer;
+	std::vector<AudioPlayer*> mAudioPlayerList;
 	std::thread mThread;
-	bool m_isHeapCreated = false;
-	void deleteAudio();
 	void autoCheckLoop();
 
-	static void clearing();
+	static AutoDeleteAudioPlayer* instance;
+	~AutoDeleteAudioPlayer();
 };
 #endif

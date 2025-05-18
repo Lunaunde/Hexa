@@ -7,6 +7,7 @@
 ALCdevice* AudioPlayer::m_device = nullptr;
 ALCcontext* AudioPlayer::m_context = nullptr;
 std::atomic<int> AudioPlayer::m_instanceCount(0);
+AutoDeleteAudioPlayer* AutoDeleteAudioPlayer::instance = nullptr;
 
 AudioPlayer::AudioPlayer(const std::string& filename)
 	: m_isPlaying(false), m_loopCount(1) {
@@ -55,7 +56,7 @@ AudioPlayer::~AudioPlayer() {
 	}
 }
 
-bool AudioPlayer::loadWavFile(const std::string& filename,ALenum& format,ALvoid*& data,ALsizei& size,ALsizei& freq) {
+bool AudioPlayer::loadWavFile(const std::string& filename, ALenum& format, ALvoid*& data, ALsizei& size, ALsizei& freq) {
 	std::ifstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << filename << std::endl;
@@ -206,49 +207,39 @@ bool AudioPlayer::isPlaying() const {
 	return m_isPlaying;
 }
 
-AutoDeleteAudioPlayer::AutoDeleteAudioPlayer(const std::string& filename) : mAudioPlayer(nullptr), mBeingDeleted(false)
+AutoDeleteAudioPlayer::AutoDeleteAudioPlayer()
 {
-	mAudioPlayer = new AudioPlayer(filename);
-	mAudioPlayer->setVolume(2.0f);
-	mAudioPlayer->play(1);
 	mThread = std::thread(&AutoDeleteAudioPlayer::autoCheckLoop, this);
 	mThread.detach();
+}
+AutoDeleteAudioPlayer* AutoDeleteAudioPlayer::getInstance()
+{
+	static AutoDeleteAudioPlayer* instance = nullptr;
+	if (instance == nullptr)
+	{
+		instance = new AutoDeleteAudioPlayer();
+	}
+	return instance;
 }
 AutoDeleteAudioPlayer::~AutoDeleteAudioPlayer()
 {
 	mBeingDeleted = true;
-	//if (mThread.joinable())
-	//	mThread.join();
-	deleteAudio();
+	mAudioPlayerList.clear();
+}
+void AutoDeleteAudioPlayer::addAudio(std::string filename, float volume)
+{
+	mAudioPlayerList.push_back(new AudioPlayer(filename));
+	mAudioPlayerList[mAudioPlayerList.size() - 1]->setVolume(volume);
+	mAudioPlayerList[mAudioPlayerList.size() - 1]->play(1);
 }
 
 void AutoDeleteAudioPlayer::autoCheckLoop()
 {
 	while (!mBeingDeleted)
 	{
-		if (mAudioPlayer != nullptr)
-		{
-			if (mAudioPlayer->isPlaying() == false)
-			{
-				deleteAudio();
-				break;
-			}
-		}
-		else
-		{
-			deleteAudio();
-			break;
-		}
+		for (int i = mAudioPlayerList.size() - 1; i >= 0; i--)
+			if (!mAudioPlayerList[i]->isPlaying())
+				mAudioPlayerList.erase(mAudioPlayerList.begin() + i);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
-	delete this;
-}
-
-void AutoDeleteAudioPlayer::deleteAudio()
-{
-	if (mAudioPlayer != nullptr)
-	{
-		delete mAudioPlayer;
-		mAudioPlayer = nullptr;
 	}
 }

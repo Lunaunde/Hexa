@@ -68,14 +68,10 @@ void Picture::draw()
 	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0)); // Î»ÖÃ
 
 	shader->begin();
-
-	if (isFade)
-	{
-		fadeCalculate();
-		shader->setFloat("alpha",sin(fade * 3.1415926 / 2.0));
-	}
-	else 
-		shader->setFloat("alpha", 1);
+	if(isAlphaChanging)
+		shader->setFloat("alpha", getAlpha());
+	else
+		shader->setFloat("alpha", lastAlpha);
 
 	mTexture->bind();
 	GL_CALL(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0));
@@ -92,49 +88,30 @@ void Picture::showON()
 	isShow = true;
 }
 
-void Picture::fadeIn()
+void Picture::setAlpha(float alpha)
 {
-	fade = 0;
-	showON();
-	fadeState = true;
-	isFade = true;
-	fadeClock = glfwGetTime();
+	isAlphaChanging = false;
+	targetAlpha = alpha;
+	lastAlpha = alpha;
 }
-void Picture::fadeOut()
+void Picture::changeAlpha(float alpha, float time)
 {
-	fade = 1;
-	fadeState = false;
-	isFade = true;
-	fadeClock = glfwGetTime();
+	isAlphaChanging = true;
+	targetAlpha = alpha;
+	alphaChangeTime = time;
+	alphaChageStartTime = glfwGetTime();
 }
-void Picture::fadeOff()
+float Picture::getAlpha()
 {
-	isFade = false;
-}
-void Picture::fadeCalculate()
-{
-	if (!isFade)
-		return;
-	if (fadeState)
+	if (glfwGetTime() - alphaChageStartTime < alphaChangeTime)
 	{
-		if (fade < 1)
-			fade = glfwGetTime() - fadeClock;
-		else if (fade > 1)
-		{
-			fade = 1;
-			isFade = false;
-		}
+		return lastAlpha + (targetAlpha - lastAlpha) * (glfwGetTime() - alphaChageStartTime) / alphaChangeTime;
 	}
 	else
 	{
-		if (fade > 0)
-			fade = 1 + fadeClock - glfwGetTime();
-		else if (fade < 0)
-		{
-			fade = 0;
-			isFade = false;
-			isShow = false;
-		}
+        lastAlpha = targetAlpha;
+		isAlphaChanging = false;
+		return targetAlpha;
 	}
 }
 
@@ -191,7 +168,8 @@ float Picture::getZoom()
 
 bool Picture::inPicture(int ix, int iy)
 {
-
+	if(!isShow)
+        return false;
 	float hfw = (float)weight / aplct->getWidth();
 	float hfh = (float)height / aplct->getLength();
 	if (isZoom)

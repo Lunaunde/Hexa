@@ -28,8 +28,9 @@ add_subdirectory(wrapper)
 add_subdirectory(application)
 add_subdirectory(glframework)
 add_subdirectory(game)
+add_subdirectory(thirdParty/enet)
 
 # 本工程所有cpp文件编译链接
 add_executable(Hexa "main.cpp" "glad.c")
 
-target_link_libraries(Hexa glfw3.lib OpenAL32.lib freetype.lib  wrapper application fw game)
+target_link_libraries(Hexa glfw3.lib OpenAL32.lib freetype.lib wrapper application fw game enet ws2_32 winmm)

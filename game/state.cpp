@@ -58,6 +58,23 @@ void State::allState()
 		mHexaButtons.clear();
 	if (mHexas.size() > 0 && mHexas[0].isDeleted())
 		mHexas.clear();
+
+	fMouseOnButton = false;
+	for (auto& hexaButton : mHexaButtons)
+	{
+		if (hexaButton.ifPositionInHexa(getCursorXPos(), getCursorYPos(), 1, 0) && sta->getMouseAction() == GLFW_PRESS)
+			adap->addAudio("assets/sounds/click.wav");
+		if (hexaButton.ifPositionInHexa(getCursorXPos(), getCursorYPos(), 1, 0))
+		{
+			if (mouseOnButton != &hexaButton)
+			{
+				mouseOnButton = &hexaButton;
+				adap->addAudio("assets/sounds/mouseOn.wav");
+			}
+			fMouseOnButton = true;
+		}
+	}
+
 	switch (mState)
 	{
 	case 0:
@@ -69,7 +86,23 @@ void State::allState()
 	case 2:
 		lostState();
 		break;
+	case 3:
+		sandboxSetState();
+		break;
+	case 4:
+		sandboxPlayState();
+		break;
+	case 5:
+		onlineState();
+		break;
+	case 6:
+        onlineHosterSandboxState();
+		break;
 	}
+
+	if (!fMouseOnButton)
+		mouseOnButton = nullptr;
+
 	clearMouse();
 	clearKey();
 }
@@ -148,7 +181,17 @@ void State::menuState()
 				{
 					startGame = true;
 					mNum = 3;
-					//CrystalBackground::getInstance()->colorTo(3);
+					CrystalBackground::getInstance()->colorTo(3);
+				}
+			}
+			if (mHexaButtons[4].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+			{
+				txtdp->loadText(L"进入联网对战模式", 0.0f, -0.15f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					startGame = true;
+					mNum = 5;
+					CrystalBackground::getInstance()->colorTo(4);
 				}
 			}
 			if (startGame)
@@ -183,6 +226,11 @@ void State::menuState()
 				break;
 			case 3:
 				mState = 3;
+				mLevelBase = 2;
+				break;
+			case 5:
+				mState = 5;
+				mPictures["namebar"]->zoomIn();
 				break;
 			}
 			randSeed();
@@ -199,12 +247,19 @@ void State::gameState()
 		timeLimit = mLevelBase * 20;
 	float leftTime = timeLimit - (glfwGetTime() - mClock);
 
+	float sinScale = abs(sin(mPictures["ghost"]->getZoom() * PI / 2));
+
 	if (mPictures["rotationS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+		txtdp->loadText(L"地图会顺时针旋转", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (mPictures["colorChangeS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+		txtdp->loadText(L"颜色会随时间变换", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (mPictures["colorfulS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 	{
-		std::cout << "test" << std::endl;
+		txtdp->loadText(L"六边形具有三种颜色", 0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"变化为红 黄 蓝 红", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"且六边形可通过两次", 0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	float sinScale = abs(sin(mPictures["ghost"]->getZoom() * PI / 2));
 	txtdp->loadText(L"关卡:" + std::to_wstring(mLevelBase) + L"_" + std::to_wstring(mLevel), -0.885f, 0.9f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"点击六边形改变颜色", -0.70f, 0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"每层内颜色相同通关", -0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -260,18 +315,19 @@ void State::gameState()
 					case 1:
 						setColorChangeMode(false);
 						break;
-					case 3:
+					case 2:
 						setColorMode(2);
 						break;
 					}
 				}
+				}
+
 				if (getRotationMode())
 					mPictures["rotationS"]->zoomIn();
 				if (getColorChangeMode())
 					mPictures["colorChangeS"]->zoomIn();
 				if (getColorMode() == 3)
 					mPictures["colorfulS"]->zoomIn();
-				}
 			}
 			Logic::buildLevel(mLevelBase);
 			mReset = 5;
@@ -310,6 +366,13 @@ void State::gameState()
 				}
 				if ((mPlayerSteps.size() > 0 && mPlayerSteps[mPlayerSteps.size() - 1]->getScale() == 1.0f) || (sta->getKey() == GLFW_KEY_RIGHT_ALT && sta->getKeyAction() == GLFW_PRESS))
 				{
+					finishSound();
+					if (mPictures["rotationS"]->getZoom() > 0.0f)
+						mPictures["rotationS"]->zoomOut();
+					if (mPictures["colorChangeS"]->getZoom() > 0.0f)
+						mPictures["colorChangeS"]->zoomOut();
+					if (mPictures["colorfulS"]->getZoom() > 0.0f)
+						mPictures["colorfulS"]->zoomOut();
 					for (auto& hexa : mHexas)
 						hexa.deleteModeOn();
 					mPlayerSteps.clear();
@@ -324,6 +387,12 @@ void State::gameState()
 			bool lost = (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS) || (mDifficulty > 0 && leftTime <= 0) || (mDifficulty == 2 && mReset == 0);
 			if (lost)
 			{
+				if (mPictures["rotationS"]->getZoom() > 0.0f)
+					mPictures["rotationS"]->zoomOut();
+				if (mPictures["colorChangeS"]->getZoom() > 0.0f)
+					mPictures["colorChangeS"]->zoomOut();
+				if (mPictures["colorfulS"]->getZoom() > 0.0f)
+					mPictures["colorfulS"]->zoomOut();
 				for (auto& hexa : mHexas)
 					hexa.deleteModeOn();
 				mPlayerSteps.clear();
@@ -427,14 +496,419 @@ void State::lostState()
 		txtdp->loadText(L"完成关卡:" + std::to_wstring(finishLevelBase) + L"_" + std::to_wstring(finishLevel), 0.0f, 0.0f, 1.0f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 }
-void State::sandboxState()
+void State::sandboxSetState()
+{
+	if (!mStateChanging)
+	{
+		for (auto& picture : mPictures)
+		{
+			if (picture.second->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				adap->addAudio("assets/sounds/click.wav");
+			if (picture.second->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				if (mouseOnButton != &picture)
+				{
+					mouseOnButton = &picture;
+					adap->addAudio("assets/sounds/mouseOn.wav");
+				}
+				fMouseOnButton = true;
+			}
+		}
+		if (!fMouseOnButton)
+			mouseOnButton = nullptr;
+
+		if (mHexaButtons.size() == 0)
+		{
+			mHexaButtons.push_back(HexaButton(0.0f, -0.3f, 0.10));
+
+			mHexaButtons[0].setColor(Color(255, 255, 255));
+			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.025f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+			mPictures["left"]->zoomIn();
+			mPictures["right"]->zoomIn();
+
+			if (!mSandBoxMode[0])
+				mPictures["rotation"]->setAlpha(0.2f);
+			else
+				mPictures["rotation"]->setAlpha(1.0f);
+			mPictures["rotation"]->zoomIn();
+			if (!mSandBoxMode[1])
+				mPictures["colorChange"]->setAlpha(0.2f);
+			else
+				mPictures["colorChange"]->setAlpha(1.0f);
+			mPictures["colorChange"]->zoomIn();
+			if (!mSandBoxMode[2])
+				mPictures["colorful"]->setAlpha(0.2f);
+			else
+				mPictures["colorful"]->setAlpha(1.0f);
+			mPictures["colorful"]->zoomIn();
+		}
+
+		{
+			if (mPictures["rotation"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[0])
+						mPictures["rotation"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["rotation"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[0] = !mSandBoxMode[0];
+				}
+			}
+			if (mPictures["colorChange"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[1])
+						mPictures["colorChange"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["colorChange"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[1] = !mSandBoxMode[1];
+				}
+			}
+			if (mPictures["colorful"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.7f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.6f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[2])
+						mPictures["colorful"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["colorful"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[2] = !mSandBoxMode[2];
+				}
+			}
+			if (mPictures["left"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				if (mLevelBase > 2)
+					mLevelBase--;
+			if (mPictures["right"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				if (mLevelBase < 12)
+					mLevelBase++;
+			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			{
+				mStateChanging = true;
+				mNum = 4;
+			}
+		}
+
+		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
+		{
+			mStateChanging = true;
+			mNum = 0;
+			CrystalBackground::getInstance()->colorBack();
+		}
+
+		if (mStateChanging)
+		{
+			mHexaButtons[0].deleteModeOn();
+			mPictures["left"]->zoomOut();
+			mPictures["right"]->zoomOut();
+			mPictures["rotation"]->zoomOut();
+			mPictures["colorChange"]->zoomOut();
+			mPictures["colorful"]->zoomOut();
+		}
+	}
+	else
+	{
+		if (mHexaButtons.size() == 0)
+		{
+			mStateChanging = false;
+			mState = mNum;
+			if (mNum == 4)
+				mPictures["ghost"]->zoomIn();
+		}
+	}
+
+	float sinScale = sin(mPictures["left"]->getZoom() * 3.1415926 / 2);
+	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.25, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"点击设置地图大小与加强,ESC返回主菜单", 0, 0.4, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+}
+void State::sandboxPlayState()
+{
+	float sinScale = sin(mPictures["ghost"]->getZoom() * 3.1415926 / 2);
+	txtdp->loadText(L"关卡完成或按ESC返回设置界面", 0, 0.9, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+
+	if (!mStateChanging)
+	{
+		if (mHexas.size() == 0)
+		{
+			if (mLevelBase < 4)
+				sta->setHexaRadius(0.1);
+			else
+				sta->setHexaRadius(0.3 / mLevelBase);
+
+			if (mSandBoxMode[0])
+			{
+				setRotationMode(true);
+				mPictures["rotationS"]->zoomIn();
+			}
+			else
+				setRotationMode(false);
+			if (mSandBoxMode[1])
+			{
+				setColorChangeMode(true);
+				mPictures["colorChangeS"]->zoomIn();
+			}
+			else
+				setColorChangeMode(false);
+			if (mSandBoxMode[2])
+			{
+				setColorMode(3);
+				mPictures["colorfulS"]->zoomIn();
+			}
+			else
+				setColorMode(2);
+			Logic::buildLevel(mLevelBase);
+		}
+		else
+		{
+			if (mPictures["rotationS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+				txtdp->loadText(L"地图会顺时针旋转", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+			if (mPictures["colorChangeS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+				txtdp->loadText(L"颜色会随时间变换", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+			if (mPictures["colorfulS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"六边形具有三种颜色", 0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+
+			if (!Logic::finishPuzzle(getHexas(), mLevelBase))
+				Logic::playerStepCheck();
+
+			colorChange();
+
+			bool back = false;
+
+			if (Logic::finishPuzzle(getHexas(), mLevelBase) == true && mHexas[0].getDeleteMode() == false && mPlayerSteps.size() > 0 && mPlayerSteps[mPlayerSteps.size() - 1]->getScale() == 1.0f)
+			{
+				finishSound();
+				back = true;
+			}
+			if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
+				back = true;
+			if (back == true)
+			{
+				mStateChanging = true;
+				mPictures["ghost"]->zoomOut();
+				if (mPictures["rotationS"]->getZoom() > 0.0f)
+					mPictures["rotationS"]->zoomOut();
+				if (mPictures["colorChangeS"]->getZoom() > 0.0f)
+					mPictures["colorChangeS"]->zoomOut();
+				if (mPictures["colorfulS"]->getZoom() > 0.0f)
+					mPictures["colorfulS"]->zoomOut();
+				for (auto& hexa : mHexas)
+					hexa.deleteModeOn();
+				mPlayerSteps.clear();
+			}
+		}
+	}
+	else
+	{
+		if (mHexas.size() == 0)
+		{
+			mStateChanging = false;
+			mState = 3;
+		}
+	}
+}
+void State::onlineState()
 {
 	if (!mStateChanging)
 	{
 		if (mHexaButtons.size() == 0)
 		{
+			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
+			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
+			mHexaButtons[0].setColor(Color(124, 252, 0));
+			mHexaButtons[0].addText(L"创建房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[1].setColor(Color(135, 206, 235));
+			mHexaButtons[1].addText(L"加入房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[2].setColor(Color(255, 127, 0));
+			mHexaButtons[2].addText(L"搜索房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+		{
+			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			{
+				mServer = new Server();
+				if (mServer->getUseful() == true)
+				{
+					mStateChanging = true;
+					mNum = 6;
+				}
+			}
+		}
+		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
+		{
+			mStateChanging = true;
+			mNum = 0;
+			CrystalBackground::getInstance()->colorBack();
+		}
+		if (mStateChanging == true)
+		{
+			for (auto& hexaButtons : mHexaButtons)
+				hexaButtons.deleteModeOn();
+			mPictures["namebar"]->zoomOut();
 		}
 	}
+	else
+	{
+		if (mHexaButtons.size() == 0)
+		{
+			mStateChanging = false;
+			switch (mNum)
+			{
+			case 0:
+				mState = 0;
+				break;
+			case 6:
+				mState = 6;
+				break;
+			}
+		}
+	}
+	float sinScale = sin(mPictures["namebar"]->getZoom() * 3.1415926 / 2);
+	txtdp->loadText(userName, 0.0f, -0.525f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+}
+void State::onlineHosterSandboxState()
+{
+	if (!mStateChanging)
+	{
+		for (auto& picture : mPictures)
+		{
+			if (picture.second->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				adap->addAudio("assets/sounds/click.wav");
+			if (picture.second->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				if (mouseOnButton != &picture)
+				{
+					mouseOnButton = &picture;
+					adap->addAudio("assets/sounds/mouseOn.wav");
+				}
+				fMouseOnButton = true;
+			}
+		}
+		if (!fMouseOnButton)
+			mouseOnButton = nullptr;
+
+		if (mHexaButtons.size() == 0)
+		{
+			mHexaButtons.push_back(HexaButton(0.0f, -0.3f, 0.10));
+
+			mHexaButtons[0].setColor(Color(255, 255, 255));
+			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.025f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+			mPictures["left"]->zoomIn();
+			mPictures["right"]->zoomIn();
+
+			if (!mSandBoxMode[0])
+				mPictures["rotation"]->setAlpha(0.2f);
+			else
+				mPictures["rotation"]->setAlpha(1.0f);
+			mPictures["rotation"]->zoomIn();
+			if (!mSandBoxMode[1])
+				mPictures["colorChange"]->setAlpha(0.2f);
+			else
+				mPictures["colorChange"]->setAlpha(1.0f);
+			mPictures["colorChange"]->zoomIn();
+			if (!mSandBoxMode[2])
+				mPictures["colorful"]->setAlpha(0.2f);
+			else
+				mPictures["colorful"]->setAlpha(1.0f);
+			mPictures["colorful"]->zoomIn();
+		}
+
+		{
+			if (mPictures["rotation"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[0])
+						mPictures["rotation"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["rotation"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[0] = !mSandBoxMode[0];
+				}
+			}
+			if (mPictures["colorChange"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[1])
+						mPictures["colorChange"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["colorChange"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[1] = !mSandBoxMode[1];
+				}
+			}
+			if (mPictures["colorful"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.7f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.6f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				{
+					if (!mSandBoxMode[2])
+						mPictures["colorful"]->changeAlpha(1.0f, 0.5f);
+					else
+						mPictures["colorful"]->changeAlpha(0.2f, 0.5f);
+					mSandBoxMode[2] = !mSandBoxMode[2];
+				}
+			}
+			if (mPictures["left"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				if (mLevelBase > 2)
+					mLevelBase--;
+			if (mPictures["right"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+				if (mLevelBase < 12)
+					mLevelBase++;
+			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			{
+				mStateChanging = true;
+				mNum = 7;
+			}
+		}
+
+		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
+		{
+			mStateChanging = true;
+			mNum = 6;
+			delete mServer;
+			mServer = nullptr;
+		}
+
+		if (mStateChanging)
+		{
+			mHexaButtons[0].deleteModeOn();
+			mPictures["left"]->zoomOut();
+			mPictures["right"]->zoomOut();
+			mPictures["rotation"]->zoomOut();
+			mPictures["colorChange"]->zoomOut();
+			mPictures["colorful"]->zoomOut();
+		}
+	}
+	else
+	{
+		if (mHexaButtons.size() == 0)
+		{
+			mStateChanging = false;
+			mState = mNum;
+			if (mNum == 4)
+				mPictures["ghost"]->zoomIn();
+		}
+	}
+
+	float sinScale = sin(mPictures["left"]->getZoom() * 3.1415926 / 2);
+	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.25, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"点击设置地图大小与加强,ESC返回主菜单", 0, 0.4, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
 }
 
 int State::getLevelBase()
@@ -485,6 +959,12 @@ void State::init()
 	mPictures["rotationS"] = new Picture("assets/textures/rotation.png", 0.75, 0.9, 0.1);
 	mPictures["colorChangeS"] = new Picture("assets/textures/colorChange.png", 0.85, 0.9, 0.1);
 	mPictures["colorfulS"] = new Picture("assets/textures/colorful.png", 0.95, 0.9, 0.1);
+	mPictures["rotation"] = new Picture("assets/textures/rotation.png", -0.3, 0.2, 0.2);
+	mPictures["colorChange"] = new Picture("assets/textures/colorChange.png", 0.0, 0.2, 0.2);
+	mPictures["colorful"] = new Picture("assets/textures/colorful.png", 0.3, 0.2, 0.2);
+	mPictures["left"] = new Picture("assets/textures/left.png", -0.3, -0.2, 0.5);
+	mPictures["right"] = new Picture("assets/textures/right.png", 0.3, -0.2, 0.5);
+	mPictures["namebar"] = new Picture("assets/textures/bar.png", 0.0, -0.5, 1.0);
 }
 
 void State::onCursorPos(double xpos, double ypos)
@@ -525,32 +1005,61 @@ std::vector<HexaButton>& State::getHexaButtons()
 	return mHexaButtons;
 }
 
-void State::playStoneSound()
+void State::clickHexaSound()
 {
-	int soundID = rand() % 4;
+	int soundID = rand() % 6;
 	switch (soundID)
 	{
 	case 0:
 	default:
 	{
-		new AutoDeleteAudioPlayer("assets/sounds/deepStone/0.wav");
+		adap->addAudio("assets/sounds/sound0.wav");
 	}
 	break;
 	case 1:
 	{
-		new AutoDeleteAudioPlayer("assets/sounds/deepStone/1.wav");
+		adap->addAudio("assets/sounds/sound1.wav");
 	}
 	break;
 	case 2:
 	{
-		new AutoDeleteAudioPlayer("assets/sounds/deepStone/2.wav");
+		adap->addAudio("assets/sounds/sound2.wav");
 	}
 	break;
 	case 3:
 	{
-		new AutoDeleteAudioPlayer("assets/sounds/deepStone/3.wav");
+		adap->addAudio("assets/sounds/sound3.wav");
 	}
 	break;
+	case 4:
+	{
+		adap->addAudio("assets/sounds/sound4.wav");
+	}
+	break;
+	case 5:
+	{
+		adap->addAudio("assets/sounds/sound5.wav");
+	}
+	break;
+	}
+}
+void State::finishSound()
+{
+	int soundID = rand() % 4;
+	switch (soundID)
+	{
+	case 0:
+		adap->addAudio("assets/sounds/finish0.wav");
+		break;
+	case 1:
+		adap->addAudio("assets/sounds/finish1.wav");
+		break;
+	case 2:
+		adap->addAudio("assets/sounds/finish2.wav");
+		break;
+	case 3:
+		adap->addAudio("assets/sounds/finish3.wav");
+		break;
 	}
 }
 

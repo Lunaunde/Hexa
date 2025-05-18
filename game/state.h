@@ -9,6 +9,7 @@
 #include "hexa.h"
 #include"color.h"
 #include"picture.h"
+#include"net.h"
 #include"../glframework/texture.h"
 #include"../application/AudioPlayer.h"
 
@@ -31,9 +32,18 @@ public:
 
 	void allState();
 	void menuState();
+
 	void gameState();
 	void lostState();
-	void sandboxState();
+
+	void sandboxSetState();
+	void sandboxPlayState();
+
+	void onlineState();
+	void onlineHosterSandboxState();
+	void onlineAutoFindState();
+	void onlineClientWaitState();
+	void onlineGameState();
 
 	int getLevelBase();
 
@@ -47,7 +57,8 @@ public:
 
 	std::vector<HexaButton>& getHexaButtons();
 
-	void playStoneSound();
+	void clickHexaSound();
+	void finishSound();
 
 	float getHexaRadius() const;
 	void setHexaRadius(float hexaRadius);
@@ -111,6 +122,8 @@ private:
 
 	int mNum;
 
+	bool mSandBoxMode[3] = { 0,0,0 };
+
 	int mCursorXPos, mCursorYPos, mMouseButton, mMouseAction, mKey, mKeyAction;
 	float mHexaRadius;
 
@@ -137,6 +150,13 @@ private:
 
 	uint32_t mSeed;
 	std::mt19937 mGen;
+
+	bool fMouseOnButton = false;
+	void* mouseOnButton = nullptr;
+
+	std::wstring userName = L"Tester";
+	Server* mServer = nullptr;
+	Client* mClient = nullptr;
 
 	static State* instance;
 };
