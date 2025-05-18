@@ -8,7 +8,7 @@
 #include"thirdParty/enet/include/enet/enet.h"
 #include"glframework/core.h"
 #include"wrapper/GLErrorCheck.h"
-#include"wrapper/LogCoutTime.h"
+#include"wrapper/Log.h"
 #include"application/Application.h"
 #include"game/render.h"
 #include"game/state.h"
@@ -31,7 +31,7 @@ int main()
 
 	if (!aplct->init())
 		return -1;
-	if (enet_initialize() != 0) 
+	if (enet_initialize() != 0)
 	{
 		std::cerr << "初始化 ENet 失败。\n";
 		return -1;
@@ -48,7 +48,8 @@ int main()
 	dtbg->init();
 
 	glfwSwapInterval(0);
-
+	Server* sv = new Server(12345);
+	Client* cl = new Client({ 127,0,0,1 }, 12345);
 	while (aplct->update())
 	{
 		auto start = std::chrono::steady_clock::now();
@@ -57,7 +58,7 @@ int main()
 		std::tm* local_time = std::localtime(&now_time);
 
 		sta->allState();
-		
+
 		rdr->clear();
 		CrystalBackground::getInstance()->draw();
 		rdr->dataLoad();
@@ -75,8 +76,7 @@ int main()
 		}
 		else
 		{
-			LCT();
-			std::cout << "[WARN]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
+			logcout << "[WARN/GAME]: Can't keep up! Running " << (elapsed - waitTime).count() << "ms or " << (elapsed - waitTime).count() / 8.0 << "tick behind." << std::endl;
 		}
 	}
 	aplct->destroy();

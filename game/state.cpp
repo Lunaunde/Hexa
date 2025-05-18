@@ -737,12 +737,13 @@ void State::onlineState()
 		{
 			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
-				mServer = new Server();
+				mServer = new Server(12345);
 				if (mServer->getUseful() == true)
 				{
 					mStateChanging = true;
 					mNum = 6;
 				}
+				mClient = new Client( { 127,0,0,1 } , 12345);
 			}
 		}
 		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
@@ -881,7 +882,7 @@ void State::onlineHosterSandboxState()
 		{
 			mStateChanging = true;
 			mNum = 6;
-			delete mServer;
+			delete mServer;   
 			mServer = nullptr;
 		}
 
