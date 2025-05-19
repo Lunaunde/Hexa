@@ -96,6 +96,7 @@ void Picture::setAlpha(float alpha)
 }
 void Picture::changeAlpha(float alpha, float time)
 {
+	lastAlpha = getAlpha();
 	isAlphaChanging = true;
 	targetAlpha = alpha;
 	alphaChangeTime = time;

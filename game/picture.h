@@ -41,7 +41,7 @@ private:
 	float alphaChageStartTime;
 
 	float zoomClock;
-	float zoom = 1;
+	float zoom = 0;
 	bool zoomState = false;
 	bool isZoom = false;
 

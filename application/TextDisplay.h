@@ -29,10 +29,13 @@ struct TextTask {
     float r, g, b, a;
 };
 
-struct TextMetrics {
+struct TextMetrics 
+{
     float totalWidth;
     float maxHeight;
     float maxBearingY;
+    float maxTop;    
+    float minBottom; 
 };
 
 class TextDisplay {

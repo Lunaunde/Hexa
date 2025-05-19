@@ -96,7 +96,10 @@ void State::allState()
 		onlineState();
 		break;
 	case 6:
-        onlineHosterSandboxState();
+		onlineHosterSandboxState();
+		break;
+	case 7:
+		onlineClientWaitState();
 		break;
 	}
 
@@ -121,15 +124,15 @@ void State::menuState()
 			mHexaButtons.push_back(HexaButton(0.6f, -0.3f, 0.15));
 
 			mHexaButtons[0].setColor(Color(124, 252, 0));
-			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[0].addText(L"简单模式", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(135, 206, 235));
-			mHexaButtons[1].addText(L"普通模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[1].addText(L"普通模式", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[2].setColor(Color(255, 127, 0));
-			mHexaButtons[2].addText(L"困难模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[2].addText(L"困难模式", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[3].setColor(Color(248, 213, 104));
-			mHexaButtons[3].addText(L"沙盒模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[3].addText(L"沙盒模式", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[4].setColor(Color(138, 43, 226));
-			mHexaButtons[4].addText(L"对战模式", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[4].addText(L"对战模式", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 
 			std::wstring text;
 			text = L"最高记录:";
@@ -210,10 +213,10 @@ void State::menuState()
 		if (mHexaButtons.size() == 0)
 		{
 			mStateChanging = false;
-			mPictures["ghost"]->zoomIn();
 			switch (mNum)
 			{
 			case 1:
+				mPictures["ghost"]->zoomIn();
 				if (mDifficulty > 0)
 					mPictures["clock"]->zoomIn();
 				if (mDifficulty == 2)
@@ -230,7 +233,6 @@ void State::menuState()
 				break;
 			case 5:
 				mState = 5;
-				mPictures["namebar"]->zoomIn();
 				break;
 			}
 			randSeed();
@@ -260,7 +262,7 @@ void State::gameState()
 		txtdp->loadText(L"且六边形可通过两次", 0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	txtdp->loadText(L"关卡:" + std::to_wstring(mLevelBase) + L"_" + std::to_wstring(mLevel), -0.885f, 0.9f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"关卡:" + std::to_wstring(mLevelBase) + L"_" + std::to_wstring(mLevel), -0.885f, 0.925f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"点击六边形改变颜色", -0.70f, 0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"每层内颜色相同通关", -0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"按R键可以重制步数", -0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -425,9 +427,9 @@ void State::lostState()
 			mHexaButtons.push_back(HexaButton(0.25f, -0.2f, 0.15));
 
 			mHexaButtons[0].setColor(Color(0, 0, 0));
-			mHexaButtons[0].addText(L"返回主界面", 0.0f, -0.025f, 0.32f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[0].addText(L"返回主界面", 0.0f, -0.0f, 0.32f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(255, 255, 255));
-			mHexaButtons[1].addText(L"重新开始", 0.0f, -0.025f, 0.32f, 0.0f, 0.0f, 0.0f, 1.0f);
+			mHexaButtons[1].addText(L"重新开始", 0.0f, -0.0f, 0.32f, 0.0f, 0.0f, 0.0f, 1.0f);
 		}
 		else
 		{
@@ -480,11 +482,11 @@ void State::lostState()
 		float sinScale = abs(sin(mHexaButtons[0].getScale() * PI / 2));
 		if (newRecord)
 		{
-			txtdp->loadText(L"新历史记录!", 0.0f, 0.2f, 0.32f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+			txtdp->loadText(L"新历史记录!", 0.0f, 0.25f, 0.32f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		else
 		{
-			txtdp->loadText(L"当前模式历史最高记录:" + std::to_wstring(mHRLevelBase[mDifficulty]) + L"_" + std::to_wstring(mHRLevel[mDifficulty]), 0.0f, 0.2f, 0.32f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+			txtdp->loadText(L"当前模式历史最高记录:" + std::to_wstring(mHRLevelBase[mDifficulty]) + L"_" + std::to_wstring(mHRLevel[mDifficulty]), 0.0f, 0.25f, 0.32f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		int finishLevel = mLevel - 1;
 		int finishLevelBase = mLevelBase;
@@ -493,7 +495,7 @@ void State::lostState()
 			finishLevelBase--;
 			finishLevel = 3;
 		}
-		txtdp->loadText(L"完成关卡:" + std::to_wstring(finishLevelBase) + L"_" + std::to_wstring(finishLevel), 0.0f, 0.0f, 1.0f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"完成关卡:" + std::to_wstring(finishLevelBase) + L"_" + std::to_wstring(finishLevel), 0.0f, 0.05f, 1.0f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 }
 void State::sandboxSetState()
@@ -522,7 +524,7 @@ void State::sandboxSetState()
 			mHexaButtons.push_back(HexaButton(0.0f, -0.3f, 0.10));
 
 			mHexaButtons[0].setColor(Color(255, 255, 255));
-			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.025f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
+			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.0f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
 
 			mPictures["left"]->zoomIn();
 			mPictures["right"]->zoomIn();
@@ -547,7 +549,7 @@ void State::sandboxSetState()
 		{
 			if (mPictures["rotation"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[0])
@@ -559,7 +561,7 @@ void State::sandboxSetState()
 			}
 			if (mPictures["colorChange"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[1])
@@ -571,9 +573,9 @@ void State::sandboxSetState()
 			}
 			if (mPictures["colorful"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.7f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
-				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.6f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
-				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.75f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.65f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[2])
@@ -619,20 +621,20 @@ void State::sandboxSetState()
 		{
 			mStateChanging = false;
 			mState = mNum;
-			if (mNum == 4)
-				mPictures["ghost"]->zoomIn();
 		}
 	}
 
 	float sinScale = sin(mPictures["left"]->getZoom() * 3.1415926 / 2);
-	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.25, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
-	txtdp->loadText(L"点击设置地图大小与加强,ESC返回主菜单", 0, 0.4, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.2, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"点击设置地图大小与加强,ESC返回主菜单", 0, 0.45, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
 }
 void State::sandboxPlayState()
 {
+	if (!mStateChanging)
+		if (mHexas.size() == 0)
+			mPictures["ghost"]->zoomIn();
 	float sinScale = sin(mPictures["ghost"]->getZoom() * 3.1415926 / 2);
-	txtdp->loadText(L"关卡完成或按ESC返回设置界面", 0, 0.9, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
-
+	txtdp->loadText(L"关卡完成或按ESC返回设置界面", 0, 0.95, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
 	if (!mStateChanging)
 	{
 		if (mHexas.size() == 0)
@@ -723,29 +725,57 @@ void State::onlineState()
 	{
 		if (mHexaButtons.size() == 0)
 		{
+			mPictures["namebar"]->zoomIn();
 			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
 			mHexaButtons[0].setColor(Color(124, 252, 0));
-			mHexaButtons[0].addText(L"创建房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[0].addText(L"创建房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(135, 206, 235));
-			mHexaButtons[1].addText(L"加入房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[1].addText(L"加入房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[2].setColor(Color(255, 127, 0));
-			mHexaButtons[2].addText(L"搜索房间", 0.0f, -0.025f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
+			mHexaButtons[2].addText(L"搜索房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 		}
+
 		if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 		{
 			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				mServer = new Server(12345);
-				if (mServer->getUseful() == true)
+				if (mServer->getState() == true)
 				{
 					mStateChanging = true;
 					mNum = 6;
+					userName = "Hoster";
+					mClient = new Client({ 127,0,0,1 }, 12345, userName);
+					mLevelBase = 2;
 				}
-				mClient = new Client( { 127,0,0,1 } , 12345);
+				else
+				{
+					delete mServer;
+					mServer = nullptr;
+				}
 			}
 		}
+		if (mHexaButtons[1].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
+		{
+			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
+			{
+				userName = "Player";
+				mClient = new Client({ 127,0,0,1 }, 12345, userName);
+				if (mClient->getState() == true)
+				{
+					mStateChanging = true;
+					mNum = 7;
+				}
+				else
+				{
+					delete mClient;
+					mClient = nullptr;
+				}
+			}
+		}
+
 		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
 		{
 			mStateChanging = true;
@@ -764,19 +794,14 @@ void State::onlineState()
 		if (mHexaButtons.size() == 0)
 		{
 			mStateChanging = false;
-			switch (mNum)
-			{
-			case 0:
-				mState = 0;
-				break;
-			case 6:
-				mState = 6;
-				break;
-			}
+			mState = mNum;
 		}
 	}
 	float sinScale = sin(mPictures["namebar"]->getZoom() * 3.1415926 / 2);
-	txtdp->loadText(userName, 0.0f, -0.525f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	std::wstring wUserName;
+	for (int i = 0; i < userName.size(); i++)
+		wUserName += userName[i];
+	txtdp->loadText(wUserName, 0.0f, -0.5f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 void State::onlineHosterSandboxState()
 {
@@ -804,7 +829,7 @@ void State::onlineHosterSandboxState()
 			mHexaButtons.push_back(HexaButton(0.0f, -0.3f, 0.10));
 
 			mHexaButtons[0].setColor(Color(255, 255, 255));
-			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.025f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
+			mHexaButtons[0].addText(L"创建并开始", 0.0f, -0.0f, 0.20f, 0.0f, 0.0f, 0.0f, 1.0f);
 
 			mPictures["left"]->zoomIn();
 			mPictures["right"]->zoomIn();
@@ -829,7 +854,7 @@ void State::onlineHosterSandboxState()
 		{
 			if (mPictures["rotation"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[0])
@@ -841,7 +866,7 @@ void State::onlineHosterSandboxState()
 			}
 			if (mPictures["colorChange"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[1])
@@ -853,9 +878,9 @@ void State::onlineHosterSandboxState()
 			}
 			if (mPictures["colorful"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
 			{
-				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.7f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
-				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.6f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
-				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.5f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.75f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.65f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
 				if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 				{
 					if (!mSandBoxMode[2])
@@ -878,12 +903,16 @@ void State::onlineHosterSandboxState()
 			}
 		}
 
+		mServer->sentSandBoxInfo(mSandBoxMode[0], mSandBoxMode[1], mSandBoxMode[2], mLevelBase);
+
 		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
 		{
 			mStateChanging = true;
-			mNum = 6;
-			delete mServer;   
+			mNum = 5;
+			delete mServer;
 			mServer = nullptr;
+			delete mClient;
+			mClient = nullptr;
 		}
 
 		if (mStateChanging)
@@ -908,8 +937,128 @@ void State::onlineHosterSandboxState()
 	}
 
 	float sinScale = sin(mPictures["left"]->getZoom() * 3.1415926 / 2);
-	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.25, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
-	txtdp->loadText(L"点击设置地图大小与加强,ESC返回主菜单", 0, 0.4, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.2, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"点击设置地图大小与加强,ESC返回联网界面", 0, 0.45, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"玩家列表", -0.875, 0.925, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	if (mClient != nullptr)
+	{
+		std::vector<std::string> memberList = mClient->getMemberList();
+		for (int i = 0; i < memberList.size(); i++)
+		{
+			std::wstring wUserName;
+			for (int j = 0; j < memberList[i].size(); j++)
+				wUserName += memberList[i][j];
+			txtdp->loadText(wUserName, -0.875, 0.825 - i * 0.1, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+		}
+	}
+}
+void State::onlineClientWaitState()
+{
+	bool sandBoxMode[3] = { 0,0,0 };
+	if (mClient != nullptr)
+		mClient->getSandBoxInfo(sandBoxMode[0], sandBoxMode[1], sandBoxMode[2], mLevelBase);
+	if (!mStateChanging)
+	{
+		if (mPictures["left"]->getZoom() == 0)
+		{
+			mPictures["left"]->zoomIn();
+			mPictures["right"]->zoomIn();
+			mPictures["rotation"]->zoomIn();
+			mPictures["colorChange"]->zoomIn();
+			mPictures["colorful"]->zoomIn();
+		}
+		if (!sandBoxMode[0])
+		{
+			if (mPictures["rotation"]->getAlpha() == 1.0f)
+				mPictures["rotation"]->changeAlpha(0.2f, 0.5f);
+		}
+		else
+		{
+			if (mPictures["rotation"]->getAlpha() == 0.2f)
+				mPictures["rotation"]->changeAlpha(1.0f, 0.5f);
+		}
+
+		if (!sandBoxMode[1])
+		{
+			if (mPictures["colorChange"]->getAlpha() == 1.0f)
+				mPictures["colorChange"]->changeAlpha(0.2f, 0.5f);
+		}
+		else
+		{
+			if (mPictures["colorChange"]->getAlpha() == 0.2f)
+				mPictures["colorChange"]->changeAlpha(1.0f, 0.5f);
+		}
+
+		if (!sandBoxMode[2])
+		{
+			if (mPictures["colorful"]->getAlpha() == 1.0f)
+				mPictures["colorful"]->changeAlpha(0.2f, 0.5f);
+		}
+		else
+		{
+			if (mPictures["colorful"]->getAlpha() == 0.2f)
+				mPictures["colorful"]->changeAlpha(1.0f, 0.5f);
+		}
+
+
+		{
+			if (mPictures["rotation"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"地图会顺时针旋转", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+			if (mPictures["colorChange"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"颜色会随时间变换", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+			if (mPictures["colorful"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			{
+				txtdp->loadText(L"六边形具有三种颜色", 0.0f, 0.75f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"变化为红 黄 蓝 红", 0.0f, 0.65f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+				txtdp->loadText(L"且六边形可通过两次", 0.0f, 0.55f, 0.3f, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+
+		if (sta->getKey() == GLFW_KEY_ESCAPE && sta->getKeyAction() == GLFW_PRESS)
+		{
+			mStateChanging = true;
+			mNum = 5;
+			delete mClient;
+			mClient = nullptr;
+		}
+
+		if (mStateChanging)
+		{
+			mPictures["left"]->zoomOut();
+			mPictures["right"]->zoomOut();
+			mPictures["rotation"]->zoomOut();
+			mPictures["colorChange"]->zoomOut();
+			mPictures["colorful"]->zoomOut();
+		}
+	}
+	else
+	{
+		if (mPictures["left"]->getZoom() == 0)
+		{
+			mStateChanging = false;
+			mState = mNum;
+		}
+	}
+
+	float sinScale = sin(mPictures["left"]->getZoom() * 3.1415926 / 2);
+	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.2, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"等待房主开始游戏,ESC返回联网界面", 0, 0.45, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	txtdp->loadText(L"玩家列表", -0.875, 0.925, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	if (mClient != nullptr)
+	{
+		std::vector<std::string> memberList = mClient->getMemberList();
+		for (int i = 0; i < memberList.size(); i++)
+		{
+			std::wstring wUserName;
+			for (int j = 0; j < memberList[i].size(); j++)
+				wUserName += memberList[i][j];
+			txtdp->loadText(wUserName, -0.875, 0.825 - i * 0.1, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+		}
+	}
 }
 
 int State::getLevelBase()
@@ -1135,7 +1284,6 @@ int State::getColorChange() const
 {
 	return mColorChange;
 }
-
 
 void State::setRotationMode(bool bo)
 {

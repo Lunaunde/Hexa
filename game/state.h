@@ -41,8 +41,8 @@ public:
 
 	void onlineState();
 	void onlineHosterSandboxState();
-	void onlineAutoFindState();
 	void onlineClientWaitState();
+	void onlineAutoFindState();
 	void onlineGameState();
 
 	int getLevelBase();
@@ -154,9 +154,10 @@ private:
 	bool fMouseOnButton = false;
 	void* mouseOnButton = nullptr;
 
-	std::wstring userName = L"Tester";
 	Server* mServer = nullptr;
 	Client* mClient = nullptr;
+
+	std::string userName;
 
 	static State* instance;
 };

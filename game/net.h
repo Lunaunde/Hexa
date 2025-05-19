@@ -8,6 +8,7 @@
 #include<atomic>
 #include<chrono>
 #include<ctime>
+#include<mutex>
 
 struct ClientData
 {
@@ -21,25 +22,29 @@ public:
 	Server();
 	Server(int port);
 	~Server();
-	bool getUseful();
+	bool getState();
 	void run();
+	void sentAllMemberList();
+	void sentSandBoxInfo(bool rotation, bool colorChange, bool colorful, int levelBase);
 private:
 	std::atomic<bool> state;
 	std::thread mThread;
 	ENetAddress address;
 	ENetHost* server;
-	ENetEvent event;
-	bool useful = false;
 	std::vector<ClientData> clients;
+	std::mutex clientsMutex;
 	std::chrono::time_point<std::chrono::system_clock> clock;
 };
 
 class Client
 {
 public:
-	Client(std::array<int, 4> ip, int port);
+	Client(std::array<int, 4> ip, int port, std::string userName);
 	~Client();
+	bool getState();
 	void run();
+	std::vector<std::string> getMemberList();
+	void getSandBoxInfo(bool &isR,bool&isCC,bool &isC,int &LB);
 private:
 	std::atomic<bool> state;
 	std::thread mThread;
@@ -48,6 +53,14 @@ private:
 	ENetPeer* serverPeer;
 	std::string ipStr;
 	int mPort;
+
+	std::string userName;
+	std::vector<std::string> AML;
+
+	std::mutex SandBoxInfoMutex;
+	std::atomic<bool> isRotation, isColorChange, isColorful;
+	std::atomic<int> mLevelBase = 0;
+
 	std::chrono::time_point<std::chrono::system_clock> lastHeartBeatTime;
 };
 

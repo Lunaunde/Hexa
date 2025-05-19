@@ -48,8 +48,6 @@ int main()
 	dtbg->init();
 
 	glfwSwapInterval(0);
-	Server* sv = new Server(12345);
-	Client* cl = new Client({ 127,0,0,1 }, 12345);
 	while (aplct->update())
 	{
 		auto start = std::chrono::steady_clock::now();

@@ -159,24 +159,28 @@ void TextDisplay::loadText(const std::wstring& text, float centerX, float center
 	if (text.empty()) return;
 
 	// 计算文本实际尺寸
+	for (wchar_t c : text) 
+	{
+		if ((c >= 0x4e00 && c <= 0x9fa5) || (c >= 128))
+		{ 
+			if (Characters.find(c) == Characters.end()) 
+			{
+				loadCharacter(c);
+			}
+		}
+	}
+
 	TextMetrics metrics = calculateTextMetrics(text, scale);
 
 	centerX = (centerX + 1) * (aplct->getWidth() / 2.0f);
 	centerY = (centerY + 1) * (aplct->getLength() / 2.0f);
 
 	float startX = centerX - metrics.totalWidth / 2.0f;
-	float startY = centerY + metrics.maxBearingY / 2.0f - metrics.maxHeight / 2.0f;
+	float visualCenter = (metrics.maxTop + metrics.minBottom) / 2.0f;
+	float startY = centerY - visualCenter;
 
 	renderQueue.push_back({ text, startX, startY, scale, r, g, b, a });
-
 	// 只加载缺失的中文字符
-	for (wchar_t c : text) {
-		if ((c >= 0x4e00 && c <= 0x9fa5) || (c >= 128)) { // 中文或非ASCII字符
-			if (Characters.find(c) == Characters.end()) {
-				loadCharacter(c);
-			}
-		}
-	}
 }
 
 void TextDisplay::draw()
@@ -239,28 +243,20 @@ void TextDisplay::clearQueue()
 	renderQueue.clear();
 }
 
-TextMetrics TextDisplay::calculateTextMetrics(const std::wstring& text, float scale) {
-	TextMetrics metrics = { 0.0f, 0.0f, 0.0f };
-
+TextMetrics TextDisplay::calculateTextMetrics(const std::wstring& text, float scale) 
+{
+	TextMetrics metrics = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	for (wchar_t c : text) {
 		if (Characters.find(c) == Characters.end()) continue;
-
 		const Character& ch = Characters[c];
-
-		// 累计宽度（考虑字符间距）
 		metrics.totalWidth += (ch.advance >> 6) * scale;
-
-		// 计算最大高度和基线位置
+		float top = ch.bearingY * scale;
+		float bottom = -(ch.height - ch.bearingY) * scale;
+		if (top > metrics.maxTop) metrics.maxTop = top;
+		if (bottom < metrics.minBottom) metrics.minBottom = bottom;
 		float charHeight = ch.height * scale;
-		float bearingY = ch.bearingY * scale;
-
-		if (charHeight > metrics.maxHeight) {
-			metrics.maxHeight = charHeight;
-		}
-		if (bearingY > metrics.maxBearingY) {
-			metrics.maxBearingY = bearingY;
-		}
+		if (charHeight > metrics.maxHeight) metrics.maxHeight = charHeight;
+		if (top > metrics.maxBearingY) metrics.maxBearingY = top;
 	}
-
 	return metrics;
 }
