@@ -4,8 +4,17 @@
 #include<thread>
 #include<string>
 #include<array>
-#include <atomic>
+#include<vector>
+#include<atomic>
+#include<chrono>
+#include<ctime>
 
+struct ClientData
+{
+	ENetPeer* peer;
+	std::string useName;
+	std::chrono::time_point<std::chrono::system_clock> lastHeartBeatTime;
+};
 class Server
 {
 public:
@@ -21,7 +30,10 @@ private:
 	ENetHost* server;
 	ENetEvent event;
 	bool useful = false;
+	std::vector<ClientData> clients;
+	std::chrono::time_point<std::chrono::system_clock> clock;
 };
+
 class Client
 {
 public:
@@ -36,6 +48,7 @@ private:
 	ENetPeer* serverPeer;
 	std::string ipStr;
 	int mPort;
+	std::chrono::time_point<std::chrono::system_clock> lastHeartBeatTime;
 };
 
 #endif
