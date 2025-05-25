@@ -42,7 +42,7 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	txtdp->init("assets/fonts/GlowSansSC-Normal-Book.otf");
+	txtdp->init("assets/fonts/MSYH.TTC");
 	rdr->init();
 	CrystalBackground::getInstance()->init();
 	dtbg->init();

@@ -1,6 +1,7 @@
 #include"net.h"
 #include<iostream>
-#include <syncstream>
+#include<syncstream>
+#include<algorithm>
 #include"../wrapper/Log.h"
 
 Server::Server()
@@ -57,7 +58,7 @@ void Server::run()
 	ENetEvent event;
 	while (state)
 	{
-		if (clock + std::chrono::seconds(1) < std::chrono::system_clock::now())
+		if (clock + std::chrono::milliseconds(50) < std::chrono::system_clock::now())
 		{
 			clock = std::chrono::system_clock::now();
 			{
@@ -66,8 +67,9 @@ void Server::run()
 				{
 					if (clients[i].lastHeartBeatTime + std::chrono::seconds(5) < std::chrono::system_clock::now())
 					{
-						logcout << "[INFO/SERVER]: Client " << clients[i].peer->address.host << ":" << clients[i].peer->address.port << " disconnected!" << std::endl;
-						enet_peer_disconnect_now(clients[i].peer, 0);
+						logcout << "[INFO/CLIENT]: Interrupted the connection because of no response from client " << clients[i].peer->address.host << ":" << clients[i].peer->address.port << std::endl;
+						if (clients[i].peer != nullptr)
+							enet_peer_disconnect_now(clients[i].peer, 0);
 						clients.erase(clients.begin() + i);
 						Server::sentAllMemberList();
 					}
@@ -79,14 +81,16 @@ void Server::run()
 					enet_peer_send(client.peer, 0, packet);
 				}
 			}
-
 		}
 		if (enet_host_service(server, &event, 10) > 0)
 		{
 			switch (event.type)
 			{
 			case ENET_EVENT_TYPE_CONNECT:
-				logcout << "[INFO/SERVER]: Client connected from " << event.peer->address.host << ":" << event.peer->address.port << std::endl;
+				if (!isGaming)
+					logcout << "[INFO/SERVER]: Client connected from " << event.peer->address.host << ":" << event.peer->address.port << std::endl;
+				else
+					enet_peer_disconnect_now(event.peer, 0);
 				break;
 			case  ENET_EVENT_TYPE_RECEIVE:
 			{
@@ -105,15 +109,33 @@ void Server::run()
 					clients.push_back({ event.peer,getmsg.substr(17,getmsg.size() - 17),std::chrono::system_clock::now() });
 					Server::sentAllMemberList();
 				}
-
+				if (getmsg == "Beat")
 				{
 					std::lock_guard<std::mutex> lock(clientsMutex);
-					if (getmsg == "Beat")
-					{
-						for (auto& client : clients)
-							if (client.peer == event.peer)
-								client.lastHeartBeatTime = std::chrono::system_clock::now();
-					}
+					for (auto& client : clients)
+						if (client.peer == event.peer)
+							client.lastHeartBeatTime = std::chrono::system_clock::now();
+				}
+				if (getmsg.substr(0, 4) == "IBC:")
+				{
+					std::lock_guard<std::mutex> lock(clientsMutex);
+					for (auto& client : clients)
+						if (client.peer == event.peer)
+							client.hexaColors = getmsg.substr(4, getmsg.size() - 4);
+				}
+				if (getmsg.substr(0, 4) == "IBT:")
+				{
+					std::lock_guard<std::mutex> lock(clientsMutex);
+					for (auto& client : clients)
+						if (client.peer == event.peer)
+							client.time = std::stof(getmsg.substr(4, getmsg.size() - 4));
+				}
+				if (getmsg == "HexaMap Finish")
+				{
+					std::lock_guard<std::mutex> lock(clientsMutex);
+					for (auto& client : clients)
+						if (client.peer == event.peer)
+							client.finish = true;
 				}
 
 				enet_packet_destroy(event.packet);
@@ -125,7 +147,7 @@ void Server::run()
 				for (int i = 0; i < clients.size(); i++)
 					if (clients[i].peer == event.peer)
 					{
-						logcout << "[INFO/SERVER]: Client " << clients[i].peer->address.host << ":" << clients[i].peer->address.port << " disconnected!" << std::endl;
+						logcout << "[INFO/CLIENT]: The connection was interrupted by client " << clients[i].peer->address.host << ":" << clients[i].peer->address.port << " !" << std::endl;
 						clients.erase(clients.begin() + i);
 						Server::sentAllMemberList();
 						break;
@@ -133,6 +155,23 @@ void Server::run()
 			}
 			break;
 			}
+		}
+		if (isGaming)
+		{
+			sentAllMemberInfo();
+			bool allFinish = true;
+			{
+				std::lock_guard<std::mutex> lock(clientsMutex);
+				for (auto& client : clients)
+				{
+					if (!client.finish)
+					{
+						allFinish = false;
+					}
+				}
+			}
+			if (allFinish)
+				sentGameState(false);
 		}
 		enet_host_flush(server);
 	}
@@ -148,12 +187,38 @@ void Server::run()
 		server = nullptr;
 	}
 }
+std::string Server::getIP()
+{
+	std::string ipStr;
+	char ip[32];
+	enet_address_get_host_ip(&address, ip, sizeof(ip));
+	ipStr = ip;
+	return ipStr;
+}
+int Server::getPort()
+{
+	return address.port;
+}
 void Server::sentAllMemberList()
 {
 	std::string sentmsg = "AML:";
 	{
 		for (auto& client : clients)
 			sentmsg += client.useName + "|";
+		for (auto& client : clients)
+		{
+			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size(), ENET_PACKET_FLAG_RELIABLE);
+			enet_peer_send(client.peer, 0, packet);
+		}
+	}
+}
+void Server::sentAllMemberInfo()
+{
+	std::lock_guard<std::mutex> lock(clientsMutex);
+	std::string sentmsg = "AMI:";
+	{
+		for (auto& client : clients)
+			sentmsg += client.useName + "/" + std::to_string(client.time) + "/" + client.hexaColors + "|";
 		for (auto& client : clients)
 		{
 			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size(), ENET_PACKET_FLAG_RELIABLE);
@@ -169,7 +234,52 @@ void Server::sentSandBoxInfo(bool rotation, bool colorChange, bool colorful, int
 		std::lock_guard<std::mutex> lock(clientsMutex);
 		for (auto& client : clients)
 		{
-			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size()+1, ENET_PACKET_FLAG_RELIABLE);
+			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+			enet_peer_send(client.peer, 0, packet);
+		}
+	}
+}
+void Server::sentGameState(bool state)
+{
+	{
+		std::lock_guard<std::mutex> lock(clientsMutex);
+		for (auto& client : clients)
+		{
+			client.time = -1;
+			client.hexaColors.clear();
+			client.finish = false;
+		}
+	}
+
+	std::string sentmsg = "GST:";
+	if (state)
+	{
+		sentmsg += "T";
+		isGaming = true;
+	}
+	else
+	{
+		sentmsg += "F";
+		isGaming = false;
+	}
+	{
+		std::lock_guard<std::mutex> lock(clientsMutex);
+		for (auto& client : clients)
+		{
+			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+			enet_peer_send(client.peer, 0, packet);
+		}
+	}
+}
+void Server::sentHexaMapInfo(int size, std::string colors)
+{
+	std::string sentmsg = "HMI:";
+	sentmsg += std::to_string(size) + "|" + colors;
+	{
+		std::lock_guard<std::mutex> lock(clientsMutex);
+		for (auto& client : clients)
+		{
+			ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size() + 1, ENET_PACKET_FLAG_RELIABLE);
 			enet_peer_send(client.peer, 0, packet);
 		}
 	}
@@ -178,6 +288,31 @@ void Server::sentSandBoxInfo(bool rotation, bool colorChange, bool colorful, int
 Client::Client(std::array<int, 4> ip, int port, std::string name) : userName(name)
 {
 	ipStr = std::to_string(ip[0]) + "." + std::to_string(ip[1]) + "." + std::to_string(ip[2]) + "." + std::to_string(ip[3]);
+	client = enet_host_create(NULL, 1, 1, 0, 0);
+
+	enet_address_set_host(&serverAddr, ipStr.c_str());
+	mPort = port;
+	serverAddr.port = port;
+
+	serverPeer = enet_host_connect(client, &serverAddr, 1, 0);
+
+	ENetEvent event;
+	if (enet_host_service(client, &event, 10) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+
+		logcout << "[INFO/CLIENT]: Successfully connected to server " << ipStr << ":" << port << std::endl;
+		state = true;
+		mThread = std::thread(&Client::run, this);
+	}
+	else
+	{
+
+		logcout << "[WARN/CLIENT]: Failed to connect to server!" << std::endl;
+		enet_peer_reset(serverPeer);
+	}
+}
+Client::Client(std::string ip, int port, std::string name) : userName(name)
+{
+	ipStr = ip;
 	client = enet_host_create(NULL, 1, 1, 0, 0);
 
 	enet_address_set_host(&serverAddr, ipStr.c_str());
@@ -232,7 +367,7 @@ void Client::run()
 		{
 			if (lastHeartBeatTime + std::chrono::seconds(5) < std::chrono::system_clock::now())
 			{
-				logcout << "[INFO/CLIENT]: Disconnected from server " << serverPeer->address.host << ":" << serverPeer->address.port << "(" << ipStr << ":" << mPort << ")" << std::endl;
+				logcout << "[INFO/CLIENT]: Interrupted the connection because of no response from server " << serverPeer->address.host << ":" << serverPeer->address.port << "(" << ipStr << ":" << mPort << ")" << std::endl;
 				state = false;
 				break;
 			}
@@ -262,6 +397,7 @@ void Client::run()
 				{
 					AML.clear();
 					std::string name;
+					std::lock_guard<std::mutex> lock(AMLMutex);
 					for (int i = 4; i < getmsg.size(); i++)
 					{
 						if (getmsg[i] != '|')
@@ -271,6 +407,50 @@ void Client::run()
 							AML.push_back(name);
 							name.clear();
 						}
+					}
+				}
+				if (getmsg.substr(0, 4) == "AMI:")
+				{
+					std::vector<ClientInfo> tempAMI;
+					std::string name;
+					std::string colors;
+					std::string timeStr;
+					int step = 0;
+					for (int i = 4; i < getmsg.size(); i++)
+					{
+						switch (getmsg[i])
+						{
+						case'|':
+							step = 0;
+							if (!name.empty() && !timeStr.empty())
+								tempAMI.push_back({ name,colors,std::stof(timeStr) });
+							name.clear();
+							colors.clear();
+							timeStr.clear();
+							break;
+						case '/':
+							step++;
+							break;
+						default:
+							switch (step)
+							{
+							case 0:
+								name += getmsg[i];
+								break;
+							case 1:
+								timeStr += getmsg[i];
+								break;
+							case 2:
+								colors += getmsg[i];
+								break;
+							}
+							break;
+						}
+					}
+					std::stable_sort(tempAMI.begin(), tempAMI.end(), [](const ClientInfo& a, const ClientInfo& b) {return a.time < b.time; });
+					{
+						std::lock_guard<std::mutex> lock(AMIMutex);
+						AMI = std::move(tempAMI);
 					}
 				}
 				if (getmsg.substr(0, 4) == "SBI:")
@@ -291,9 +471,44 @@ void Client::run()
 					std::string strLevelBase = getmsg.substr(10, getmsg.size() - 10);
 					mLevelBase = std::stoi(strLevelBase);
 				}
+				if (getmsg.substr(0, 4) == "GST:")
+				{
+					if (getmsg.substr(4, 1) == "T")
+					{
+						isGaming = true;
+						isHMIget = false;
+						std::cout << "Gaming" << std::endl;
+					}
+					else
+						isGaming = false;
+				}
+				if (getmsg.substr(0, 4) == "HMI:")
+				{
+					std::lock_guard<std::mutex> lock(HexaMapColorsMutex);
+					hexaMapColors.clear();
+					std::string numberStr;
+					bool flag = false;
+					for (int i = 4; i < getmsg.size(); i++)
+					{
+						if (getmsg[i] == '|')
+						{
+							flag = true;
+							continue;
+						}
+						if (!flag)
+							numberStr += getmsg[i];
+						else
+							hexaMapColors += getmsg[i];
+					}
+					mapSize = std::stoi(numberStr);
+					isHMIget = true;
+				}
 				enet_packet_destroy(event.packet);
 			}
 			break;
+			case ENET_EVENT_TYPE_DISCONNECT:
+				state = false;
+				logcout << "[INFO/CLIENT]: The connection was interrupted by server!" << std::endl;
 			}
 		}
 		enet_host_flush(client);
@@ -311,9 +526,26 @@ void Client::run()
 	}
 }
 
+std::string Client::getIP()
+{
+	return ipStr;
+}
+int Client::getPort()
+{
+	return mPort;
+}
 std::vector<std::string> Client::getMemberList()
 {
 	return AML;
+}
+void Client::getMemberInfo(int index, std::string& userName, float& time, std::string& colors)
+{
+	std::lock_guard<std::mutex> lock(AMIMutex);
+	if (index >= AMI.size())
+		return;
+	userName = AMI[index].useName;
+	time = AMI[index].time;
+	colors = AMI[index].hexaColors;
 }
 void Client::getSandBoxInfo(bool& isR, bool& isCC, bool& isC, int& LB)
 {
@@ -322,4 +554,32 @@ void Client::getSandBoxInfo(bool& isR, bool& isCC, bool& isC, int& LB)
 	isCC = isColorChange;
 	isC = isColorful;
 	LB = mLevelBase;
+}
+bool Client::getGameState()
+{
+	return isGaming;
+}
+bool Client::getHMIState()
+{
+	return isHMIget;
+}
+void Client::getHexaMapInfo(int& mapSize, std::string& colors)
+{
+	mapSize = this->mapSize;
+	colors = hexaMapColors;
+}
+void Client::sentMapInfoBack(float time, std::string colors)
+{
+	std::string sentmsg0 = "IBC:" + colors;
+	std::string sentmsg1 = "IBT:" + std::to_string(time);
+	ENetPacket* packet0 = enet_packet_create(sentmsg0.c_str(), sentmsg0.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	ENetPacket* packet1 = enet_packet_create(sentmsg1.c_str(), sentmsg1.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(serverPeer, 0, packet0);
+	enet_peer_send(serverPeer, 0, packet1);
+}
+void Client::sentHexaMapFinish()
+{
+	std::string sentmsg = "HexaMap Finish";
+	ENetPacket* packet = enet_packet_create(sentmsg.c_str(), sentmsg.size() + 1, ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(serverPeer, 0, packet);
 }

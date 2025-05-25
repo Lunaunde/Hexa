@@ -20,7 +20,7 @@ public:
 	static bool badLevel(std::vector<Hexa>& hexas, int stepCount);
 	static void nearSameColorChange(Hexa& hexa);
 
-	static void buildEmptyLevel(int size);
+	static void loadLevel(int size,std::string colors);
 
 	static bool finishPuzzle(std::vector<Hexa>& hexas,int size);
 

@@ -31,19 +31,20 @@ public:
 	~State();
 
 	void allState();
-	void menuState();
+	void menuState();					//0
 
-	void gameState();
-	void lostState();
+	void gameState();					//1
+	void lostState();					//2
 
-	void sandboxSetState();
-	void sandboxPlayState();
+	void sandboxSetState();				//3
+	void sandboxPlayState();			//4
 
-	void onlineState();
-	void onlineHosterSandboxState();
-	void onlineClientWaitState();
+	void onlineState();					//5
+	void onlineHosterSandboxState();	//6
+	void onlineClientWaitState();		//7
+	void onlineDisconnectState();		//8
+	void onlineGameState();				//9
 	void onlineAutoFindState();
-	void onlineGameState();
 
 	int getLevelBase();
 
@@ -99,6 +100,7 @@ public:
 	int getMouseAction() const;
 	void clearMouse();
 	int getKey() const;
+	char getKeyChar() const;
 	int getKeyAction() const;
 	void clearKey();
 private:
@@ -156,8 +158,13 @@ private:
 
 	Server* mServer = nullptr;
 	Client* mClient = nullptr;
+	bool mOnlineFinish = false;
 
+	int selectIndex = 0;
+	std::string ipStr;
+	std::string portStr;
 	std::string userName;
+	float flashTime = 0;
 
 	static State* instance;
 };

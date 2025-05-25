@@ -29,7 +29,7 @@ void Logic::buildLevel(int size)
 		defaultBackup.restore(sta->getHexas());
 		sta->getAnsSteps().clear();
 		stepCount = randomHexaColor(sta->getHexas(), sta->getAnsSteps());
-	} while ((size > 2 && badLevel(sta->getHexas(), stepCount))||finishPuzzle(sta->getHexas(),sta->getLevelBase()));//
+	} while ((size > 2 && badLevel(sta->getHexas(), stepCount)) || finishPuzzle(sta->getHexas(), sta->getLevelBase()));//
 	sta->getHexaColorBackup() = HexaColorBackup(sta->getHexas());
 }
 
@@ -37,7 +37,7 @@ void Logic::initHexa(int size, std::vector<Hexa>& hexas)
 {
 	hexas.clear();
 	hexas.emplace_back(0, 0, 0);
-	for (int i = 0; i<hexas.size(); i++)//六边形地图位置初始化
+	for (int i = 0; i < hexas.size(); i++)//六边形地图位置初始化
 	{
 		//if (i >= hexas.size())
 		//	break;
@@ -285,12 +285,34 @@ void Logic::nearSameColorChange(Hexa& hexa)
 	return;
 }
 
-void Logic::buildEmptyLevel(int size)
+void Logic::loadLevel(int size, std::string colors)
 {
 	if (sta->getHexas().size() > 0)
 		sta->getHexas().clear();
 	initHexa(size, sta->getHexas());
 	setHexaNear(sta->getHexas());
+	for (int i = 0; i < sta->getHexas().size(); i++)
+	{
+		switch (colors[i])
+		{
+		case 'B':
+			sta->getHexas()[i].setColor(Color::pureBlack);
+			break;
+		case 'W':
+			sta->getHexas()[i].setColor(Color::pureWhite);
+			break;
+		case  'R':
+			sta->getHexas()[i].setColor(Color::pureRed);
+			break;
+		case 'Y':
+			sta->getHexas()[i].setColor(Color::pureYellow);
+			break;
+		case 'b':
+			sta->getHexas()[i].setColor(Color::pureBlue);
+			break;
+		}
+	}
+	sta->getHexaColorBackup() = HexaColorBackup(sta->getHexas());
 }
 
 bool Logic::finishPuzzle(std::vector<Hexa>& hexas, int size)

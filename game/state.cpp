@@ -7,6 +7,7 @@
 #include"../application/Application.h"
 #include"../application/TextDisplay.h"
 #include"../glframework/core.h"
+#include"../wrapper/Log.h"
 #include"render.h"
 #include"logic.h"
 
@@ -101,6 +102,11 @@ void State::allState()
 	case 7:
 		onlineClientWaitState();
 		break;
+	case 8:
+		onlineDisconnectState();
+		break;
+	case 9:
+		onlineGameState();
 	}
 
 	if (!fMouseOnButton)
@@ -269,7 +275,7 @@ void State::gameState()
 	txtdp->loadText(L"鼠标移动到右上角可", -0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(L"查看该图标对于效果", -0.70f, -0.2f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (mDifficulty > 0)
-		txtdp->loadText(std::to_wstring((int)leftTime), -0.85f, 0.74f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(std::to_wstring((int)leftTime), -0.85f, 0.77f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	if (mDifficulty == 2)
 		txtdp->loadText(std::to_wstring(mReset), -0.85f, 0.56f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -338,8 +344,10 @@ void State::gameState()
 		else
 		{
 			if (!Logic::finishPuzzle(getHexas(), mLevelBase))
+			{
 				Logic::playerStepCheck();
-			Logic::reloadLevel();
+				Logic::reloadLevel();
+			}
 			//Logic::showAnswer();
 
 			colorChange();
@@ -681,7 +689,10 @@ void State::sandboxPlayState()
 			}
 
 			if (!Logic::finishPuzzle(getHexas(), mLevelBase))
+			{
 				Logic::playerStepCheck();
+				Logic::reloadLevel();
+			}
 
 			colorChange();
 
@@ -725,29 +736,35 @@ void State::onlineState()
 	{
 		if (mHexaButtons.size() == 0)
 		{
+			ipStr.clear();
+			portStr.clear();
+			mPictures["IPbar"]->zoomIn();
+			mPictures["portbar"]->zoomIn();
 			mPictures["namebar"]->zoomIn();
 			mHexaButtons.push_back(HexaButton(-0.4f, 0.0f, 0.15));
-			mHexaButtons.push_back(HexaButton(0.0f, 0.0f, 0.15));
 			mHexaButtons.push_back(HexaButton(0.4f, 0.0f, 0.15));
 			mHexaButtons[0].setColor(Color(124, 252, 0));
 			mHexaButtons[0].addText(L"创建房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 			mHexaButtons[1].setColor(Color(135, 206, 235));
 			mHexaButtons[1].addText(L"加入房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
-			mHexaButtons[2].setColor(Color(255, 127, 0));
-			mHexaButtons[2].addText(L"搜索房间", 0.0f, -0.0f, 0.4f, 1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
 		if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) == true)
 		{
 			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
-				mServer = new Server(12345);
+				if (portStr != "")
+					mServer = new Server(std::stoi(portStr));
+				else
+					mServer = new Server();
 				if (mServer->getState() == true)
 				{
 					mStateChanging = true;
 					mNum = 6;
-					userName = "Hoster";
-					mClient = new Client({ 127,0,0,1 }, 12345, userName);
+					if (userName.size() == 0)
+						userName = "Hoster";
+					int ip[4], ipCount = 0;
+					mClient = new Client("127.0.0.1", mServer->getPort(), userName);
 					mLevelBase = 2;
 				}
 				else
@@ -761,9 +778,16 @@ void State::onlineState()
 		{
 			if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
-				userName = "Player";
-				mClient = new Client({ 127,0,0,1 }, 12345, userName);
-				if (mClient->getState() == true)
+				if (userName.size() == 0)
+					userName = "Player";
+				if (portStr.size() != 0)
+				{
+					if (ipStr.size() == 0)
+						mClient = new Client("127.0.0.1", std::stoi(portStr), userName);
+					else
+						mClient = new Client(ipStr, std::stoi(portStr), userName);
+				}
+				if (mClient != nullptr && mClient->getState() == true)
 				{
 					mStateChanging = true;
 					mNum = 7;
@@ -786,6 +810,8 @@ void State::onlineState()
 		{
 			for (auto& hexaButtons : mHexaButtons)
 				hexaButtons.deleteModeOn();
+			mPictures["IPbar"]->zoomOut();
+			mPictures["portbar"]->zoomOut();
 			mPictures["namebar"]->zoomOut();
 		}
 	}
@@ -797,10 +823,94 @@ void State::onlineState()
 			mState = mNum;
 		}
 	}
+
+	if (sta->getMouseButton() == GLFW_MOUSE_BUTTON_LEFT && sta->getMouseAction() == GLFW_PRESS)
+	{
+		if (mPictures["IPbar"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			selectIndex = 1;
+		else if (mPictures["portbar"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			selectIndex = 2;
+		else if (mPictures["namebar"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+			selectIndex = 3;
+		else
+			selectIndex = 0;
+	}
+
+	if (getKeyChar() != '\0' && mKeyAction == GLFW_PRESS)
+		switch (selectIndex)
+		{
+		case 1:
+			if (getKeyChar() == '\b')
+			{
+				if (ipStr.size() > 0)
+				{
+					if (ipStr[ipStr.size() - 1] == '.')
+						ipStr.pop_back();
+					ipStr.pop_back();
+				}
+			}
+			else if ((getKeyChar() >= '0' && getKeyChar() <= '9') || getKeyChar() == '.')
+				ipStr += getKeyChar();
+			break;
+		case 2:
+			if (getKeyChar() == '\b')
+			{
+				if (portStr.size() > 0)
+					portStr.pop_back();
+			}
+			else if (getKeyChar() >= '0' && getKeyChar() <= '9' && portStr.size() <= 5)
+			{
+				portStr += getKeyChar();
+			}
+			break;
+		case 3:
+			if (getKeyChar() == '\b')
+			{
+				if (userName.size() > 0)
+					userName.pop_back();
+			}
+			else
+				userName += getKeyChar();
+			break;
+		}
+
 	float sinScale = sin(mPictures["namebar"]->getZoom() * 3.1415926 / 2);
+
+	txtdp->loadText(L"IP(创建房间不必填)", 0.0f, 0.5f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"端口(不填自动分配):", 0.0f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"请输入用户名:", 0.0f, -0.3f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+
+	std::wstring wIP;
+	for (int i = 0; i < ipStr.size(); i++)
+		wIP += ipStr[i];
+	std::wstring wPort;
+	for (int i = 0; i < portStr.size(); i++)
+		wPort += portStr[i];
 	std::wstring wUserName;
 	for (int i = 0; i < userName.size(); i++)
 		wUserName += userName[i];
+
+	if (glfwGetTime() - flashTime > 0.5)
+	{
+		flashTime = glfwGetTime() + 0.5;
+	}
+	if (glfwGetTime() - flashTime > 0)
+		switch (selectIndex)
+		{
+		case 1:
+			wIP += L"_";
+			break;
+		case 2:
+			wPort += L"_";
+			break;
+		case 3:
+			wUserName += L"_";
+			break;
+		}
+
+
+	txtdp->loadText(wIP, 0.0f, 0.3f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(wPort, 0.0f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 	txtdp->loadText(wUserName, 0.0f, -0.5f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 void State::onlineHosterSandboxState()
@@ -899,7 +1009,8 @@ void State::onlineHosterSandboxState()
 			if (mHexaButtons[0].ifPositionInHexa(sta->getCursorXPos(), sta->getCursorYPos(), 1, 0) && sta->getMouseButton() == GLFW_MOUSE_BUTTON_1 && sta->getMouseAction() == GLFW_PRESS)
 			{
 				mStateChanging = true;
-				mNum = 7;
+				mServer->sentGameState(true);
+				mNum = -9;
 			}
 		}
 
@@ -929,10 +1040,49 @@ void State::onlineHosterSandboxState()
 	{
 		if (mHexaButtons.size() == 0)
 		{
-			mStateChanging = false;
-			mState = mNum;
-			if (mNum == 4)
-				mPictures["ghost"]->zoomIn();
+			if (mNum == 5)
+			{
+				mStateChanging = false;
+				mState = 5;
+			}
+			if (mNum == -9)
+			{
+				if (mSandBoxMode[0])
+					setRotationMode(true);
+				else
+					setRotationMode(false);
+				if (mSandBoxMode[1])
+					setColorChangeMode(true);
+				else
+					setColorChangeMode(false);
+				if (mSandBoxMode[2])
+					setColorMode(3);
+				else
+					setColorMode(2);
+				Logic::buildLevel(mLevelBase);
+				std::string colorStr;
+				for (int i = 0; i < mHexas.size(); i++)
+				{
+					if (mHexas[i].getColor() == Color::pureBlack)
+						colorStr += "B";
+					else if (mHexas[i].getColor() == Color::pureWhite)
+						colorStr += "W";
+					else if (mHexas[i].getColor() == Color::pureRed)
+						colorStr += "R";
+					else if (mHexas[i].getColor() == Color::pureYellow)
+						colorStr += "Y";
+					else if (mHexas[i].getColor() == Color::pureBlue)
+						colorStr += "b";
+				}
+				mServer->sentHexaMapInfo(mLevelBase, colorStr);
+				mHexas.clear();
+				mNum = 9;
+			}
+			else if (mNum == 9 && mClient->getHMIState())
+			{
+				mState = mNum;
+				mStateChanging = false;
+			}
 		}
 	}
 
@@ -940,6 +1090,14 @@ void State::onlineHosterSandboxState()
 	txtdp->loadText(std::to_wstring(mLevelBase), 0, -0.2, 0.8 * sinScale, 1.0, 1.0, 1.0, 1.0);
 	txtdp->loadText(L"点击设置地图大小与加强,ESC返回联网界面", 0, 0.45, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
 	txtdp->loadText(L"玩家列表", -0.875, 0.925, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	if (mServer != nullptr)
+	{
+		std::string IPAndPort = mServer->getIP() + ":" + std::to_string(mServer->getPort());
+		std::wstring wIPAndPort;
+		for (int i = 0; i < IPAndPort.size(); i++)
+			wIPAndPort += (wchar_t)IPAndPort[i];
+		txtdp->loadText(L"房间地址:" + wIPAndPort, 0.0f, 0.95, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	}
 	if (mClient != nullptr)
 	{
 		std::vector<std::string> memberList = mClient->getMemberList();
@@ -1025,6 +1183,18 @@ void State::onlineClientWaitState()
 			delete mClient;
 			mClient = nullptr;
 		}
+		if (mClient != nullptr && mClient->getState() == false)
+		{
+			mStateChanging = true;
+			mNum = 8;
+			delete mClient;
+			mClient = nullptr;
+		}
+		if (mClient != nullptr && mClient->getGameState() == true)
+		{
+			mStateChanging = true;
+			mNum = 9;
+		}
 
 		if (mStateChanging)
 		{
@@ -1050,6 +1220,14 @@ void State::onlineClientWaitState()
 	txtdp->loadText(L"玩家列表", -0.875, 0.925, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
 	if (mClient != nullptr)
 	{
+		std::string IPAndPort = mClient->getIP() + ":" + std::to_string(mClient->getPort());
+		std::wstring wIPAndPort;
+		for (int i = 0; i < IPAndPort.size(); i++)
+			wIPAndPort += (wchar_t)IPAndPort[i];
+		txtdp->loadText(L"房间地址:" + wIPAndPort, 0.0f, 0.95, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	}
+	if (mClient != nullptr)
+	{
 		std::vector<std::string> memberList = mClient->getMemberList();
 		for (int i = 0; i < memberList.size(); i++)
 		{
@@ -1057,6 +1235,219 @@ void State::onlineClientWaitState()
 			for (int j = 0; j < memberList[i].size(); j++)
 				wUserName += memberList[i][j];
 			txtdp->loadText(wUserName, -0.875, 0.825 - i * 0.1, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+		}
+	}
+}
+void State::onlineDisconnectState()
+{
+	if (mNum == 8)
+	{
+		mClock = glfwGetTime();
+		mNum = 0;
+	}
+	float sinScale = 0;
+	float Time = glfwGetTime() - mClock;
+	if (glfwGetTime() - mClock <= 1.0)
+		sinScale = sin((glfwGetTime() - mClock) * 3.1415926 / 2);
+	else if (glfwGetTime() - mClock <= 3.0)
+		sinScale = 1;
+	else if (glfwGetTime() - mClock < 4.0)
+		sinScale = sin((4.0 - glfwGetTime() + mClock) * 3.1415926 / 2);
+	txtdp->loadText(L"与服务器断开连接", 0.0, 0.0, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	if (glfwGetTime() - mClock >= 4.0)
+		mState = 5;
+}
+void State::onlineGameState()
+{
+	if (!mStateChanging)
+		if (mHexas.size() == 0)
+			mPictures["ghost"]->zoomIn();
+	float sinScale = sin(mPictures["ghost"]->getZoom() * 3.1415926 / 2);
+	if (!mStateChanging)
+	{
+		if (mNum == 9)
+		{
+			if (mClient->getHMIState())
+			{
+				mNum = -1;
+				bool sandBoxMode[3] = { 0,0,0 };
+				if (mClient != nullptr)
+					mClient->getSandBoxInfo(sandBoxMode[0], sandBoxMode[1], sandBoxMode[2], mLevelBase);
+				if (sandBoxMode[0])
+				{
+					setRotationMode(true);
+					mPictures["rotationS"]->zoomIn();
+				}
+				else
+					setRotationMode(false);
+				if (sandBoxMode[1])
+				{
+					setColorChangeMode(true);
+					mPictures["colorChangeS"]->zoomIn();
+				}
+				else
+					setColorChangeMode(false);
+				if (sandBoxMode[2])
+				{
+					setColorMode(3);
+					mPictures["colorfulS"]->zoomIn();
+				}
+				else
+					setColorMode(2);
+
+				mPictures["clock2"]->zoomIn();
+				mClock = glfwGetTime();
+				mOnlineFinish = false;
+
+				std::string colors;
+				mClient->getHexaMapInfo(mLevelBase, colors);
+				if (mLevelBase < 4)
+					sta->setHexaRadius(0.1);
+				else
+					sta->setHexaRadius(0.3 / mLevelBase);
+				Logic::loadLevel(mLevelBase, colors);
+			}
+		}
+		else
+		{
+			if (!mOnlineFinish)
+			{
+				if (!Logic::finishPuzzle(getHexas(), mLevelBase))
+				{
+					Logic::playerStepCheck();
+					Logic::reloadLevel();
+				}
+				else
+				{
+					mClock = glfwGetTime() - mClock;
+					mOnlineFinish = true;
+				}
+			}
+			else 
+			{
+				if (mPlayerSteps.size() && mPlayerSteps[mPlayerSteps.size() - 1]->getScale() == 1)
+				{
+					mPlayerSteps.clear();
+					mClient->sentHexaMapFinish();
+				}
+			}
+			if (mClient != nullptr && mClient->getState() == false)
+			{
+				mStateChanging = true;
+				mNum = 8;
+				delete mClient;
+				mClient = nullptr;
+				if (mServer != nullptr)
+				{
+					logcout << "[INFO/SERVER] : Local client disconected with server!";
+					delete mServer;
+					mServer = nullptr;
+				}
+			}
+			if (mClient != nullptr && !mClient->getGameState())
+			{
+				mStateChanging = true;
+			}
+			if (mStateChanging)
+			{
+				for (auto& hexa : mHexas)
+					hexa.deleteModeOn();
+				mPictures["ghost"]->zoomOut();
+				mPictures["clock2"]->zoomOut();
+				if (mPictures["rotationS"]->getZoom() > 0.0f)
+					mPictures["rotationS"]->zoomOut();
+				if (mPictures["colorChangeS"]->getZoom() > 0.0f)
+					mPictures["colorChangeS"]->zoomOut();
+				if (mPictures["colorfulS"]->getZoom() > 0.0f)
+					mPictures["colorfulS"]->zoomOut();
+			}
+		}
+	}
+	else
+	{
+		if (mHexas.size() == 0)
+		{
+			if (mNum == 8)
+			{
+				mStateChanging = false;
+				mState = 8;
+			}
+			else if (mNum == -1)
+			{
+				mStateChanging = false;
+				if (mServer != nullptr)
+					mState = 6;
+				else
+					mState = 7;
+			}
+		}
+	}
+	if (mPictures["rotationS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+		txtdp->loadText(L"地图会顺时针旋转", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (mPictures["colorChangeS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+		txtdp->loadText(L"颜色会随时间变换", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (mPictures["colorfulS"]->inPicture(sta->getCursorXPos(), sta->getCursorYPos()))
+	{
+		txtdp->loadText(L"六边形具有三种颜色", 0.70f, 0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"变化为红 黄 蓝 红", 0.70f, 0.0f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+		txtdp->loadText(L"且六边形可通过两次", 0.70f, -0.1f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	float showTime = glfwGetTime() - mClock;
+	if (mClient != nullptr)
+	{
+		if (!mOnlineFinish)
+		{
+			std::string colors;
+			for (int i = 0; i < mHexas.size(); i++)
+			{
+				if (mHexas[i].getColor() == Color::pureBlack)
+					colors += "B";
+				else if (mHexas[i].getColor() == Color::pureWhite)
+					colors += "W";
+				else if (mHexas[i].getColor() == Color::pureRed)
+					colors += "R";
+				else if (mHexas[i].getColor() == Color::pureYellow)
+					colors += "Y";
+				else if (mHexas[i].getColor() == Color::pureBlue)
+					colors += "b";
+			}
+			mClient->sentMapInfoBack(glfwGetTime() - mClock, colors);
+		}
+		else
+		{
+			showTime = mClock;
+			txtdp->loadText(L"关卡已完成,请等待其他玩家", 0, 0.95, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+		}
+	}
+
+	txtdp->loadText(std::to_wstring((int)(showTime)), -0.85f, 0.905f, 0.4f * sinScale, 1.0f, 1.0f, 1.0f, 1.0f);
+	txtdp->loadText(L"玩家排名", -0.85, 0.775, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+	if (mClient != nullptr)
+	{
+		std::vector<std::string> memberList = mClient->getMemberList();
+		for (int i = 0; i < memberList.size(); i++)
+		{
+			std::wstring wUserName;
+			wUserName += std::to_wstring(i + 1);
+			wUserName += L".";
+			std::string userName;
+			float time;
+			std::string colors;
+			mClient->getMemberInfo(i, userName, time, colors);
+			for (int j = 0; j < userName.size(); j++)
+				wUserName += userName[j];
+			wUserName += L" ";
+			wUserName += std::to_wstring((int)time);
+			txtdp->loadText(wUserName, -0.85, 0.675 - i * 0.1, 0.4 * sinScale, 1.0, 1.0, 1.0, 1.0);
+			//if(mOnlineFinish)
+			//{
+			//	float fCursorXPos = (float)(sta->getCursorXPos()) / (aplct->getWidth() / 2) - 1;
+			//	float fCursorYPos = (float)(sta->getCursorYPos()) / (aplct->getLength() / 2) - 1;
+			//	if (fCursorXPos<-0.75 && fCursorXPos>-0.95 && fCursorYPos < 0.725 - i * 0.1 && fCursorYPos>0.625 - i * 0.1&&mMouseAction==GLFW_PRESS&&mMouseButton==GLFW_MOUSE_BUTTON_LEFT)
+			//	{
+			//		mOnlineColor = colors;
+			//	}
+			//}
 		}
 	}
 }
@@ -1104,6 +1495,7 @@ void State::init()
 
 	mPictures["title"] = new Picture("assets/textures/title.png", 0.0, 0.4, 0.8);
 	mPictures["clock"] = new Picture("assets/textures/clock.png", -0.95, 0.77, 0.085);
+	mPictures["clock2"] = new Picture("assets/textures/clock.png", -0.95, 0.90, 0.085);
 	mPictures["reset"] = new Picture("assets/textures/reset.png", -0.95, 0.60, 0.1);
 	mPictures["ghost"] = new Picture("assets/textures/ghost.png", 0.0, 0.0, 1);
 	mPictures["rotationS"] = new Picture("assets/textures/rotation.png", 0.75, 0.9, 0.1);
@@ -1114,6 +1506,8 @@ void State::init()
 	mPictures["colorful"] = new Picture("assets/textures/colorful.png", 0.3, 0.2, 0.2);
 	mPictures["left"] = new Picture("assets/textures/left.png", -0.3, -0.2, 0.5);
 	mPictures["right"] = new Picture("assets/textures/right.png", 0.3, -0.2, 0.5);
+	mPictures["IPbar"] = new Picture("assets/textures/bar.png", 0.0, 0.3, 1.0);
+	mPictures["portbar"] = new Picture("assets/textures/bar.png", 0.0, -0.1, 1.0);
 	mPictures["namebar"] = new Picture("assets/textures/bar.png", 0.0, -0.5, 1.0);
 }
 
@@ -1363,6 +1757,21 @@ int State::getKey() const
 {
 	return mKey;
 }
+char State::getKeyChar() const
+{
+	if (mKey >= 48 && mKey <= 57)
+		return mKey - 48 + '0';
+	if (mKey >= 320 && mKey <= 329)
+		return mKey - 320 + '0';
+	if (mKey >= 65 && mKey <= 90)
+		return mKey - 65 + 'A';
+	if (mKey == GLFW_KEY_PERIOD)
+		return '.';
+	if (mKey == GLFW_KEY_BACKSPACE)
+		return '\b';
+	if (mKey == NULL)
+		return '\0';
+}
 int State::getKeyAction() const
 {
 	return mKeyAction;
@@ -1370,5 +1779,5 @@ int State::getKeyAction() const
 void State::clearKey()
 {
 	mKey = NULL;
-	mKeyAction = NULL;
+	//mKeyAction = NULL;
 }
